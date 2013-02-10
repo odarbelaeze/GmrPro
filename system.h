@@ -11,23 +11,30 @@ typedef Vector Field;
 typedef float (*PFI)(Particle &, Field &, Json::Value&);
 typedef float (*PPI)(Particle &, Particle &, Json::Value&);
 
-
-
-
-
 class System
 {
-    private:
-        std::vector<Particle> particles_;
-        float thermalEnergy_;
-        Json::Value systemInformation_;
-
-        void create_system (const Json::Value&);
     public:
         System();
+        System(const Json::Value&);
+        System(const std::string);
+        System(const istream&);
         ~System();
 
         void findNeighbors();
+
+    protected:
+        std::vector<Particle> particles_;
+        Json::Value systemInformation_;
+        Json::Value interactionInformation_;
+        
+        virtual float computeEnergyContribution(int);
+        virtual float computeTotalEnergyContribution(int);
+
+    private:
+        float thermalEnergy_;
+
+        void create_system (const Json::Value&);
+
 };
 
 
