@@ -46,7 +46,6 @@ public:
     friend float distance(const Vector&, const Vector&);
     friend float distancePbc(const Vector&, const Vector&, const Vector&);
     friend Vector min(const Vector&, const Vector&);
-    friend Vector randomVector();
     friend std::ostream& operator<< (std::ostream&, const Vector&);
 protected:
 
@@ -55,5 +54,7 @@ private:
     float y_;
     float z_;
 };
+
+Vector randomVector();
 
 #endif

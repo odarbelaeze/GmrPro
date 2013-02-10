@@ -229,9 +229,9 @@ Vector randomVector()
     float theta = 2.0f * M_PI * drand48();
     float phi   = 1.0f * M_PI * drand48();
 
-    answer.x_ = sin (theta) * cos (phi);
-    answer.y_ = sin (theta) * sin (phi);
-    answer.z_ = cos (theta);
+    answer.setX(sin (theta) * cos (phi));
+    answer.setY(sin (theta) * sin (phi));
+    answer.setZ(cos (theta));
 
     return answer;
 }
