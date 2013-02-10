@@ -24,7 +24,6 @@ class Particle
         int                 id_;
         std::string         type_;
         float               charge_;
-        float               spinNorm_;
 
         
     public:
@@ -41,10 +40,11 @@ class Particle
         void setOldPosition(const Vector&);
         void setOldSpin(const Vector&);
         void setNeighbors(const std::vector<int>&);
+        void addNeighbor(const int);
+        void clearNeighbors();
         void setId(int);
         void setType(const std::string&);
         void setCharge(const float);
-        void setSpinNorm(const float);
 
         const Vector            getPosition();
         const Vector            getSpin();
@@ -54,7 +54,6 @@ class Particle
         const int               getId();
         const std::string       getType();
         const float             getCharge();
-        const float             getSpinNorm();
 
 };
 #endif

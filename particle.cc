@@ -12,10 +12,11 @@ Particle::~Particle(){}
 
 void Particle::updateSpin(float radius)
 {
+    float spinNorm = norm(spin_);
     oldSpin_ = spin_; 
     spin_ = spin_ + radius * randomVector();
     spin_ = spin_ / norm(spin_);
-    spin_ = spin_ * spinNorm_;
+    spin_ = spin_ * spinNorm;
 }
 
 
@@ -75,6 +76,15 @@ void Particle::setNeighbors(const std::vector<int>& neighbors)
     neighbors_ = neighbors;
 }
 
+void Particle::addNeighbor(const int id)
+{
+    neighbors_.push_back(id);
+}
+
+void Particle::clearNeighbors()
+{
+    neighbors_.clear();
+}
 
 
 void Particle::setId(const int id)
@@ -94,13 +104,6 @@ void Particle::setType(const std::string& type)
 void Particle::setCharge(const float charge)
 {
     charge_ = charge;
-}
-
-
-
-void Particle::setSpinNorm(const float spinNorm)
-{
-    spinNorm_ = spinNorm;
 }
 
 
@@ -160,9 +163,3 @@ const float Particle::getCharge()
     return charge_;
 }
 
-
-
-const float Particle::getSpinNorm()
-{
-    return spinNorm_;
-}
