@@ -1,7 +1,7 @@
 #include <cassert>
 #include "../simplevector.h"
 
-#define ASSERT(counter, condition) assert(condition); \
+#define ASSERT(counter, condition) assert(condition);       \
     std::cout << ++counter << " Tests passed." << std::endl;
 
 #define EXPECT_EXEPTION(counter, command, exeption) try     \

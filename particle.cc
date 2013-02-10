@@ -109,56 +109,56 @@ void Particle::setCharge(const float charge)
 
 
 
-const Vector Particle::getPosition()
+Vector Particle::getPosition()
 {
     return position_;
 }
 
 
 
-const Vector Particle::getSpin()
+Vector Particle::getSpin()
 {
     return spin_;
 }
 
 
 
-const Vector Particle::getOldPosition()
+Vector Particle::getOldPosition()
 {
     return oldPosition_;
 }
 
 
 
-const Vector Particle::getOldSpin()
+Vector Particle::getOldSpin()
 {
     return oldSpin_;
 }
 
 
 
-const std::vector<int> Particle::getNeighbors()
+std::vector<int> Particle::getNeighbors()
 {
     return neighbors_;
 }
 
 
 
-const int Particle::getId()
+int Particle::getId()
 {  
     return id_;
 }
 
 
 
-const std::string Particle::getType()
+std::string Particle::getType()
 {
     return type_;
 }
 
 
 
-const float Particle::getCharge()
+float Particle::getCharge()
 {
     return charge_;
 }

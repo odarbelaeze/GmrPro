@@ -46,14 +46,14 @@ class Particle
         void setType(const std::string&);
         void setCharge(const float);
 
-        const Vector            getPosition();
-        const Vector            getSpin();
-        const Vector            getOldPosition();
-        const Vector            getOldSpin();
-        const std::vector<int>  getNeighbors();
-        const int               getId();
-        const std::string       getType();
-        const float             getCharge();
+        Vector            getPosition();
+        Vector            getSpin();
+        Vector            getOldPosition();
+        Vector            getOldSpin();
+        std::vector<int>  getNeighbors();
+        int               getId();
+        std::string       getType();
+        float             getCharge();
 
 };
 #endif
