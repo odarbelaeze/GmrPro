@@ -153,10 +153,28 @@ Vector Vector::operator* (float scalar)
 Vector Vector::operator/ (float scalar)
 {
     Vector answer;
-    answer.x_ = this -> x_ * scalar;
-    answer.y_ = this -> y_ * scalar;
-    answer.z_ = this -> z_ * scalar;
+    answer.x_ = this -> x_ / scalar;
+    answer.y_ = this -> y_ / scalar;
+    answer.z_ = this -> z_ / scalar;
     return answer;
+}
+
+
+
+bool Vector::operator== (const Vector& other)
+{
+    return this -> x_ == other.x_ &&
+           this -> y_ == other.y_ &&
+           this -> z_ == other.z_ ;
+}
+
+
+
+bool Vector::operator!= (const Vector& other)
+{
+    return this -> x_ != other.x_ ||
+           this -> y_ != other.y_ ||
+           this -> z_ != other.z_ ;
 }
 
 
@@ -182,6 +200,13 @@ Vector abs(const Vector& vector)
 Vector operator* (float scalar, const Vector& vector)
 {
     return const_cast<Vector&>(vector) * scalar;
+}
+
+
+
+Vector operator- (const Vector& vector)
+{
+    return - 1.0 * const_cast<Vector&>(vector);
 }
 
 

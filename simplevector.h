@@ -38,10 +38,14 @@ public:
     Vector operator* (float);
     Vector operator/ (float);
 
+    bool operator== (const Vector&);
+    bool operator!= (const Vector&);
+
     friend float norm(const Vector&);
     friend Vector abs(const Vector&);
 
     friend Vector operator* (float, const Vector&);
+    friend Vector operator- (const Vector&);
     friend float dot(const Vector&, const Vector&);
     friend float distance(const Vector&, const Vector&);
     friend float distancePbc(const Vector&, const Vector&, const Vector&);
