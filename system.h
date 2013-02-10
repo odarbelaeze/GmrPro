@@ -39,11 +39,11 @@ class System
         const std::vector<Particle>& getParticles();
         const Json::Value& getSystemInformation();
         const Json::Value& getInteractionInformation();
-        const std::vector<Vector*>& getFields();
+        const std::map<std::string, Vector*>& getFields();
         const Vector& getDymensions();
         const float& getThermalEnergy();
 
-        void setFields(const std::vector<Vector*>&);
+        void setFields(const std::map<std::string, Vector*>&);
         void setThermalEnergy(const float&);
 
         void monteCarloThermalStep(bool);
@@ -53,21 +53,21 @@ class System
         std::vector<Particle> particles_;
         Json::Value systemInformation_;
         Json::Value interactionInformation_;
-        std::vector<Vector*> fields_;
+        std::map<std::string, Vector*> fields_;
         Vector dymensions_;
 
-        virtual float computeFieldContribution(int);
-        virtual float computeInteractionContribution(int);
-        virtual void  onEventCb(const Particle&, float, float);
+        virtual float computeFieldContribution_(int);
+        virtual float computeInteractionContribution_(int);
+        virtual void  onEventCb_(const Particle&, float, float);
 
     private:
         float thermalEnergy_;
-        float time;
+        float time_;
 
-        void initSystem(const Json::Value&);
-        void findNeighbors();
-        float computeEnergyContribution(int);
-        float computeTotalEnergyContribution(int);
+        void initSystem_(const Json::Value&);
+        void findNeighbors_();
+        float computeEnergyContribution_(int);
+        float computeTotalEnergyContribution_(int);
 
 };
 
