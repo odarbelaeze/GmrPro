@@ -17,7 +17,7 @@ class System
         System();
         System(const Json::Value&);
         System(const std::string);
-        System(const istream&);
+        System(const std::istream&);
         ~System();
 
         void findNeighbors();
@@ -33,7 +33,7 @@ class System
     private:
         float thermalEnergy_;
 
-        void create_system (const Json::Value&);
+        void createSystem(const Json::Value&);
 
 };
 

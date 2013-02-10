@@ -48,7 +48,7 @@ public:
     friend Vector operator- (const Vector&);
     friend float dot(const Vector&, const Vector&);
     friend float distance(const Vector&, const Vector&);
-    friend float distancePbc(const Vector&, const Vector&, const Vector&);
+    friend float distancePbc(const Vector&, const Vector&, const Vector&, const Vector&);
     friend Vector min(const Vector&, const Vector&);
     friend std::ostream& operator<< (std::ostream&, const Vector&);
 protected:

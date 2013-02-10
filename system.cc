@@ -5,7 +5,7 @@ System::System(){}
 System::~System(){}
 
 
-void System::create_system(const Json::Value& root)
+void System::createSystem(const Json::Value& root)
 {
     Vector vectorTemplate;
     systemInformation_ = root["system"];
@@ -15,6 +15,11 @@ void System::create_system(const Json::Value& root)
     int lenght = systemInformation_["dimensions"]["lenght"].asInt();
     int height = systemInformation_["dimensions"]["height"].asInt();
     int scale = systemInformation_["scale"].asInt();
+
+    Vector systemDimensions;
+    systemDimensions.setX(width * scale);
+    systemDimensions.setY(height * scale);
+    systemDimensions.setZ(lenght * scale);
     std::string structure = systemInformation_["structure"].asString();
 
     particles_.clear();
@@ -25,16 +30,16 @@ void System::create_system(const Json::Value& root)
     {
         for (int i = 0; i < width; ++i)
         {
-            for (int j = 0; j < lenght; ++j)
+            for (int j = 0; j < height; ++j)
             {
-                for (int k = 0; k < height; ++k)
+                for (int k = 0; k < lenght; ++k)
                 {
                     vectorTemplate.setX((i + 0.0f) * scale);
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.position_ = vectorTemplate;
-                    particleTemplate.spin_ = randomVector();
-                    particleTemplate.id_ = particles_.size(); 
+                    particleTemplate.setPosition(vectorTemplate);
+                    particleTemplate.setSpin(randomVector());
+                    particleTemplate.setId(particles_.size());
                     particles_.push_back(particleTemplate);
 
                 }
@@ -52,17 +57,17 @@ void System::create_system(const Json::Value& root)
                     vectorTemplate.setX((i + 0.0f) * scale);
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.position_ = vectorTemplate;
-                    particleTemplate.spin_ = randomVector();
-                    particleTemplate.id_ = particles_.size(); 
+                    particleTemplate.setPosition(vectorTemplate);
+                    particleTemplate.setSpin(randomVector());
+                    particleTemplate.setId(particles_.size()); 
                     particles_.push_back(particleTemplate);
 
                     vectorTemplate.setX((i + 0.5f) * scale);
                     vectorTemplate.setY((j + 0.5f) * scale);
                     vectorTemplate.setZ((k + 0.5f) * scale);
-                    particleTemplate.position_ = vectorTemplate;
-                    particleTemplate.spin_ = randomVector();
-                    particleTemplate.id_ = particles_.size(); 
+                    particleTemplate.setPosition(vectorTemplate);
+                    particleTemplate.setSpin(randomVector());
+                    particleTemplate.setId(particles_.size()); 
                     particles_.push_back(particleTemplate);
                     
                 }
@@ -80,36 +85,36 @@ void System::create_system(const Json::Value& root)
                     vectorTemplate.setX((i + 0.0f) * scale);
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.position_ = vectorTemplate;
-                    particleTemplate.spin_ = randomVector();
-                    particleTemplate.id_ = particles_.size(); 
+                    particleTemplate.setPosition(vectorTemplate);
+                    particleTemplate.setSpin(randomVector());
+                    particleTemplate.setId(particles_.size()); 
                     particles_.push_back(particleTemplate);
 
 
                     vectorTemplate.setX((i + 0.5f) * scale);
                     vectorTemplate.setY((j + 0.5f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.position_ = vectorTemplate;
-                    particleTemplate.spin_ = randomVector();
-                    particleTemplate.id_ = particles_.size(); 
+                    particleTemplate.setPosition(vectorTemplate);
+                    particleTemplate.setSpin(randomVector());
+                    particleTemplate.setId(particles_.size()); 
                     particles_.push_back(particleTemplate);
                     
 
                     vectorTemplate.setX((i + 0.0f) * scale);
                     vectorTemplate.setY((j + 0.5f) * scale);
                     vectorTemplate.setZ((k + 0.5f) * scale);
-                    particleTemplate.position_ = vectorTemplate;
-                    particleTemplate.spin_ = randomVector();
-                    particleTemplate.id_ = particles_.size(); 
+                    particleTemplate.setPosition(vectorTemplate);
+                    particleTemplate.setSpin(randomVector());
+                    particleTemplate.setId(particles_.size()); 
                     particles_.push_back(particleTemplate);
                     
 
                     vectorTemplate.setX((i + 0.5f) * scale);
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.5f) * scale);
-                    particleTemplate.position_ = vectorTemplate;
-                    particleTemplate.spin_ = randomVector();
-                    particleTemplate.id_ = particles_.size(); 
+                    particleTemplate.setPosition(vectorTemplate);
+                    particleTemplate.setSpin(randomVector());
+                    particleTemplate.setId(particles_.size()); 
                     particles_.push_back(particleTemplate);
                 }
             }
@@ -118,11 +123,11 @@ void System::create_system(const Json::Value& root)
 
 
     particleTemplate = Particle("Electrón");
-    electronCount = this -> systemInformation_["number_of_free_electrons"].asInt();
+    int electronCount = systemInformation_["number_of_free_electrons"].asInt();
     for (int i = 0; i < electronCount; ++i)
     {
-        particleTemplate.position_ = randomVector();
-        particleTemplate.id_ = particles_.size(); 
+        particleTemplate.setPosition(randomVector());
+        particleTemplate.setId(particles_.size()); 
         particles_.push_back(particleTemplate);
     }
 
@@ -136,7 +141,7 @@ void System::findNeighbors()
     float cutOff = systemInformation_["cut_off_radius"].asFloat();
     
     int scale = systemInformation_["scale"].asInt();
-    Vector vectorTemplate;
+    Vector systemDimensions;
     systemDimensions.setX(systemInformation_["dimensions"]["width"].asFloat() * scale);
     systemDimensions.setY(systemInformation_["dimensions"]["height"].asFloat() * scale);
     systemDimensions.setZ(systemInformation_["dimensions"]["lenght"].asFloat() * scale);
@@ -148,12 +153,12 @@ void System::findNeighbors()
 
     TR(p, particles_)
     {
-        (*p).neighbors_.clear();
+        (*p).clearNeighbors();
         TR(other, particles_)
             if (p != other)
-                if (distancePbc((*p).position_, (*other).position_, 
-                    systemDimensions, periodicBoundaryConditions))
-                    (*p).neighbors_.push_back((*other).id_);
+                if (distancePbc((*p).getPosition(), (*other).getPosition(), 
+                    systemDimensions, periodicBoundaryConditions) <= cutOff)
+                    (*p).addNeighbor((*other).getId());
     }
 
 

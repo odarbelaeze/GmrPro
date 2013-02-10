@@ -27,7 +27,7 @@ Particle::Particle(const std::string& p)
 Particle::~Particle(){}
 
 
-void Particle::updateSpin(float radius)
+void Particle::updateSpin(float radius = 1.0)
 {
     float spinNorm = norm(spin_);
     oldSpin_ = spin_; 

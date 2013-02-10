@@ -1,11 +1,6 @@
 #include <cassert>
 #include "../particle.h"
-
-
-
-
-
-
+#include "../system.h"
 
 
 #define ASSERT(counter, condition) assert(condition);       \
@@ -22,31 +17,21 @@
 
 int main(int argc, char const *argv[])
 {
-
-
-    Particle particle;
-    Vector vector(1.0);
     int counter = 0;
-
-    particle.setPosition(Vector(5));
-
     // ASSERT(counter, particle.getPosition() == Vector(5))
 
-
-
-
     Particle otro("Electrón");
-    std::cout << otro.getType() << std::endl;
+    std::cout << "type: " << otro.getType() << std::endl;
+    std::cout << "position: " << otro.getPosition() << std::endl;
+    std::cout << "spin: " << otro.getSpin() << std::endl;
+    std::cout << "oldSpin: " << otro.getOldSpin() << std::endl;
+    std::cout << "id: " << otro.getId() << std::endl;
+    std::cout << "charge: " << otro.getCharge() << std::endl;
 
-    otro.setPosition(Vector(0,0,0));
-    std::cout << otro.getPosition() << std::endl;
+    otro.setPosition(Vector(5));
+    otro.setSpin(randomVector());
+    otro.setOldPosition(otro.getPosition());
 
-    Vector v_template;
-    v_template.setX(5);
-    v_template.setY(10);
-    v_template.setZ(15);
-    otro.setPosition(v_template);
-    std::cout << otro.getPosition() << std::endl;
 
     return 0;
 }
