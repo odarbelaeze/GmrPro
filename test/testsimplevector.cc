@@ -11,7 +11,7 @@
     catch (exeption e)                                      \
     {                                                       \
         ASSERT(counter, true)                               \
-    }                                                       \
+    }                                                       
 
 int main(int argc, char const *argv[])
 {

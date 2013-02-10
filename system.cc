@@ -1,29 +1,75 @@
 #include "system.h"
 
-System::System(){}
+BadDescriptorException::BadDescriptorException() : error_("Unknown")
+{
 
-System::~System(){}
+}
 
 
-void System::createSystem(const Json::Value& root)
+
+BadDescriptorException::BadDescriptorException(const std::string error) : error_(error)
+{
+
+}
+
+
+
+const char* BadDescriptorException::what() const throw()
+{
+    return ("The descriptor is invalid: " + error_).data();
+}
+
+
+
+System::System()
+{
+
+}
+
+
+
+System::~System()
+{
+
+}
+
+
+
+void System::initSystem(const Json::Value& root)
 {
     Vector vectorTemplate;
     systemInformation_ = root["system"];
 
+    try
+    {
+        int width = systemInformation_["dimensions"]["width"].asInt();
+        int lenght = systemInformation_["dimensions"]["lenght"].asInt();
+        int height = systemInformation_["dimensions"]["height"].asInt();    
+    }
+    catch (std::exception &e)
+    {
+        throw BadDescriptorException(e.what());
+    }
+    
+    try
+    {
+        int scale = systemInformation_["scale"].asInt();
+    }
+    catch (std::exception &e)
+    {
+        throw BadDescriptorException(e.what());
+    }
 
-    int width = systemInformation_["dimensions"]["width"].asInt();
-    int lenght = systemInformation_["dimensions"]["lenght"].asInt();
-    int height = systemInformation_["dimensions"]["height"].asInt();
-    int scale = systemInformation_["scale"].asInt();
+    if (width <= 0 || lenght <= 0 || height <= 0 || scale <= 0)
+    {
+        throw BadDescriptorException("Come on man! are you serius about your dimensions and scale?");
+    }
 
-    Vector systemDimensions;
-    systemDimensions.setX(width * scale);
-    systemDimensions.setY(height * scale);
-    systemDimensions.setZ(lenght * scale);
     std::string structure = systemInformation_["structure"].asString();
 
-    particles_.clear();
+    systemDymensions_ = Vector(width * scale, height * scale, lenght * scale);
 
+    particles_.clear();
 
     Particle particleTemplate("Ión");
     if (structure == "sc")
@@ -120,10 +166,14 @@ void System::createSystem(const Json::Value& root)
             }
         }
     }
-
+    else
+    {
+        throw BadDescriptorException("The structure " + structure " is not supported.");
+    }
 
     particleTemplate = Particle("Electrón");
     int electronCount = systemInformation_["number_of_free_electrons"].asInt();
+
     for (int i = 0; i < electronCount; ++i)
     {
         particleTemplate.setPosition(randomVector());
@@ -139,17 +189,20 @@ void System::createSystem(const Json::Value& root)
 void System::findNeighbors()
 {
     float cutOff = systemInformation_["cut_off_radius"].asFloat();
-    
+
     int scale = systemInformation_["scale"].asInt();
     Vector systemDimensions;
-    systemDimensions.setX(systemInformation_["dimensions"]["width"].asFloat() * scale);
-    systemDimensions.setY(systemInformation_["dimensions"]["height"].asFloat() * scale);
-    systemDimensions.setZ(systemInformation_["dimensions"]["lenght"].asFloat() * scale);
+    systemDimensions.setX(systemInformation_["dimensions"]["width" ].asFloat() * 
+                          scale);
+    systemDimensions.setY(systemInformation_["dimensions"]["height"].asFloat() * 
+                          scale);
+    systemDimensions.setZ(systemInformation_["dimensions"]["lenght"].asFloat() * 
+                          scale);
 
-    Vector periodicBoundaryConditions;
-    periodicBoundaryConditions.setX(systemInformation_["periodic_boundary_conditions"]["x"].asInt());
-    periodicBoundaryConditions.setY(systemInformation_["periodic_boundary_conditions"]["y"].asInt());
-    periodicBoundaryConditions.setZ(systemInformation_["periodic_boundary_conditions"]["z"].asInt());
+    Vector pbc;
+    pbc.setX(systemInformation_["periodic_boundary_conditions"]["x"].asInt());
+    pbc.setY(systemInformation_["periodic_boundary_conditions"]["y"].asInt());
+    pbc.setZ(systemInformation_["periodic_boundary_conditions"]["z"].asInt());
 
     TR(p, particles_)
     {
@@ -157,9 +210,7 @@ void System::findNeighbors()
         TR(other, particles_)
             if (p != other)
                 if (distancePbc((*p).getPosition(), (*other).getPosition(), 
-                    systemDimensions, periodicBoundaryConditions) <= cutOff)
+                                systemDimensions, pbc) <= cutOff)
                     (*p).addNeighbor((*other).getId());
     }
-
-
 }
