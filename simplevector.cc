@@ -1,0 +1,211 @@
+Vector::Vector() : x_(0.0), y_(0.0), z_(0.0)
+{
+
+}
+
+
+
+Vector::Vector(float value) : x_(value), y_(value), z_(value)
+{
+
+}
+
+
+
+Vector::Vector(float x, float y, float z) : x_(x), y_(y), z_(z)
+{
+
+}
+
+
+
+Vector::~Vector()
+{
+
+}
+
+
+
+const float Vector::getX()
+{
+    return x_;
+}
+
+
+
+const float Vector::getY()
+{
+    return y_;
+}
+
+
+
+const float Vector::getZ()
+{
+    return z_;
+}
+
+
+
+void Vector::setX(float x)
+{
+    x_ = x;
+}
+void Vector::setX(float y)
+{
+    y_ = y;
+}
+void Vector::setX(float z)
+{
+    z_ = z;
+}
+
+
+
+float Vector::operator() (int i)
+{
+    switch (i)
+    {
+        case 0 :
+            return x_;
+        case 1 :
+            return y_;
+        case 2 :
+            return z_;
+        default :
+            throw std::bad_arguments();
+    }
+}
+
+
+
+float Vector::operator[] (int i)
+{
+    switch (i)
+    {
+        case 0 :
+            return x_;
+        case 1 :
+            return y_;
+        case 2 :
+            return z_;
+        default :
+            throw std::bad_arguments();
+    }
+}
+
+
+
+Vector Vector::operator* (const Vector& other)
+{
+    Vector answer;
+    answer.x_ = this -> x_ * other.x_;
+    answer.y_ = this -> y_ * other.y_;
+    answer.z_ = this -> z_ * other.z_;
+    return answer;
+}
+
+
+
+Vector Vector::operator+ (const Vector& other)
+{
+    Vector answer;
+    answer.x_ = this -> x_ + other.x_;
+    answer.y_ = this -> y_ + other.y_;
+    answer.z_ = this -> z_ + other.z_;
+    return answer;
+}
+
+
+
+Vector Vector::operator- (const Vector& other)
+{
+    Vector answer;
+    answer.x_ = this -> x_ - other.x_;
+    answer.y_ = this -> y_ - other.y_;
+    answer.z_ = this -> z_ - other.z_;
+    return answer;
+}
+
+
+
+Vector Vector::operator* (float scalar)
+{
+    Vector answer;
+    answer.x_ = this -> x_ * scalar;
+    answer.y_ = this -> y_ * scalar;
+    answer.z_ = this -> z_ * scalar;
+    return answer;
+}
+
+
+
+Vector Vector::operator/ (float scalar)
+{
+    Vector answer;
+    answer.x_ = this -> x_ * scalar;
+    answer.y_ = this -> y_ * scalar;
+    answer.z_ = this -> z_ * scalar;
+    return answer;
+}
+
+
+
+float norm(const Vector& vector)
+{
+    return std::sqrt(dot(vector, vector));
+}
+
+
+
+Vector abs(const Vector& vector)
+{
+    Vector answer;
+    answer.x_ = (vector.x_ < 0.0)? - vector.x_ : vector.x_;
+    answer.y_ = (vector.y_ < 0.0)? - vector.y_ : vector.y_;
+    answer.z_ = (vector.z_ < 0.0)? - vector.z_ : vector.z_;
+    return answer;
+}
+
+
+
+operator* (float scalar, const Vector& vector)
+{
+    return vector * scalar;
+}
+
+
+
+float dot(const Vector& vectorA, const Vector& vectorB)
+{
+    return vectorA.x_ * vectorB.x_ +
+           vectorA.y_ * vectorB.y_ +
+           vectorA.z_ * vectorB.z_ ;
+}
+
+
+
+float distance(const Vector& vectorA, const Vector& vectorB)
+{
+    return norm(vectorB - vectorA);
+}
+
+
+
+float distancePbc(const Vector& vectorA, const Vector& vectorB, 
+                  const Vector& dimensions, const Vector& pbc)
+{
+    return min(abs(vectorB - vectorA),
+               abs(dimensions * pbc - (vectorB - vectorA)));
+}
+
+
+
+Vector min(const Vector& vectorA, const Vector& vectorB)
+{
+    Vector answer;
+    answer.x_ = (vectorA.x_ < vectorB.x_)? vectorA.x_ : vectorB.x_; 
+    answer.y_ = (vectorA.y_ < vectorB.y_)? vectorA.y_ : vectorB.y_; 
+    answer.z_ = (vectorA.z_ < vectorB.z_)? vectorA.z_ : vectorB.z_; 
+    return answer;
+}
