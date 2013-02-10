@@ -6,8 +6,6 @@
 #include <cmath>
 #include <vector>
 
-#include <jsoncpp/json/json.h>
-
 #include "simplevector.h"
 
 #define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
@@ -28,6 +26,7 @@ class Particle
         
     public:
         Particle();
+        Particle(const std::string&);
         ~Particle();
 
         void updateSpin(float);
@@ -56,4 +55,5 @@ class Particle
         float             getCharge();
 
 };
+
 #endif

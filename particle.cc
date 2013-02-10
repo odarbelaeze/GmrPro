@@ -2,7 +2,24 @@
 
 Particle::Particle()
 {
+} 
 
+Particle::Particle(const std::string& p)
+{
+    if (p == "Electrón")
+    {
+        type_ = "Electrón";
+        charge_ = -1;
+    }
+    else if (p == "Ión")
+    {
+        type_ = "Ión";
+        charge_ = +1;
+    }
+    else
+    {
+        //ACÁ IRÍA UNA EXCEPCIÓN
+    }
 }
 
 
