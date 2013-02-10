@@ -4,6 +4,15 @@
 #define ASSERT(counter, condition) assert(condition); \
     std::cout << ++counter << " Tests passed." << std::endl;
 
+#define EXPECT_EXEPTION(counter, command, exeption) try     \
+    {                                                       \
+        command;                                            \
+    }                                                       \
+    catch (exeption e)                                      \
+    {                                                       \
+        ASSERT(counter, true)                               \
+    }                                                       \
+
 int main(int argc, char const *argv[])
 {
     Vector u(1, 0, 0);
@@ -30,8 +39,13 @@ int main(int argc, char const *argv[])
     u(0) = 5;
     u[0] = 5;
 
-    ASSERT(passed u(0) == 5)
-    ASSERT(passed u[0] == 5)
+    ASSERT(passed, u(0) == 5)
+    ASSERT(passed, u[0] == 5)
+
+    u = v;
+    ASSERT(passed, u == v)
+
+    EXPECT_EXEPTION(passed, u(5) = 0, OutOfBoundsException)
 
     return 0;
 }

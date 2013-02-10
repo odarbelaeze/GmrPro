@@ -72,7 +72,7 @@ void Vector::setZ(float z)
 
 
 
-float Vector::operator() (int i)
+float& Vector::operator() (int i)
 {
     switch (i)
     {
@@ -89,7 +89,7 @@ float Vector::operator() (int i)
 
 
 
-float Vector::operator[] (int i)
+float& Vector::operator[] (int i)
 {
     switch (i)
     {

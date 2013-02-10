@@ -29,8 +29,8 @@ public:
     void setY(float);
     void setZ(float);
 
-    float operator() (int i);
-    float operator[] (int i);
+    float& operator() (int i);
+    float& operator[] (int i);
 
     Vector operator* (const Vector&);
     Vector operator+ (const Vector&);
