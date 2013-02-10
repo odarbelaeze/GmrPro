@@ -1,3 +1,13 @@
+#include "simplevector.h"
+
+
+const char* OutOfBoundsException::what() const throw()
+{
+    std::string error = "Requested element are out of bounds.";
+    return error.data();
+}
+
+
 Vector::Vector() : x_(0.0), y_(0.0), z_(0.0)
 {
 
@@ -51,11 +61,11 @@ void Vector::setX(float x)
 {
     x_ = x;
 }
-void Vector::setX(float y)
+void Vector::setY(float y)
 {
     y_ = y;
 }
-void Vector::setX(float z)
+void Vector::setZ(float z)
 {
     z_ = z;
 }
@@ -73,7 +83,7 @@ float Vector::operator() (int i)
         case 2 :
             return z_;
         default :
-            throw std::bad_arguments();
+            throw OutOfBoundsException();
     }
 }
 
@@ -90,7 +100,7 @@ float Vector::operator[] (int i)
         case 2 :
             return z_;
         default :
-            throw std::bad_arguments();
+            throw OutOfBoundsException();
     }
 }
 
@@ -169,9 +179,9 @@ Vector abs(const Vector& vector)
 
 
 
-operator* (float scalar, const Vector& vector)
+Vector operator* (float scalar, const Vector& vector)
 {
-    return vector * scalar;
+    return const_cast<Vector&>(vector) * scalar;
 }
 
 
@@ -187,7 +197,7 @@ float dot(const Vector& vectorA, const Vector& vectorB)
 
 float distance(const Vector& vectorA, const Vector& vectorB)
 {
-    return norm(vectorB - vectorA);
+    return norm(const_cast<Vector&>(vectorB) - const_cast<Vector&>(vectorA));
 }
 
 
@@ -195,8 +205,10 @@ float distance(const Vector& vectorA, const Vector& vectorB)
 float distancePbc(const Vector& vectorA, const Vector& vectorB, 
                   const Vector& dimensions, const Vector& pbc)
 {
-    return min(abs(vectorB - vectorA),
-               abs(dimensions * pbc - (vectorB - vectorA)));
+    Vector diference = const_cast<Vector&>(vectorB) - 
+                       const_cast<Vector&>(vectorA);
+    return norm(min(abs(diference), abs(const_cast<Vector&>(dimensions) * 
+                                   const_cast<Vector&>(pbc) - diference)));
 }
 
 
@@ -208,4 +220,27 @@ Vector min(const Vector& vectorA, const Vector& vectorB)
     answer.y_ = (vectorA.y_ < vectorB.y_)? vectorA.y_ : vectorB.y_; 
     answer.z_ = (vectorA.z_ < vectorB.z_)? vectorA.z_ : vectorB.z_; 
     return answer;
+}
+
+
+Vector randomVector()
+{
+    Vector answer;
+    float theta = 2.0f * M_PI * drand48();
+    float phi   = 1.0f * M_PI * drand48();
+
+    answer.x_ = sin (theta) * cos (phi);
+    answer.y_ = sin (theta) * sin (phi);
+    answer.z_ = cos (theta);
+
+    return answer;
+}
+
+
+
+std::ostream& operator<< (std::ostream& ostream, const Vector& vector)
+{
+    ostream << "(" << vector.x_ << ", " << vector.y_ << ", "
+                   << vector.z_ << ")";
+    return ostream;
 }

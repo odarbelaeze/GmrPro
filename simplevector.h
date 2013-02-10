@@ -2,8 +2,16 @@
 #define SIMPLEVECTOR_H_
 
 #include <cmath>
+#include <cstdlib>
 #include <exception>
+#include <iostream>
+#include <string>
 
+class OutOfBoundsException : public std::exception
+{
+public:
+    virtual const char* what() const throw();
+};
 
 class Vector
 {
@@ -17,9 +25,9 @@ public:
     const float getY();
     const float getZ();
     
-    void setX(float x);
-    void setX(float x);
-    void setX(float x);
+    void setX(float);
+    void setY(float);
+    void setZ(float);
 
     float operator() (int i);
     float operator[] (int i);
@@ -33,11 +41,13 @@ public:
     friend float norm(const Vector&);
     friend Vector abs(const Vector&);
 
-    friend operator* (float, const Vector&);
+    friend Vector operator* (float, const Vector&);
     friend float dot(const Vector&, const Vector&);
     friend float distance(const Vector&, const Vector&);
     friend float distancePbc(const Vector&, const Vector&, const Vector&);
     friend Vector min(const Vector&, const Vector&);
+    friend Vector randomVector();
+    friend std::ostream& operator<< (std::ostream&, const Vector&);
 protected:
 
 private:
