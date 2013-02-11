@@ -7,7 +7,8 @@ BadDescriptorException::BadDescriptorException() : error_("Unknown")
 
 
 
-BadDescriptorException::BadDescriptorException(const std::string error) : error_(error)
+BadDescriptorException::BadDescriptorException(const std::string error)
+ : error_(error)
 {
 
 }
@@ -21,9 +22,74 @@ const char* BadDescriptorException::what() const throw()
 
 
 
-System::System()
+System::System() : time_(0.0)
 {
 
+}
+
+
+System::System(const Json::Value& root) : time_(0.0)
+{
+    initSystem_(root);
+}
+
+
+
+System::System(const std::string fileName) : time_(0.0)
+{
+    std::ifstream descriptorFile(fileName.data());
+    Json::Reader reader;
+    Json::Value  root;
+
+    bool parsingSuccessful = reader.parse(descriptorFile, root, false);
+    if (!parsingSuccessful)
+    {
+        // report to the user the failure and their locations in the document.
+        std::cout  << "Failed to parse configuration\n"
+                   << reader.getFormattedErrorMessages();
+        throw BadDescriptorException("The descriptor is not a valid json file.");
+    }
+
+    initSystem_(root);
+}
+
+
+
+System::System(const char* fileName) : time_(0.0)
+{
+    std::ifstream descriptorFile(fileName);
+    Json::Reader reader;
+    Json::Value  root;
+    
+    bool parsingSuccessful = reader.parse(descriptorFile, root, false);
+    if (!parsingSuccessful)
+    {
+        // report to the user the failure and their locations in the document.
+        std::cout  << "Failed to parse configuration\n"
+                   << reader.getFormattedErrorMessages();
+        throw BadDescriptorException("The descriptor is not a valid json file.");
+    }
+
+    initSystem_(root);
+}
+
+
+
+System::System(std::istream& descriptorIstream) : time_(0.0)
+{
+    Json::Reader reader;
+    Json::Value  root;
+
+    bool parsingSuccessful = reader.parse(descriptorIstream, root, false);
+    if (!parsingSuccessful)
+    {
+        // report to the user the failure and their locations in the document.
+        std::cout  << "Failed to parse configuration\n"
+                   << reader.getFormattedErrorMessages();
+        throw BadDescriptorException("The descriptor is not a valid json file.");
+    }
+
+    initSystem_(root);
 }
 
 
@@ -39,6 +105,7 @@ void System::initSystem_(const Json::Value& root)
 {
     Vector vectorTemplate;
     systemInformation_ = root["system"];
+    interactionInformation_ = root["interaction_info"];
 
     int width = 0;
     int lenght = 0;
@@ -89,8 +156,7 @@ void System::initSystem_(const Json::Value& root)
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
                     particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setSpin(randomVector());
-                    particleTemplate.setId(particles_.size());
+                    particleTemplate.setOldPosition(vectorTemplate);
                     particles_.push_back(particleTemplate);
 
                 }
@@ -109,16 +175,14 @@ void System::initSystem_(const Json::Value& root)
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
                     particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setSpin(randomVector());
-                    particleTemplate.setId(particles_.size()); 
+                    particleTemplate.setOldPosition(vectorTemplate);
                     particles_.push_back(particleTemplate);
 
                     vectorTemplate.setX((i + 0.5f) * scale);
                     vectorTemplate.setY((j + 0.5f) * scale);
                     vectorTemplate.setZ((k + 0.5f) * scale);
                     particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setSpin(randomVector());
-                    particleTemplate.setId(particles_.size()); 
+                    particleTemplate.setOldPosition(vectorTemplate);
                     particles_.push_back(particleTemplate);
                     
                 }
@@ -137,8 +201,7 @@ void System::initSystem_(const Json::Value& root)
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
                     particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setSpin(randomVector());
-                    particleTemplate.setId(particles_.size()); 
+                    particleTemplate.setOldPosition(vectorTemplate);
                     particles_.push_back(particleTemplate);
 
 
@@ -146,8 +209,7 @@ void System::initSystem_(const Json::Value& root)
                     vectorTemplate.setY((j + 0.5f) * scale);
                     vectorTemplate.setZ((k + 0.0f) * scale);
                     particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setSpin(randomVector());
-                    particleTemplate.setId(particles_.size()); 
+                    particleTemplate.setOldPosition(vectorTemplate);
                     particles_.push_back(particleTemplate);
                     
 
@@ -155,8 +217,7 @@ void System::initSystem_(const Json::Value& root)
                     vectorTemplate.setY((j + 0.5f) * scale);
                     vectorTemplate.setZ((k + 0.5f) * scale);
                     particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setSpin(randomVector());
-                    particleTemplate.setId(particles_.size()); 
+                    particleTemplate.setOldPosition(vectorTemplate);
                     particles_.push_back(particleTemplate);
                     
 
@@ -164,8 +225,7 @@ void System::initSystem_(const Json::Value& root)
                     vectorTemplate.setY((j + 0.0f) * scale);
                     vectorTemplate.setZ((k + 0.5f) * scale);
                     particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setSpin(randomVector());
-                    particleTemplate.setId(particles_.size()); 
+                    particleTemplate.setOldPosition(vectorTemplate);
                     particles_.push_back(particleTemplate);
                 }
             }
@@ -181,10 +241,13 @@ void System::initSystem_(const Json::Value& root)
 
     for (int i = 0; i < electronCount; ++i)
     {
-        particleTemplate.setPosition(dymensions_ * randomVector());
-        particleTemplate.setId(particles_.size()); 
+        particleTemplate.setPosition(dymensions_ * randomVectorInBox());
+        particleTemplate.setOldPosition(particleTemplate.getPosition());
         particles_.push_back(particleTemplate);
     }
+
+    for (int i = 0; i < particles_.size(); ++i)
+        particles_[i].setId(i);
 
     findNeighbors_();
 }
@@ -202,58 +265,69 @@ void System::findNeighbors_()
     pbc.setY(systemInformation_["periodic_boundary_conditions"]["y"].asInt());
     pbc.setZ(systemInformation_["periodic_boundary_conditions"]["z"].asInt());
 
-    TR(p, particles_)
+    for (int i = 0; i < particles_.size(); ++i)
     {
-        (*p).clearNeighbors();
-        TR(other, particles_)
-            if (p != other)
-                if (distancePbc((*p).getPosition(), (*other).getPosition(), 
-                                dymensions_, pbc) <= cutOff)
-                    (*p).addNeighbor((*other).getId());
+        particles_[i].clearNeighbors();
+        for (int j = 0; j < particles_.size(); ++j)
+        {
+            if ((particles_[i].getId() != particles_[j].getId()) &&
+                (distancePbc(particles_[i].getPosition(), 
+                             particles_[j].getPosition(), 
+                             dymensions_, pbc            ) <= cutOff))
+                particles_[i].addNeighbor(j);
+        }
     }
 }
 
 
-const std::vector<Particle>& System::getParticles()
+
+std::vector<Particle> System::getParticles()
 {
     return particles_;
 }
 
 
-const Json::Value& System::getSystemInformation()
+
+Json::Value System::getSystemInformation()
 {
     return systemInformation_;
 }
 
 
-const Json::Value& System::getInteractionInformation()
+
+Json::Value System::getInteractionInformation()
 {
     return interactionInformation_;
 }
 
 
-const std::map<std::string, Vector*>& System::getFields()
+
+std::map<std::string, Vector*> System::getFields()
 {
     return fields_;
 }
 
 
-const Vector& System::getDymensions()
+
+Vector System::getDymensions()
 {
     return dymensions_;
 }
 
 
-const float& System::getThermalEnergy()
+
+float System::getThermalEnergy()
 {
     return thermalEnergy_;
 }
+
 
 
 void System::setFields(const std::map<std::string, Vector*>& fields)
 {
     fields_ = fields;
 }
+
 
 
 void System::setThermalEnergy(const float& thermalEnergy)
@@ -263,11 +337,40 @@ void System::setThermalEnergy(const float& thermalEnergy)
 }
 
 
+
+void System::addField(const std::string name, Vector& vector)
+{
+    fields_.insert(std::pair<std::string, Vector*>(name, &vector));
+}
+
+
+
+Vector& System::getField(const std::string name)
+{
+    return *(fields_[name]);
+}
+
+
+
+float System::computeEnergy()
+{
+    double energy = 0.0;
+    for (int id = 0; id < particles_.size(); id++)
+    {
+        energy += computeFieldContribution_(id);
+        energy += computeInteractionContribution_(id);
+    }
+    return energy;
+}
+
+
+
 void System::monteCarloThermalStep(bool needNeighborUpdate)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
 }
+
 
 
 void System::monteCarloDynamicStep(bool needNeighborUpdate)
@@ -277,11 +380,13 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate)
 }
 
 
+
 float System::computeFieldContribution_(int id)
 {
     return - particles_[id].getCharge() * dot(*(fields_["Electric"]) ,
                                               particles_[id].getPosition());
 }
+
 
 
 float System::computeInteractionContribution_(int id)
@@ -290,26 +395,26 @@ float System::computeInteractionContribution_(int id)
     float J = interactionInformation_["all"]["J"].asFloat();
     float K_0 = interactionInformation_["all"]["K_0"].asFloat();
     float I_0 = interactionInformation_["all"]["I_0"].asFloat();
+    std::vector<int> neighbors = particles_[id].getNeighbors();
 
+    for (int i = 0; i < neighbors.size(); ++i)
 
-    for (typeof(particles_[id].getNeighbors().begin()) i = particles_[id].getNeighbors().begin(); i != particles_[id].getNeighbors().end(); ++i)
     {
-        if (*i != id)
+        if (particles_[id].getType() == "Ión" && particles_[i].getType() == "Ión")
         {
-
-            if (particles_[id].getType() == "Ión" && particles_[*i].getType() == "Ión")
-            {
-                sum = -J * dot(particles_[id].getSpin(), particles_[*i].getSpin());
-            }
-            else if (particles_[id].getType() == "Electrón" && particles_[*i].getType() == "Electrón")
-            {
-                sum = K_0 * exp(- distance(particles_[id].getPosition(), particles_[*i].getPosition())) * dot(particles_[id].getSpin(), particles_[*i].getSpin());
-            }
-            else if ((particles_[id].getType() == "Electrón" && particles_[*i].getType() == "Ión") || (particles_[id].getType() == "Ión" && particles_[*i].getType() == "Electrón"))
-            {
-                sum = I_0 * exp(- distance(particles_[id].getPosition(), particles_[*i].getPosition())) * dot(particles_[id].getSpin(), particles_[*i].getSpin());
-            }
-            
+            sum = - J * dot(particles_[id].getSpin(), particles_[i].getSpin());
+        }
+        else if (particles_[id].getType() == "Electrón" && particles_[i].getType() == "Electrón")
+        {
+            sum = - K_0 * exp(- distance(particles_[id].getPosition(), particles_[i].getPosition())) * dot(particles_[id].getSpin(), particles_[i].getSpin());
+        }
+        else if ((particles_[id].getType() == "Electrón" && particles_[i].getType() == "Ión") || (particles_[id].getType() == "Ión" && particles_[i].getType() == "Electrón"))
+        {
+            sum = - I_0 * exp(- distance(particles_[id].getPosition(), particles_[i].getPosition())) * dot(particles_[id].getSpin(), particles_[i].getSpin());
+        }
+        else
+        {
+            throw std::exception();
         }
     }
 
@@ -320,3 +425,20 @@ float System::computeInteractionContribution_(int id)
 void  System::onEventCb_(const Particle&, float, float)
 {
 }
+
+
+
+float System::computeEnergyContribution_(int id)
+{
+    return computeFieldContribution_(id) + 
+           computeInteractionContribution_(id);
+}
+
+
+
+float System::computeTotalEnergyContribution_(int id)
+{
+    return computeFieldContribution_(id) + 
+           2.0 * computeInteractionContribution_(id);
+}
+

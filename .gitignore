@@ -11,3 +11,11 @@
 *.lai
 *.la
 *.a
+
+# Compiled binary and output folders
+lib/*
+bin/*
+data/*
+
+# Compiled binaries that show up
+*.out

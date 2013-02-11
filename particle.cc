@@ -4,21 +4,27 @@ Particle::Particle()
 {
 } 
 
-Particle::Particle(const std::string& p)
+Particle::Particle(const std::string& type)
 {
-    if (p == "Electrón")
+    if (type == "Electrón")
     {
         type_ = "Electrón";
         charge_ = -1;
+        spin_ = randomVector();
+        oldSpin_ = spin_;
     }
-    else if (p == "Ión")
+    else if (type == "Ión")
     {
         type_ = "Ión";
         charge_ = +1;
+        spin_ = randomVector();
+        oldSpin_ = spin_;
     }
     else
     {
-        //ACÁ IRÍA UNA EXCEPCIÓN
+        type_ = type_;
+        spin_ = randomVector();
+        oldSpin_ = spin_;
     }
 }
 
@@ -93,14 +99,14 @@ void Particle::setNeighbors(const std::vector<int>& neighbors)
     neighbors_ = neighbors;
 }
 
-void Particle::addNeighbor(const int id)
+void Particle::addNeighbor(int id)
 {
     neighbors_.push_back(id);
 }
 
 void Particle::clearNeighbors()
 {
-    neighbors_.clear();
+    neighbors_ = std::vector<int>(0);
 }
 
 

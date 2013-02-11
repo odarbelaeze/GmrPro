@@ -39,7 +39,7 @@ class Particle
         void setOldPosition(const Vector&);
         void setOldSpin(const Vector&);
         void setNeighbors(const std::vector<int>&);
-        void addNeighbor(const int);
+        void addNeighbor(int);
         void clearNeighbors();
         void setId(int);
         void setType(const std::string&);

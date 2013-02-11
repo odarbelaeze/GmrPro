@@ -60,5 +60,6 @@ private:
 };
 
 Vector randomVector();
+Vector randomVectorInBox();
 
 #endif

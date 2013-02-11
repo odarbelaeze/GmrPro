@@ -263,6 +263,13 @@ Vector randomVector()
 
 
 
+Vector randomVectorInBox()
+{
+    return Vector(drand48(), drand48(), drand48());
+}
+
+
+
 std::ostream& operator<< (std::ostream& ostream, const Vector& vector)
 {
     ostream << "(" << vector.x_ << ", " << vector.y_ << ", "

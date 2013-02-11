@@ -2,12 +2,13 @@
 #define SYSTEM_HPP_
 
 #include <exception>
+#include <fstream>
 
 #include <jsoncpp/json/json.h>
 
 #include "particle.h"
 
-#define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
+// #define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
 
 typedef Vector Field;
 typedef float (*PFI)(Particle &, Field &, Json::Value&);
@@ -33,19 +34,24 @@ class System
         System();
         System(const Json::Value&);
         System(const std::string);
-        System(const std::istream&);
+        System(const char*);
+        System(std::istream&);
         ~System();
 
-        const std::vector<Particle>& getParticles();
-        const Json::Value& getSystemInformation();
-        const Json::Value& getInteractionInformation();
-        const std::map<std::string, Vector*>& getFields();
-        const Vector& getDymensions();
-        const float& getThermalEnergy();
+        std::vector<Particle> getParticles();
+        Json::Value getSystemInformation();
+        Json::Value getInteractionInformation();
+        std::map<std::string, Vector*> getFields();
+        Vector getDymensions();
+        float getThermalEnergy();
 
         void setFields(const std::map<std::string, Vector*>&);
         void setThermalEnergy(const float&);
 
+        void addField(const std::string, Vector&);
+        Vector& getField(const std::string);
+
+        float computeEnergy();
         void monteCarloThermalStep(bool);
         void monteCarloDynamicStep(bool);
 
