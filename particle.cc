@@ -33,7 +33,7 @@ Particle::Particle(const std::string& type)
 Particle::~Particle(){}
 
 
-void Particle::updateSpin(float radius = 1.0)
+void Particle::updateSpin(float radius)
 {
     float spinNorm = norm(spin_);
     oldSpin_ = spin_; 

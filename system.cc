@@ -368,7 +368,36 @@ float System::computeEnergy()
 void System::monteCarloThermalStep(bool needNeighborUpdate)
 {
     if (needNeighborUpdate == true)
+    {
         findNeighbors_();
+    }
+
+
+    float oldEnergy;
+    float energyDelta;
+    float radiusSpin = systemInformation_["dimensions"]["update_policy"]["radius_spin"].asFloat();
+
+    for (int i = 0; i < particles_.size(); ++i)
+    {
+        oldEnergy = computeEnergy();
+        particles_[i].updateSpin(radiusSpin);
+        energyDelta = computeEnergy() - oldEnergy;
+        if (energyDelta <= 0)
+        {
+            onEventCb_(particles_[i], 5, 5);
+        }
+        else
+        {
+            if (drand48() <= exp(-energyDelta / thermalEnergy_))
+            {
+                onEventCb_(particles_[i], 5, 5);
+            }
+            else
+            {
+                particles_[i].rollBackSpin();
+            }
+        }
+    }
 }
 
 
@@ -376,7 +405,35 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
 void System::monteCarloDynamicStep(bool needNeighborUpdate)
 {
     if (needNeighborUpdate == true)
+    {
         findNeighbors_();
+    }
+
+    float oldEnergy;
+    float energyDelta;
+    float radiusPosition = systemInformation_["dimensions"]["update_policy"]["radius_position"].asFloat();
+    for (int i = 0; i < particles_.size(); ++i)
+    {
+
+        oldEnergy = computeEnergy();
+        particles_[i].updatePosition(radiusPosition);
+        energyDelta = computeEnergy() - oldEnergy;
+        if (energyDelta <= 0)
+        {
+            onEventCb_(particles_[i], 5, 5);
+        }
+        else
+        {
+            if (drand48() <= exp(-energyDelta / thermalEnergy_))
+            {
+                onEventCb_(particles_[i], 5, 5);
+            }
+            else
+            {
+                particles_[i].rollBackPosition();
+            }
+        }
+    }
 }
 
 

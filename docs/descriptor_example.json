@@ -38,6 +38,12 @@
             "name": "free electron",
             "spin": 1.0,
             "charge": -1.0
+        },
+
+        //specific the radius for update argument
+        "update_policy": {
+            "radius_spin": 1.0,
+            "radius_position": 1.0
         }
     },
     // This is gonna be passet to every interaction in the program.
@@ -52,9 +58,5 @@
         "zeeman": {
 
         }
-    },
-    "update_policy": {
-        "radius_s": 1.0,
-        "radius_r": 1.0
     }
 }
