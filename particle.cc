@@ -38,8 +38,10 @@ void Particle::updateSpin(float radius)
     float spinNorm = norm(spin_);
     oldSpin_ = spin_; 
     spin_ = spin_ + radius * randomVector();
-    spin_ = spin_ / norm(spin_);
-    spin_ = spin_ * spinNorm;
+    spin_ = spinNorm * spin_ / norm(spin_);
+    // oldSpin_ = spin_; 
+    // spin_ = radius * randomVector();
+
 }
 
 
@@ -106,7 +108,7 @@ void Particle::addNeighbor(int id)
 
 void Particle::clearNeighbors()
 {
-    neighbors_ = std::vector<int>(0);
+    neighbors_.clear();
 }
 
 

@@ -5,6 +5,7 @@ int main(int argc, char const *argv[])
 {
     Vector electricField;
     System system;
+    srand48(time(NULL));
 
     try
     {    
@@ -25,10 +26,9 @@ int main(int argc, char const *argv[])
 
     system.addField("Electric", electricField);
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 20; ++i)
     {
         system.monteCarloThermalStep(false);
-        std::cout << system.computeEnergy() << std::endl;
     }
 
     return 0;

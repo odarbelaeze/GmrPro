@@ -1,5 +1,6 @@
-#include "system.h"
+#include <cassert>
 
+#include "system.h"
 BadDescriptorException::BadDescriptorException() : error_("Unknown")
 {
 
@@ -44,7 +45,6 @@ System::System(const std::string fileName) : time_(0.0)
     bool parsingSuccessful = reader.parse(descriptorFile, root, false);
     if (!parsingSuccessful)
     {
-        // report to the user the failure and their locations in the document.
         std::cout  << "Failed to parse configuration\n"
                    << reader.getFormattedErrorMessages();
         throw BadDescriptorException("The descriptor is not a valid json file.");
@@ -64,7 +64,6 @@ System::System(const char* fileName) : time_(0.0)
     bool parsingSuccessful = reader.parse(descriptorFile, root, false);
     if (!parsingSuccessful)
     {
-        // report to the user the failure and their locations in the document.
         std::cout  << "Failed to parse configuration\n"
                    << reader.getFormattedErrorMessages();
         throw BadDescriptorException("The descriptor is not a valid json file.");
@@ -83,7 +82,6 @@ System::System(std::istream& descriptorIstream) : time_(0.0)
     bool parsingSuccessful = reader.parse(descriptorIstream, root, false);
     if (!parsingSuccessful)
     {
-        // report to the user the failure and their locations in the document.
         std::cout  << "Failed to parse configuration\n"
                    << reader.getFormattedErrorMessages();
         throw BadDescriptorException("The descriptor is not a valid json file.");
@@ -106,6 +104,7 @@ void System::initSystem_(const Json::Value& root)
     Vector vectorTemplate;
     systemInformation_ = root["system"];
     interactionInformation_ = root["interaction_info"];
+    thermalEnergy_ = 0.0001;
 
     int width = 0;
     int lenght = 0;
@@ -246,8 +245,11 @@ void System::initSystem_(const Json::Value& root)
         particles_.push_back(particleTemplate);
     }
 
-    for (int i = 0; i < particles_.size(); ++i)
+    for (int i = 0; i < particles_.size(); ++i){
         particles_[i].setId(i);
+        particles_[i].setSpin(randomVector());
+        particles_[i].setOldSpin(particles_[i].getSpin());
+    }
 
     findNeighbors_();
 }
@@ -367,30 +369,33 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
     if (needNeighborUpdate == true)
         findNeighbors_();
 
+    int i = 0;
     float oldEnergy;
     float energyDelta;
     float radiusSpin = systemInformation_["update_policy"]["radius_spin"].asFloat();
 
-    for (int i = 0; i < particles_.size(); ++i)
+    for (int iii = particles_.size() - 1; iii > 0; --iii)
     {
-        oldEnergy = computeTotalEnergyContribution_(i);
-        particles_[i].updateSpin(radiusSpin);
-        energyDelta = computeTotalEnergyContribution_(i) - oldEnergy;
-        if (energyDelta <= 0)
+        i = rand() % particles_.size();        
+
+        oldEnergy = computeEnergyContribution_(i);
+        particles_[i].updateSpin(1);
+        energyDelta = computeEnergyContribution_(i) - oldEnergy;
+
+        if (energyDelta <= 0.0f)
+        {
+            onEventCb_(particles_[i], energyDelta);
+        }
+        else if (drand48() <= exp(- energyDelta / thermalEnergy_))
         {
             onEventCb_(particles_[i], energyDelta);
         }
         else
         {
-            if (drand48() <= exp(-energyDelta / thermalEnergy_))
-            {
-                onEventCb_(particles_[i], energyDelta);
-            }
-            else
-            {
-                particles_[i].rollBackSpin();
-            }
+            particles_[i].rollBackSpin();
         }
+
+
     }
 }
 
@@ -405,7 +410,7 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate)
 
     float oldEnergy;
     float energyDelta;
-    float radiusPosition = systemInformation_["update_policy"]["radius_position"].asFloat();
+    float radiusPosition = systemInformation_["update_policy"]["radius_position"].asFloat(); 
     for (int i = 0; i < particles_.size(); ++i)
     {
 
@@ -416,16 +421,13 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate)
         {
             onEventCb_(particles_[i], energyDelta);
         }
+        else if (drand48() <= exp(-energyDelta / thermalEnergy_))
+        {
+            onEventCb_(particles_[i], energyDelta);
+        }
         else
         {
-            if (drand48() <= exp(-energyDelta / thermalEnergy_))
-            {
-                onEventCb_(particles_[i], energyDelta);
-            }
-            else
-            {
-                particles_[i].rollBackPosition();
-            }
+            particles_[i].rollBackPosition();
         }
     }
 }
@@ -447,6 +449,7 @@ float System::computeInteractionContribution_(int id)
     float K_0 = interactionInformation_["all"]["K_0"].asFloat();
     float I_0 = interactionInformation_["all"]["I_0"].asFloat();
     std::vector<int> neighbors = particles_[id].getNeighbors();
+
 
     for (int i = 0; i < neighbors.size(); ++i)
 
@@ -473,10 +476,10 @@ float System::computeInteractionContribution_(int id)
 }
 
 
-void  System::onEventCb_(const Particle& particle, float energyDelta)
+
+void  System::onEventCb_(Particle& particle, float energyDelta)
 {
-    // std::cout << "Gotcha event! new energy: " << computeEnergy() 
-    //           << "Delta: " << energyDelta << std::endl;
+    std::cout << particle.getOldSpin() << "    " << particle.getSpin() << std::endl;
 }
 
 
