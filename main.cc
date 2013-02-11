@@ -25,7 +25,11 @@ int main(int argc, char const *argv[])
 
     system.addField("Electric", electricField);
 
-    std::cout << system.computeEnergy() << std::endl;
+    for (int i = 0; i < 5; ++i)
+    {
+        system.monteCarloThermalStep(false);
+        std::cout << system.computeEnergy() << std::endl;
+    }
 
     return 0;
 }

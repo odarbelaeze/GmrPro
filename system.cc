@@ -356,10 +356,7 @@ float System::computeEnergy()
 {
     double energy = 0.0;
     for (int id = 0; id < particles_.size(); id++)
-    {
-        energy += computeFieldContribution_(id);
-        energy += computeInteractionContribution_(id);
-    }
+        energy += computeEnergyContribution_(id);
     return energy;
 }
 
@@ -368,29 +365,26 @@ float System::computeEnergy()
 void System::monteCarloThermalStep(bool needNeighborUpdate)
 {
     if (needNeighborUpdate == true)
-    {
         findNeighbors_();
-    }
-
 
     float oldEnergy;
     float energyDelta;
-    float radiusSpin = systemInformation_["dimensions"]["update_policy"]["radius_spin"].asFloat();
+    float radiusSpin = systemInformation_["update_policy"]["radius_spin"].asFloat();
 
     for (int i = 0; i < particles_.size(); ++i)
     {
-        oldEnergy = computeEnergy();
+        oldEnergy = computeTotalEnergyContribution_(i);
         particles_[i].updateSpin(radiusSpin);
-        energyDelta = computeEnergy() - oldEnergy;
+        energyDelta = computeTotalEnergyContribution_(i) - oldEnergy;
         if (energyDelta <= 0)
         {
-            onEventCb_(particles_[i], 5, 5);
+            onEventCb_(particles_[i], energyDelta);
         }
         else
         {
             if (drand48() <= exp(-energyDelta / thermalEnergy_))
             {
-                onEventCb_(particles_[i], 5, 5);
+                onEventCb_(particles_[i], energyDelta);
             }
             else
             {
@@ -411,22 +405,22 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate)
 
     float oldEnergy;
     float energyDelta;
-    float radiusPosition = systemInformation_["dimensions"]["update_policy"]["radius_position"].asFloat();
+    float radiusPosition = systemInformation_["update_policy"]["radius_position"].asFloat();
     for (int i = 0; i < particles_.size(); ++i)
     {
 
-        oldEnergy = computeEnergy();
+        oldEnergy = computeTotalEnergyContribution_(i);
         particles_[i].updatePosition(radiusPosition);
-        energyDelta = computeEnergy() - oldEnergy;
+        energyDelta = computeTotalEnergyContribution_(i) - oldEnergy;
         if (energyDelta <= 0)
         {
-            onEventCb_(particles_[i], 5, 5);
+            onEventCb_(particles_[i], energyDelta);
         }
         else
         {
             if (drand48() <= exp(-energyDelta / thermalEnergy_))
             {
-                onEventCb_(particles_[i], 5, 5);
+                onEventCb_(particles_[i], energyDelta);
             }
             else
             {
@@ -479,8 +473,10 @@ float System::computeInteractionContribution_(int id)
 }
 
 
-void  System::onEventCb_(const Particle&, float, float)
+void  System::onEventCb_(const Particle& particle, float energyDelta)
 {
+    // std::cout << "Gotcha event! new energy: " << computeEnergy() 
+    //           << "Delta: " << energyDelta << std::endl;
 }
 
 

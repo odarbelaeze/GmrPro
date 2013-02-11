@@ -64,7 +64,7 @@ class System
 
         virtual float computeFieldContribution_(int);
         virtual float computeInteractionContribution_(int);
-        virtual void  onEventCb_(const Particle&, float, float);
+        virtual void  onEventCb_(const Particle&, float);
 
     private:
         float thermalEnergy_;

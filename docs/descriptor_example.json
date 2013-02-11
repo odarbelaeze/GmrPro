@@ -43,7 +43,7 @@
         //specific the radius for update argument
         "update_policy": {
             "radius_spin": 1.0,
-            "radius_position": 1.0
+            "radius_position": 0.01
         }
     },
     // This is gonna be passet to every interaction in the program.
