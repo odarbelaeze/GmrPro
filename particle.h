@@ -13,17 +13,7 @@
 
 class Particle
 {
-    private:
-        Vector              position_;
-        Vector              spin_;
-        Vector              oldPosition_;
-        Vector              oldSpin_;
-        std::vector<int>    neighbors_;
-        int                 id_;
-        std::string         type_;
-        float               charge_;
 
-        
     public:
         Particle();
         Particle(const std::string&);
@@ -44,6 +34,9 @@ class Particle
         void setId(int);
         void setType(const std::string&);
         void setCharge(const float);
+        void setMovable(bool);
+
+        void pacmanEffect(const Vector&);
 
         Vector            getPosition();
         Vector            getSpin();
@@ -53,7 +46,18 @@ class Particle
         int               getId();
         std::string       getType();
         float             getCharge();
+        bool              getMovable();
 
+    private:
+        Vector              position_;
+        Vector              spin_;
+        Vector              oldPosition_;
+        Vector              oldSpin_;
+        std::vector<int>    neighbors_;
+        int                 id_;
+        bool                isMovable_;
+        std::string         type_;
+        float               charge_;
 };
 
 #endif

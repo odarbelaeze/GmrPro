@@ -53,8 +53,10 @@ class System
         Vector& getField(const std::string);
 
         float computeEnergy();
-        void monteCarloThermalStep(bool);
-        void monteCarloDynamicStep(bool);
+        void monteCarloThermalStep(bool needNeighborUpdate, bool callback = true);
+        void monteCarloDynamicStep(bool needNeighborUpdate, bool callback = true);
+
+        void resetSystem();
 
     protected:
         std::vector<Particle> particles_;
@@ -76,6 +78,7 @@ class System
 
         void initSystem_(const Json::Value&);
         void findNeighbors_();
+        void checkCloseNeighbors_();
         float computeEnergyContribution_(int);
         float computeTotalEnergyContribution_(int);
 

@@ -61,13 +61,29 @@ void Vector::setX(float x)
 {
     x_ = x;
 }
+
+
+
 void Vector::setY(float y)
 {
     y_ = y;
 }
+
+
+
 void Vector::setZ(float z)
 {
     z_ = z;
+}
+
+
+
+void Vector::pacmanEffect(const Vector& other)
+{
+    *this = vfmod(*this, other);
+    setX((x_ < 0)? other.x_ + x_ : x_);
+    setY((y_ < 0)? other.y_ + y_ : y_);
+    setZ((z_ < 0)? other.z_ + z_ : z_);
 }
 
 
@@ -246,6 +262,14 @@ Vector min(const Vector& vectorA, const Vector& vectorB)
     answer.z_ = (vectorA.z_ < vectorB.z_)? vectorA.z_ : vectorB.z_; 
     return answer;
 }
+
+
+
+Vector vfmod(const Vector& u, const Vector& v)
+{
+    return Vector(fmod(u.x_, v.x_), fmod(u.y_, v.y_), fmod(u.z_, v.z_));
+}
+
 
 
 Vector randomVector()

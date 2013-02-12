@@ -14,3 +14,7 @@ release:
 	g++ $(RELEASEFLAGS) -c particle.cc -o lib/particle.o
 	g++ $(RELEASEFLAGS) -c system.cc -o lib/system.o
 	g++ $(RELEASEFLAGS) -o bin/main main.cc $(LIBS) $(LDFLAGS)
+
+test:
+	g++ $(DEBUGFLAGS) -c simplevector.cc -o lib/simplevector.o
+	g++ $(DEBUGFLAGS) -o bin/testsimplevector test/testsimplevector.cc $(LIBS)

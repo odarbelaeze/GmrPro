@@ -10,6 +10,7 @@ Particle::Particle(const std::string& type)
     {
         type_ = "Electrón";
         charge_ = -1;
+        isMovable_ = true;
         spin_ = randomVector();
         oldSpin_ = spin_;
     }
@@ -17,6 +18,7 @@ Particle::Particle(const std::string& type)
     {
         type_ = "Ión";
         charge_ = +1;
+        isMovable_ = false;
         spin_ = randomVector();
         oldSpin_ = spin_;
     }
@@ -133,6 +135,19 @@ void Particle::setCharge(const float charge)
 
 
 
+void Particle::setMovable(bool isMovable)
+{
+    isMovable_ = isMovable;
+}
+
+
+
+void Particle::pacmanEffect(const Vector& vector)
+{
+    position_.pacmanEffect(vector);
+}
+
+
 
 Vector Particle::getPosition()
 {
@@ -188,3 +203,9 @@ float Particle::getCharge()
     return charge_;
 }
 
+
+
+bool Particle::getMovable()
+{
+    return isMovable_;
+}

@@ -10,7 +10,7 @@
         "dimensions": { "width": 20, "lenght": 20, "height": 8 },
 
         // The estructure of the system, sc, fcc, 
-        "structure" : "sc",
+        "structure" : "bcc",
 
         // The scale for the structure
         "scale": 1.0,
