@@ -7,7 +7,7 @@
         // containing the width lenght and height of the system in unit cells.
         // All of these are optional and will be one (1) inside the program if no
         // user input is especified.
-        "dimensions": { "width": 10, "lenght": 10, "height": 10 },
+        "dimensions": { "width": 20, "lenght": 20, "height": 8 },
 
         // The estructure of the system, sc, fcc, 
         "structure" : "sc",
@@ -20,7 +20,7 @@
         "periodic_boundary_conditions": {"x": 1, "y": 1, "z": 0},
 
         // The number of free electrons is still needed
-        "number_of_free_electrons": 1000,
+        "number_of_free_electrons": 3200,
 
         // Lattice spin traits
         // Lattice spin traits structure containing the name spin and charte
@@ -58,5 +58,29 @@
         "zeeman": {
 
         }
-    }
+    },
+
+    "runs":[
+        {
+            "thermalSteps": 100,
+            "dynamicSteps": 100,
+            "multiplier":   100,
+            "electricField": [1.0, 0.0, 0.0],
+            "thermalEnergyDelta": 0.1
+        },
+        {
+            "thermalSteps": 100,
+            "dynamicSteps": 100,
+            "multiplier":   100,
+            "electricField": [1.0, 0.0, 0.0],
+            "thermalEnergyDelta": 1.0
+        },
+        {
+            "thermalSteps": 100,
+            "dynamicSteps": 100,
+            "multiplier":   100,
+            "electricField": [1.0, 0.0, 0.0],
+            "thermalEnergyDelta": 10.0
+        }
+    ]
 }

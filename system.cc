@@ -49,6 +49,7 @@ System::System(const std::string fileName) : time_(0.0)
                    << reader.getFormattedErrorMessages();
         throw BadDescriptorException("The descriptor is not a valid json file.");
     }
+    descriptorFile.close();
 
     initSystem_(root);
 }
@@ -68,6 +69,7 @@ System::System(const char* fileName) : time_(0.0)
                    << reader.getFormattedErrorMessages();
         throw BadDescriptorException("The descriptor is not a valid json file.");
     }
+    descriptorFile.close();
 
     initSystem_(root);
 }
@@ -121,7 +123,18 @@ void System::initSystem_(const Json::Value& root)
     {
         throw BadDescriptorException(e.what());
     }
-    
+
+    try
+    {
+        pbc_.setX(systemInformation_["periodic_boundary_conditions"]["x"].asInt());
+        pbc_.setY(systemInformation_["periodic_boundary_conditions"]["y"].asInt());
+        pbc_.setZ(systemInformation_["periodic_boundary_conditions"]["z"].asInt());
+    }
+    catch (std::exception &e)
+    {
+        throw BadDescriptorException(e.what());
+    }
+
     try
     {
         scale = systemInformation_["scale"].asInt();
@@ -261,11 +274,6 @@ void System::findNeighbors_()
     float cutOff = systemInformation_["cut_off_radius"].asFloat();
 
     int scale = systemInformation_["scale"].asInt();
-    
-    Vector pbc;
-    pbc.setX(systemInformation_["periodic_boundary_conditions"]["x"].asInt());
-    pbc.setY(systemInformation_["periodic_boundary_conditions"]["y"].asInt());
-    pbc.setZ(systemInformation_["periodic_boundary_conditions"]["z"].asInt());
 
     for (int i = 0; i < particles_.size(); ++i)
     {
@@ -275,7 +283,7 @@ void System::findNeighbors_()
             if ((particles_[i].getId() != particles_[j].getId()) &&
                 (distancePbc(particles_[i].getPosition(), 
                              particles_[j].getPosition(), 
-                             dymensions_, pbc            ) <= cutOff))
+                             dymensions_, pbc_           ) <= cutOff))
                 particles_[i].addNeighbor(j);
         }
     }
@@ -325,6 +333,13 @@ float System::getThermalEnergy()
 
 
 
+float System::getEnergy()
+{
+    return energy_;
+}
+
+
+
 void System::setFields(const std::map<std::string, Vector*>& fields)
 {
     fields_ = fields;
@@ -368,6 +383,8 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
+    if (time_ == 0.0)
+        energy_ = computeEnergy();
 
     int i = 0;
     float oldEnergy;
@@ -376,7 +393,8 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
 
     for (int iii = particles_.size() - 1; iii > 0; --iii)
     {
-        i = rand() % particles_.size();        
+        time_ += 1.0;
+        i = rand() % particles_.size();
 
         oldEnergy = computeEnergyContribution_(i);
         particles_[i].updateSpin(1);
@@ -384,18 +402,18 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
 
         if (energyDelta <= 0.0f)
         {
-            onEventCb_(particles_[i], energyDelta);
+            energy_ += energyDelta;
+            onThermalEventCb_(particles_[i], energyDelta);
         }
         else if (drand48() <= exp(- energyDelta / thermalEnergy_))
         {
-            onEventCb_(particles_[i], energyDelta);
+            energy_ += energyDelta;
+            onThermalEventCb_(particles_[i], energyDelta);
         }
         else
         {
             particles_[i].rollBackSpin();
         }
-
-
     }
 }
 
@@ -404,26 +422,31 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
 void System::monteCarloDynamicStep(bool needNeighborUpdate)
 {
     if (needNeighborUpdate == true)
-    {
         findNeighbors_();
-    }
+    if (time_ == 0.0)
+        energy_ = computeEnergy();
 
+    int i = 0;
     float oldEnergy;
     float energyDelta;
     float radiusPosition = systemInformation_["update_policy"]["radius_position"].asFloat(); 
-    for (int i = 0; i < particles_.size(); ++i)
+    for (int iii = 0; iii < particles_.size(); ++iii)
     {
+        time_ += 1.0;
+        i = rand() % particles_.size();
 
-        oldEnergy = computeTotalEnergyContribution_(i);
+        oldEnergy = computeEnergyContribution_(i);
         particles_[i].updatePosition(radiusPosition);
-        energyDelta = computeTotalEnergyContribution_(i) - oldEnergy;
+        energyDelta = computeEnergyContribution_(i) - oldEnergy;
         if (energyDelta <= 0)
         {
-            onEventCb_(particles_[i], energyDelta);
+            energy_ += energyDelta;
+            onDynamicEventCb_(particles_[i], energyDelta);
         }
         else if (drand48() <= exp(-energyDelta / thermalEnergy_))
         {
-            onEventCb_(particles_[i], energyDelta);
+            energy_ += energyDelta;
+            onDynamicEventCb_(particles_[i], energyDelta);
         }
         else
         {
@@ -449,22 +472,26 @@ float System::computeInteractionContribution_(int id)
     float K_0 = interactionInformation_["all"]["K_0"].asFloat();
     float I_0 = interactionInformation_["all"]["I_0"].asFloat();
     std::vector<int> neighbors = particles_[id].getNeighbors();
-
+    float dis;
+    float dott;
 
     for (int i = 0; i < neighbors.size(); ++i)
-
     {
+        dis = distancePbc(particles_[i].getPosition(), particles_[id].getPosition(), 
+                          dymensions_, pbc_);
+        dott = dot(particles_[id].getSpin(), particles_[i].getSpin());
+
         if (particles_[id].getType() == "Ión" && particles_[i].getType() == "Ión")
         {
-            sum = - J * dot(particles_[id].getSpin(), particles_[i].getSpin());
+            sum = - J * dott;
         }
         else if (particles_[id].getType() == "Electrón" && particles_[i].getType() == "Electrón")
         {
-            sum = - K_0 * exp(- distance(particles_[id].getPosition(), particles_[i].getPosition())) * dot(particles_[id].getSpin(), particles_[i].getSpin());
+            sum = - K_0 * exp( - dis) * dott;
         }
         else if ((particles_[id].getType() == "Electrón" && particles_[i].getType() == "Ión") || (particles_[id].getType() == "Ión" && particles_[i].getType() == "Electrón"))
         {
-            sum = - I_0 * exp(- distance(particles_[id].getPosition(), particles_[i].getPosition())) * dot(particles_[id].getSpin(), particles_[i].getSpin());
+            sum = - I_0 * exp( - dis) * dott;
         }
         else
         {
@@ -477,9 +504,22 @@ float System::computeInteractionContribution_(int id)
 
 
 
-void  System::onEventCb_(Particle& particle, float energyDelta)
+void  System::onThermalEventCb_(Particle& particle, float energyDelta)
 {
-    std::cout << particle.getOldSpin() << "    " << particle.getSpin() << std::endl;
+    // std::cout << time_ << energy_ << std::endl;
+}
+
+
+
+void  System::onDynamicEventCb_(Particle& particle, float energyDelta)
+{
+    // std::cout << time_ << energy_ << std::endl;
+    std::cout << time_ << "    " 
+              << energy_ << "   "
+              << thermalEnergy_ << "    "
+              << particle.getOldPosition() << "    "
+              << particle.getPosition() << "    "
+              ;
 }
 
 
@@ -498,3 +538,4 @@ float System::computeTotalEnergyContribution_(int id)
            2.0 * computeInteractionContribution_(id);
 }
 
+ 

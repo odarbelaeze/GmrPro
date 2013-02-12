@@ -44,6 +44,7 @@ class System
         std::map<std::string, Vector*> getFields();
         Vector getDymensions();
         float getThermalEnergy();
+        float getEnergy();
 
         void setFields(const std::map<std::string, Vector*>&);
         void setThermalEnergy(const float&);
@@ -61,14 +62,17 @@ class System
         Json::Value interactionInformation_;
         std::map<std::string, Vector*> fields_;
         Vector dymensions_;
+        Vector pbc_;
 
         virtual float computeFieldContribution_(int);
         virtual float computeInteractionContribution_(int);
-        virtual void  onEventCb_(Particle&, float);
+        virtual void  onThermalEventCb_(Particle&, float);
+        virtual void  onDynamicEventCb_(Particle&, float);
 
     private:
         float thermalEnergy_;
         float time_;
+        float energy_;
 
         void initSystem_(const Json::Value&);
         void findNeighbors_();
