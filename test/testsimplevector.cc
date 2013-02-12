@@ -47,5 +47,13 @@ int main(int argc, char const *argv[])
 
     EXPECT_EXEPTION(passed, u(5) = 0, OutOfBoundsException)
 
+    std::cout << vfmod(Vector(1, 12.1, 12), Vector(12, 12, 12)) << std::endl;
+    Vector moduled = vfmod(Vector(1, 12.1, 12), Vector(12, 12, 12));
+    std::cout << moduled << std::endl;
+
+    Vector toPacmanize(12.1, - 0.1, 12);
+    toPacmanize.pacmanEffect(Vector(12, 12, 12));
+    std::cout << toPacmanize << std::endl;
+
     return 0;
 }

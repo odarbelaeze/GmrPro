@@ -266,6 +266,7 @@ void System::initSystem_(const Json::Value& root)
     }
 
     findNeighbors_();
+    checkCloseNeighbors_();
 }
 
 
@@ -288,6 +289,37 @@ void System::findNeighbors_()
                 particles_[i].addNeighbor(j);
         }
     }
+}
+
+
+
+void System::checkCloseNeighbors_()
+{
+    float radiusPosition = systemInformation_["update_policy"]["radius_position"].asFloat();
+    bool  hadCloseNeighbors = false;
+    std::vector<int> neighbors;
+
+    for (int i = 0; i < particles_.size(); ++i)
+    {
+        neighbors = particles_[i].getNeighbors();
+        for (int j = 0; j < neighbors.size(); ++j)
+        {
+            if (distancePbc(particles_[i].getPosition(), 
+                            particles_[neighbors[j]].getPosition(), 
+                            dymensions_, pbc_) < radiusPosition)
+            {
+                hadCloseNeighbors = true;
+                particles_[i].setPosition(dymensions_ * randomVectorInBox());
+            }
+        }
+    }
+
+    if (hadCloseNeighbors == true)
+    {
+        findNeighbors_();
+        checkCloseNeighbors_();
+    }
+
 }
 
 
@@ -380,7 +412,7 @@ float System::computeEnergy()
 
 
 
-void System::monteCarloThermalStep(bool needNeighborUpdate)
+void System::monteCarloThermalStep(bool needNeighborUpdate, bool callback)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
@@ -404,12 +436,14 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
         if (energyDelta <= 0.0f)
         {
             energy_ += energyDelta;
-            onThermalEventCb_(particles_[i], energyDelta);
+            if (callback == true)
+                onThermalEventCb_(particles_[i], energyDelta);
         }
         else if (drand48() <= exp(- energyDelta / thermalEnergy_))
         {
             energy_ += energyDelta;
-            onThermalEventCb_(particles_[i], energyDelta);
+            if (callback == true)
+                onThermalEventCb_(particles_[i], energyDelta);
         }
         else
         {
@@ -420,7 +454,7 @@ void System::monteCarloThermalStep(bool needNeighborUpdate)
 
 
 
-void System::monteCarloDynamicStep(bool needNeighborUpdate)
+void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
@@ -435,25 +469,39 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate)
     {
         time_ += 1.0;
         i = rand() % particles_.size();
-
-        oldEnergy = computeEnergyContribution_(i);
-        particles_[i].updatePosition(radiusPosition);
-        energyDelta = computeEnergyContribution_(i) - oldEnergy;
-        if (energyDelta <= 0)
+        if (particles_[i].getMovable() == true)
         {
-            energy_ += energyDelta;
-            onDynamicEventCb_(particles_[i], energyDelta);
-        }
-        else if (drand48() <= exp(-energyDelta / thermalEnergy_))
-        {
-            energy_ += energyDelta;
-            onDynamicEventCb_(particles_[i], energyDelta);
-        }
-        else
-        {
-            particles_[i].rollBackPosition();
+            oldEnergy = computeEnergyContribution_(i);
+            particles_[i].updatePosition(radiusPosition);
+            particles_[i].pacmanEffect(dymensions_);
+            energyDelta = computeEnergyContribution_(i) - oldEnergy;
+            if (energyDelta <= 0)
+            {
+                energy_ += energyDelta;
+                if (callback == true)
+                    onDynamicEventCb_(particles_[i], energyDelta);
+            }
+            else if (drand48() <= exp(-energyDelta / thermalEnergy_))
+            {
+                energy_ += energyDelta;
+                if (callback == true)
+                    onDynamicEventCb_(particles_[i], energyDelta);
+            }
+            else
+            {
+                particles_[i].rollBackPosition();
+            }
         }
     }
+}
+
+
+
+void System::resetSystem()
+{
+    time_ = 0.0;
+    findNeighbors_();
+    energy_ = computeEnergy();
 }
 
 
@@ -472,6 +520,8 @@ float System::computeInteractionContribution_(int id)
     float J = interactionInformation_["all"]["J"].asFloat();
     float K_0 = interactionInformation_["all"]["K_0"].asFloat();
     float I_0 = interactionInformation_["all"]["I_0"].asFloat();
+    float radiusPosition = systemInformation_["radius_position"].asFloat();
+
     std::vector<int> neighbors = particles_[id].getNeighbors();
     float dis;
     float dott;
@@ -481,6 +531,7 @@ float System::computeInteractionContribution_(int id)
         dis = distancePbc(particles_[i].getPosition(), particles_[id].getPosition(), 
                           dymensions_, pbc_);
         dott = dot(particles_[id].getSpin(), particles_[i].getSpin());
+        sum += exp(1 / (dis * radiusPosition));
 
         if (particles_[id].getType() == "Ión" && particles_[i].getType() == "Ión")
         {
@@ -519,8 +570,7 @@ void  System::onDynamicEventCb_(Particle& particle, float energyDelta)
               << energy_ << "   "
               << thermalEnergy_ << "    "
               << particle.getOldPosition() << "    "
-              << particle.getPosition() << "    "
-              ;
+              << particle.getPosition() << std::endl;
 }
 
 

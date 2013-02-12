@@ -29,6 +29,8 @@ public:
     void setY(float);
     void setZ(float);
 
+    void pacmanEffect(const Vector&);
+
     float& operator() (int i);
     float& operator[] (int i);
 
@@ -50,7 +52,9 @@ public:
     friend float distance(const Vector&, const Vector&);
     friend float distancePbc(const Vector&, const Vector&, const Vector&, const Vector&);
     friend Vector min(const Vector&, const Vector&);
+    friend Vector vfmod(const Vector&, const Vector&);
     friend std::ostream& operator<< (std::ostream&, const Vector&);
+
 protected:
 
 private:
