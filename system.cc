@@ -103,11 +103,12 @@ System::~System()
 
 void System::initSystem_(const Json::Value& root)
 {
-    Vector vectorTemplate;
     systemInformation_ = root["system"];
     interactionInformation_ = root["interaction_info"];
     thermalEnergy_ = 0.0001;
+    time_ = 0.0;
 
+    Vector vectorTemplate;
     int width = 0;
     int lenght = 0;
     int height = 0;
