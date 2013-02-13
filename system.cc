@@ -106,7 +106,7 @@ void System::initSystem_(const Json::Value& root)
     systemInformation_ = root["system"];
     interactionInformation_ = root["interaction_info"];
     thermalEnergy_ = 0.0001;
-    time_ = 0.0;
+    time_ = 0;
 
     Vector vectorTemplate;
     int width = 0;
@@ -499,7 +499,7 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
 
 void System::resetSystem()
 {
-    time_ = 0.0;
+    time_ = 0;
     findNeighbors_();
     energy_ = computeEnergy();
 }

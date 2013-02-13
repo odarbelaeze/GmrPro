@@ -73,7 +73,7 @@ class System
 
     private:
         float thermalEnergy_;
-        float time_;
+        unsigned long int time_;
         float energy_;
 
         void initSystem_(const Json::Value&);

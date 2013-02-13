@@ -62,6 +62,8 @@ int main(int argc, char const *argv[])
         std::ostringstream strCout;
         std::cout.rdbuf( strCout.rdbuf() );
 
+        system.resetSystem();
+
         electricField = Vector(
             runs[i]["electricField"][0].asFloat(),
             runs[i]["electricField"][1].asFloat(),
@@ -74,7 +76,7 @@ int main(int argc, char const *argv[])
         for (int iii = 0; iii < runs[i]["multiplier"].asInt(); ++iii)
         {        
             for (int thermalStep = 0; thermalStep < runs[i]["thermalSteps"].asInt(); ++thermalStep)
-                system.monteCarloThermalStep(false);
+                system.monteCarloThermalStep(false, false);
             for (int dynamicStep = 0; dynamicStep < runs[i]["dynamicSteps"].asInt(); ++dynamicStep)
                 system.monteCarloDynamicStep(dynamicStep % 10 == 0);
             system.setThermalEnergy(system.getThermalEnergy() - 
