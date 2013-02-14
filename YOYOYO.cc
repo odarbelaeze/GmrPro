@@ -14,11 +14,11 @@ int main(int argc, char const *argv[])
 	float banderatiempo;
 
 
-	float time_i;
+	float time_i = 0;
 	float time_f = 0;
 	float deltaTime = 0;
 	float deltaEnergy = 0;
-	float thermalEnergy = 10;
+	float thermalEnergy ;
 	float energy;
 	Vector initial;
 	Vector last;
@@ -45,6 +45,7 @@ int main(int argc, char const *argv[])
         if (time_i == 0)
         {
         	time_i = time_f;
+        	banderaEnergia = thermalEnergy;
         }
 
     	deltaTime += (time_f - time_i);
