@@ -62,24 +62,24 @@
 
     "runs":[
         {
-            "thermalSteps": 100,
-            "dynamicSteps": 100,
-            "multiplier":   100,
-            "electricField": [1.0, 0.0, 0.0],
+            "thermalSteps": 5,
+            "dynamicSteps": 5,
+            "multiplier":   5,
+            "electricField": [100.0, 0.0, 0.0],
             "thermalEnergyDelta": 0.1
         },
         {
-            "thermalSteps": 100,
-            "dynamicSteps": 100,
-            "multiplier":   100,
-            "electricField": [1.0, 0.0, 0.0],
+            "thermalSteps": 5,
+            "dynamicSteps": 5,
+            "multiplier":   5,
+            "electricField": [100.0, 0.0, 0.0],
             "thermalEnergyDelta": 1.0
         },
         {
-            "thermalSteps": 100,
-            "dynamicSteps": 100,
-            "multiplier":   100,
-            "electricField": [1.0, 0.0, 0.0],
+            "thermalSteps": 5,
+            "dynamicSteps": 5,
+            "multiplier":   5,
+            "electricField": [100.0, 0.0, 0.0],
             "thermalEnergyDelta": 10.0
         }
     ]
