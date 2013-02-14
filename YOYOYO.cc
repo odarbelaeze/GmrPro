@@ -57,7 +57,7 @@ int main(int argc, char const *argv[])
         }
         else
     	{
-    		std::cout << deltaX	/ deltaTime << "\t" << deltaX / deltaTime << "\t" << banderaEnergia << std::endl;
+    		std::cout << deltaX	/ deltaTime << "\t" << deltaTime / deltaX << "\t" << banderaEnergia << std::endl;
     		deltaTime = 0;
     		deltaX += norm(last - initial);
     		// time_i = time_f;
