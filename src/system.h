@@ -6,14 +6,8 @@
 
 #include <jsoncpp/json/json.h>
 
+#include "simplevector.h"
 #include "particle.h"
-
-// #define TR(i, its) for(typeof(its.begin()) i = its.begin(); i != its.end(); i++)
-
-typedef Vector Field;
-typedef float (*PFI)(Particle &, Field &, Json::Value&);
-typedef float (*PPI)(Particle &, Particle &, Json::Value&);
-
 
 class BadDescriptorException
 {
@@ -28,6 +22,7 @@ class BadDescriptorException
 };
 
 
+
 class System
 {
     public:
@@ -38,33 +33,33 @@ class System
         System(std::istream&);
         ~System();
 
-        std::vector<Particle> getParticles();
-        Json::Value getSystemInformation();
-        Json::Value getInteractionInformation();
-        std::map<std::string, Vector*> getFields();
-        Vector getDymensions();
-        float getThermalEnergy();
-        float getEnergy();
+        const std::vector<Particle>&    getParticles();
+        const Json::Value&              getSystemInformation();
+        const Json::Value&              getInteractionInformation();
+        Vector                          getDimensions();
+        float                           getThermalEnergy();
+        float                           getEnergy();
+        float                           computeEnergy();
 
-        void setFields(const std::map<std::string, Vector*>&);
         void setThermalEnergy(const float&);
+        void resetSystem();
 
-        void addField(const std::string, Vector&);
-        Vector& getField(const std::string);
-
-        float computeEnergy();
         void monteCarloThermalStep(bool needNeighborUpdate, bool callback = true);
         void monteCarloDynamicStep(bool needNeighborUpdate, bool callback = true);
 
-        void resetSystem();
-
     protected:
-        std::vector<Particle> particles_;
-        Json::Value systemInformation_;
-        Json::Value interactionInformation_;
-        std::map<std::string, Vector*> fields_;
-        Vector dymensions_;
-        Vector pbc_;
+        Vector                  boundaryConditions_;
+        Vector                  dimensions_;
+        float                   energy_;
+        Json::Value             interactionInformation_;
+        float                   muffinTinRadi_;
+        float                   neighborCutOff_;
+        std::vector<Particle>   particles_;
+        float                   scale_;
+        std::string             structure_;
+        Json::Value             systemInformation_;
+        float                   thermalEnergy_;
+        unsigned long int       time_;
 
         virtual float computeFieldContribution_(int);
         virtual float computeInteractionContribution_(int);
@@ -72,15 +67,12 @@ class System
         virtual void  onDynamicEventCb_(Particle&, float);
 
     private:
-        float thermalEnergy_;
-        unsigned long int time_;
-        float energy_;
 
-        void initSystem_(const Json::Value&);
-        void findNeighbors_();
-        void checkCloseNeighbors_();
-        float computeEnergyContribution_(int);
-        float computeTotalEnergyContribution_(int);
+        void    initSystem_(const Json::Value&);
+        void    findNeighbors_();
+        void    checkCloseNeighbors_();
+        float   computeEnergyContribution_(int);
+        float   computeTotalEnergyContribution_(int);
 
 };
 

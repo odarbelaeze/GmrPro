@@ -16,35 +16,22 @@
         "scale": 1.0,
 
         // The cut off radius for the neighboring
-        "cut_off_radius": 1.1,
-        "periodic_boundary_conditions": {"x": 1, "y": 1, "z": 0},
+        "neighborCutOff": 1.1,
 
-        // The number of free electrons is still needed
-        "number_of_free_electrons": 3200,
+        // Boundary conditions of the system
+        "boundaryconditions": {"x": 1, "y": 1, "z": 0},
 
-        // Lattice spin traits
-        // Lattice spin traits structure containing the name spin and charte
-        // of the lattice spins.
-        "lattice_spin_traits": {
-            "name": "latice spin",
-            "spin": 1.0,
-            "charge": 1.0
-        },
-
-        // Free electron traits
-        // Lattice spin traits structure containing the name spin and charte
-        // of the free electrons.
-        "free_electron_traits": {
-            "name": "free electron",
-            "spin": 1.0,
-            "charge": -1.0
-        },
+        // Muffin-tin radi for pseudo solid potentials
+        "muffinTinRadi": 0.001,
 
         //specific the radius for update argument
-        "update_policy": {
-            "radius_spin": 1.0,
-            "radius_position": 0.01
-        }
+        "updatePolicy": {
+            "deltaSpin": 1.0,
+            "deltaPosition": 0.01
+        },
+
+        // The number of free electrons is still needed
+        "freeElectronCount": 3200,
     },
     // This is gonna be passet to every interaction in the program.
     // So this is gonna contain all every single parameter needed in the

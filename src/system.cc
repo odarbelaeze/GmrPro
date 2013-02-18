@@ -103,22 +103,19 @@ System::~System()
 
 void System::initSystem_(const Json::Value& root)
 {
-    systemInformation_ = root["system"];
+    systemInformation_      = root["system"];
     interactionInformation_ = root["interaction_info"];
-    thermalEnergy_ = 0.0001;
-    time_ = 0;
-
-    Vector vectorTemplate;
-    int width = 0;
-    int lenght = 0;
-    int height = 0;
-    int scale = 0;
+    thermalEnergy_          = 0.0001;
+    time_                   = 0;
+    neighborCutOff_         = systemInformation_["neighborCutOff"].asFloat();
+    muffinTinRadi_          = systemInformation_["muffinTinRadi"].asFloat();
+    structure_              = systemInformation_["structure"].asString();
 
     try
     {
-        width = systemInformation_["dimensions"]["width"].asInt();
-        lenght = systemInformation_["dimensions"]["lenght"].asInt();
-        height = systemInformation_["dimensions"]["height"].asInt();    
+        dimensions_[0] = systemInformation_["dimensions"]["width"].asInt();
+        dimensions_[1] = systemInformation_["dimensions"]["lenght"].asInt();
+        dimensions_[2] = systemInformation_["dimensions"]["height"].asInt();    
     }
     catch (std::exception &e)
     {
@@ -127,9 +124,9 @@ void System::initSystem_(const Json::Value& root)
 
     try
     {
-        pbc_.setX(systemInformation_["periodic_boundary_conditions"]["x"].asInt());
-        pbc_.setY(systemInformation_["periodic_boundary_conditions"]["y"].asInt());
-        pbc_.setZ(systemInformation_["periodic_boundary_conditions"]["z"].asInt());
+        boundaryConditions_[0] = systemInformation_["boundaryConditions"]["x"].asInt();
+        boundaryConditions_[1] = systemInformation_["boundaryConditions"]["y"].asInt();
+        boundaryConditions_[2] = systemInformation_["boundaryConditions"]["z"].asInt();
     }
     catch (std::exception &e)
     {
@@ -138,125 +135,122 @@ void System::initSystem_(const Json::Value& root)
 
     try
     {
-        scale = systemInformation_["scale"].asInt();
+        scale_ = systemInformation_["scale"].asInt();
     }
     catch (std::exception &e)
     {
         throw BadDescriptorException(e.what());
     }
 
-    if (width <= 0 || lenght <= 0 || height <= 0 || scale <= 0)
+    if (dimensions_[0] <= 0 || dimensions_[1] <= 0 || dimensions_[2] <= 0 || scale_ <= 0)
     {
         throw BadDescriptorException("Come on man! are you serius about your dimensions and scale?");
     }
 
-    std::string structure = systemInformation_["structure"].asString();
+    Vector vector;
+    Particle particle("Ión");
 
-    dymensions_ = Vector(width * scale, height * scale, lenght * scale);
-
-    particles_.clear();
-
-    Particle particleTemplate("Ión");
-    if (structure == "sc")
+    if (structure_ == "sc")
     {
-        for (int i = 0; i < width; ++i)
+        for (int i = 0; i < dimensions_[0]; ++i)
         {
-            for (int j = 0; j < height; ++j)
+            for (int j = 0; j < dimensions_[1]; ++j)
             {
-                for (int k = 0; k < lenght; ++k)
+                for (int k = 0; k < dimensions_[3]; ++k)
                 {
-                    vectorTemplate.setX((i + 0.0f) * scale);
-                    vectorTemplate.setY((j + 0.0f) * scale);
-                    vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setOldPosition(vectorTemplate);
-                    particles_.push_back(particleTemplate);
+                    vector[0] = (i + 0.0f) * scale_;
+                    vector[1] = (j + 0.0f) * scale_;
+                    vector[2] = (k + 0.0f) * scale_;
+                    particle.setPosition(vector);
+                    particle.setOldPosition(vector);
+                    particles_.push_back(particle);
 
                 }
             }
         }
     }
-    else if (structure == "bcc")
+    else if (structure_ == "bcc")
     {
-        for (int i = 0; i < width; ++i)
+        for (int i = 0; i < dimensions_[0]; ++i)
         {
-            for (int j = 0; j < height; ++j)
+            for (int j = 0; j < dimensions_[1]; ++j)
             {
-                for (int k = 0; k < lenght; ++k)
+                for (int k = 0; k < dimensions_[3]; ++k)
                 {
-                    vectorTemplate.setX((i + 0.0f) * scale);
-                    vectorTemplate.setY((j + 0.0f) * scale);
-                    vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setOldPosition(vectorTemplate);
-                    particles_.push_back(particleTemplate);
+                    vector[0] = (i + 0.0f) * scale_;
+                    vector[1] = (j + 0.0f) * scale_;
+                    vector[2] = (k + 0.0f) * scale_;
+                    particle.setPosition(vector);
+                    particle.setOldPosition(vector);
+                    particles_.push_back(particle);
 
-                    vectorTemplate.setX((i + 0.5f) * scale);
-                    vectorTemplate.setY((j + 0.5f) * scale);
-                    vectorTemplate.setZ((k + 0.5f) * scale);
-                    particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setOldPosition(vectorTemplate);
-                    particles_.push_back(particleTemplate);
+                    vector[0] = (i + 0.5f) * scale_;
+                    vector[1] = (j + 0.5f) * scale_;
+                    vector[2] = (k + 0.5f) * scale_;
+                    particle.setPosition(vector);
+                    particle.setOldPosition(vector);
+                    particles_.push_back(particle);
                     
                 }
             }
         }
     }
-    else if (structure == "fcc")
+    else if (structure_ == "fcc")
     {
-        for (int i = 0; i < width; ++i)
+        for (int i = 0; i < dimensions_[0]; ++i)
         {
-            for (int j = 0; j < height; ++j)
+            for (int j = 0; j < dimensions_[1]; ++j)
             {
-                for (int k = 0; k < lenght; ++k)
+                for (int k = 0; k < dimensions_[3]; ++k)
                 {
-                    vectorTemplate.setX((i + 0.0f) * scale);
-                    vectorTemplate.setY((j + 0.0f) * scale);
-                    vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setOldPosition(vectorTemplate);
-                    particles_.push_back(particleTemplate);
+                    vector[0] = (i + 0.0f) * scale_;
+                    vector[1] = (j + 0.0f) * scale_;
+                    vector[2] = (k + 0.0f) * scale_;
+                    particle.setPosition(vector);
+                    particle.setOldPosition(vector);
+                    particles_.push_back(particle);
 
 
-                    vectorTemplate.setX((i + 0.5f) * scale);
-                    vectorTemplate.setY((j + 0.5f) * scale);
-                    vectorTemplate.setZ((k + 0.0f) * scale);
-                    particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setOldPosition(vectorTemplate);
-                    particles_.push_back(particleTemplate);
+                    vector[0] = (i + 0.5f) * scale_;
+                    vector[1] = (j + 0.5f) * scale_;
+                    vector[2] = (k + 0.0f) * scale_;
+                    particle.setPosition(vector);
+                    particle.setOldPosition(vector);
+                    particles_.push_back(particle);
                     
 
-                    vectorTemplate.setX((i + 0.0f) * scale);
-                    vectorTemplate.setY((j + 0.5f) * scale);
-                    vectorTemplate.setZ((k + 0.5f) * scale);
-                    particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setOldPosition(vectorTemplate);
-                    particles_.push_back(particleTemplate);
+                    vector[0] = (i + 0.0f) * scale_;
+                    vector[1] = (j + 0.5f) * scale_;
+                    vector[2] = (k + 0.5f) * scale_;
+                    particle.setPosition(vector);
+                    particle.setOldPosition(vector);
+                    particles_.push_back(particle);
                     
 
-                    vectorTemplate.setX((i + 0.5f) * scale);
-                    vectorTemplate.setY((j + 0.0f) * scale);
-                    vectorTemplate.setZ((k + 0.5f) * scale);
-                    particleTemplate.setPosition(vectorTemplate);
-                    particleTemplate.setOldPosition(vectorTemplate);
-                    particles_.push_back(particleTemplate);
+                    vector[0] = (i + 0.5f) * scale_;
+                    vector[1] = (j + 0.0f) * scale_;
+                    vector[2] = (k + 0.5f) * scale_;
+                    particle.setPosition(vector);
+                    particle.setOldPosition(vector);
+                    particles_.push_back(particle);
                 }
             }
         }
     }
     else
     {
-        throw BadDescriptorException("The structure " + structure + " is not supported.");
+        throw BadDescriptorException("The structure " + structure_ + " is not supported.");
     }
 
-    particleTemplate = Particle("Electrón");
+    dimensions_ = scale_ * dimensions_;
+    particle = Particle("Electrón");
     int electronCount = systemInformation_["number_of_free_electrons"].asInt();
 
     for (int i = 0; i < electronCount; ++i)
     {
-        particleTemplate.setPosition(dymensions_ * randomVectorInBox());
-        particleTemplate.setOldPosition(particleTemplate.getPosition());
-        particles_.push_back(particleTemplate);
+        particle.setPosition(dimensions_ * randomVectorInBox());
+        particle.setOldPosition(particle.getPosition());
+        particles_.push_back(particle);
     }
 
     for (int i = 0; i < particles_.size(); ++i){
@@ -267,16 +261,13 @@ void System::initSystem_(const Json::Value& root)
 
     findNeighbors_();
     checkCloseNeighbors_();
+    energy_ = computeEnergy();
 }
 
 
 
 void System::findNeighbors_()
 {
-    float cutOff = systemInformation_["cut_off_radius"].asFloat();
-
-    int scale = systemInformation_["scale"].asInt();
-
     for (int i = 0; i < particles_.size(); ++i)
     {
         particles_[i].clearNeighbors();
@@ -285,7 +276,7 @@ void System::findNeighbors_()
             if ((particles_[i].getId() != particles_[j].getId()) &&
                 (distancePbc(particles_[i].getPosition(), 
                              particles_[j].getPosition(), 
-                             dymensions_, pbc_           ) <= cutOff))
+                             dimensions_, boundaryConditions_) <= neighborCutOff_))
                 particles_[i].addNeighbor(j);
         }
     }
@@ -295,7 +286,6 @@ void System::findNeighbors_()
 
 void System::checkCloseNeighbors_()
 {
-    float radiusPosition = systemInformation_["update_policy"]["radius_position"].asFloat();
     bool  hadCloseNeighbors = false;
     std::vector<int> neighbors;
 
@@ -306,10 +296,10 @@ void System::checkCloseNeighbors_()
         {
             if (distancePbc(particles_[i].getPosition(), 
                             particles_[neighbors[j]].getPosition(), 
-                            dymensions_, pbc_) < radiusPosition)
+                            dimensions_, boundaryConditions_) < muffinTinRadi_)
             {
                 hadCloseNeighbors = true;
-                particles_[i].setPosition(dymensions_ * randomVectorInBox());
+                particles_[i].setPosition(dimensions_ * randomVectorInBox());
             }
         }
     }
@@ -319,42 +309,34 @@ void System::checkCloseNeighbors_()
         findNeighbors_();
         checkCloseNeighbors_();
     }
-
 }
 
 
 
-std::vector<Particle> System::getParticles()
+const std::vector<Particle>& System::getParticles()
 {
     return particles_;
 }
 
 
 
-Json::Value System::getSystemInformation()
+const Json::Value& System::getSystemInformation()
 {
     return systemInformation_;
 }
 
 
 
-Json::Value System::getInteractionInformation()
+const Json::Value& System::getInteractionInformation()
 {
     return interactionInformation_;
 }
 
 
 
-std::map<std::string, Vector*> System::getFields()
+Vector System::getDimensions()
 {
-    return fields_;
-}
-
-
-
-Vector System::getDymensions()
-{
-    return dymensions_;
+    return dimensions_;
 }
 
 
@@ -373,9 +355,12 @@ float System::getEnergy()
 
 
 
-void System::setFields(const std::map<std::string, Vector*>& fields)
+float System::computeEnergy()
 {
-    fields_ = fields;
+    double energy = 0.0;
+    for (int id = 0; id < particles_.size(); id++)
+        energy += computeEnergyContribution_(id);
+    return energy;
 }
 
 
@@ -388,49 +373,23 @@ void System::setThermalEnergy(const float& thermalEnergy)
 
 
 
-void System::addField(const std::string name, Vector& vector)
-{
-    fields_.insert(std::pair<std::string, Vector*>(name, &vector));
-}
-
-
-
-Vector& System::getField(const std::string name)
-{
-    return *(fields_[name]);
-}
-
-
-
-float System::computeEnergy()
-{
-    double energy = 0.0;
-    for (int id = 0; id < particles_.size(); id++)
-        energy += computeEnergyContribution_(id);
-    return energy;
-}
-
-
-
 void System::monteCarloThermalStep(bool needNeighborUpdate, bool callback)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
-    if (time_ == 0.0)
-        energy_ = computeEnergy();
 
-    int i = 0;
+    int   i = 0;
     float oldEnergy;
     float energyDelta;
-    float radiusSpin = systemInformation_["update_policy"]["radius_spin"].asFloat();
+    float deltaSpin = systemInformation_["updatePolicy"]["deltaSpin"].asFloat();
 
-    for (int iii = particles_.size() - 1; iii > 0; --iii)
+    for (int iii = 0; iii < particles_.size(); iii++)
     {
         time_ += 1.0;
-        i = rand() % particles_.size();
+        i      = rand() % particles_.size();
 
         oldEnergy = computeEnergyContribution_(i);
-        particles_[i].updateSpin(1);
+        particles_[i].updateSpin(deltaSpin);
         energyDelta = computeEnergyContribution_(i) - oldEnergy;
 
         if (energyDelta <= 0.0f)
@@ -458,23 +417,24 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
-    if (time_ == 0.0)
-        energy_ = computeEnergy();
 
     int i = 0;
     float oldEnergy;
     float energyDelta;
-    float radiusPosition = systemInformation_["update_policy"]["radius_position"].asFloat(); 
-    for (int iii = 0; iii < particles_.size(); ++iii)
+    float deltaPosition = systemInformation_["updatePolicy"]["deltaPosition"].asFloat(); 
+
+    for (int iii = 0; iii < particles_.size(); iii++)
     {
         time_ += 1.0;
-        i = rand() % particles_.size();
+        i      = rand() % particles_.size();
+        
         if (particles_[i].getMovable() == true)
         {
-            oldEnergy = computeEnergyContribution_(i);
-            particles_[i].updatePosition(radiusPosition);
-            particles_[i].pacmanEffect(dymensions_);
+            oldEnergy   = computeEnergyContribution_(i);
+            particles_[i].updatePosition(deltaPosition);
+            particles_[i].pacmanEffect(dimensions_);
             energyDelta = computeEnergyContribution_(i) - oldEnergy;
+            
             if (energyDelta <= 0)
             {
                 energy_ += energyDelta;
@@ -501,6 +461,7 @@ void System::resetSystem()
 {
     time_ = 0;
     findNeighbors_();
+    checkCloseNeighbors_();
     energy_ = computeEnergy();
 }
 
@@ -508,8 +469,7 @@ void System::resetSystem()
 
 float System::computeFieldContribution_(int id)
 {
-    return - particles_[id].getCharge() * dot(*(fields_["Electric"]) ,
-                                              particles_[id].getPosition());
+    return 0.0;
 }
 
 
@@ -517,38 +477,14 @@ float System::computeFieldContribution_(int id)
 float System::computeInteractionContribution_(int id)
 {
     float sum = 0;
-    float J = interactionInformation_["all"]["J"].asFloat();
-    float K_0 = interactionInformation_["all"]["K_0"].asFloat();
-    float I_0 = interactionInformation_["all"]["I_0"].asFloat();
-    float radiusPosition = systemInformation_["radius_position"].asFloat();
-
-    std::vector<int> neighbors = particles_[id].getNeighbors();
     float dis;
-    float dott;
+    std::vector<int> neighbors = particles_[id].getNeighbors();
 
     for (int i = 0; i < neighbors.size(); ++i)
     {
         dis = distancePbc(particles_[i].getPosition(), particles_[id].getPosition(), 
-                          dymensions_, pbc_);
-        dott = dot(particles_[id].getSpin(), particles_[i].getSpin());
-        sum += exp(1 / (dis * radiusPosition));
-
-        if (particles_[id].getType() == "Ión" && particles_[i].getType() == "Ión")
-        {
-            sum = - J * dott;
-        }
-        else if (particles_[id].getType() == "Electrón" && particles_[i].getType() == "Electrón")
-        {
-            sum = - K_0 * exp( - dis) * dott;
-        }
-        else if ((particles_[id].getType() == "Electrón" && particles_[i].getType() == "Ión") || (particles_[id].getType() == "Ión" && particles_[i].getType() == "Electrón"))
-        {
-            sum = - I_0 * exp( - dis) * dott;
-        }
-        else
-        {
-            throw std::exception();
-        }
+                          dimensions_, boundaryConditions_);
+        sum += exp(1 / (dis * muffinTinRadi_));
     }
 
     return sum;
@@ -558,19 +494,14 @@ float System::computeInteractionContribution_(int id)
 
 void  System::onThermalEventCb_(Particle& particle, float energyDelta)
 {
-    // std::cout << time_ << energy_ << std::endl;
+
 }
 
 
 
 void  System::onDynamicEventCb_(Particle& particle, float energyDelta)
 {
-    // std::cout << time_ << energy_ << std::endl;
-    std::cout << time_ << "    " 
-              << energy_ << "   "
-              << thermalEnergy_ << "    "
-              << particle.getOldPosition() << "    "
-              << particle.getPosition() << std::endl;
+
 }
 
 
@@ -588,5 +519,3 @@ float System::computeTotalEnergyContribution_(int id)
     return computeFieldContribution_(id) + 
            2.0 * computeInteractionContribution_(id);
 }
-
- 
