@@ -261,7 +261,6 @@ void System::initSystem_(const Json::Value& root)
 
     findNeighbors_();
     checkCloseNeighbors_();
-    energy_ = computeEnergy();
 }
 
 
@@ -377,6 +376,8 @@ void System::monteCarloThermalStep(bool needNeighborUpdate, bool callback)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
+    if (time_ == 0)
+        energy_ = computeEnergy();
 
     int   i = 0;
     float oldEnergy;
@@ -386,7 +387,7 @@ void System::monteCarloThermalStep(bool needNeighborUpdate, bool callback)
     for (int iii = 0; iii < particles_.size(); iii++)
     {
         time_ += 1.0;
-        i      = iii; // rand() % particles_.size();
+        i      = rand() % particles_.size();
 
         oldEnergy = computeEnergyContribution_(i);
         particles_[i].updateSpin(deltaSpin);
@@ -417,6 +418,8 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
 {
     if (needNeighborUpdate == true)
         findNeighbors_();
+    if (time_ == 0)
+        energy_ = computeEnergy();
 
     int i = 0;
     float oldEnergy;
@@ -510,12 +513,4 @@ float System::computeEnergyContribution_(int id)
 {
     return computeFieldContribution_(id) + 
            computeInteractionContribution_(id);
-}
-
-
-
-float System::computeTotalEnergyContribution_(int id)
-{
-    return computeFieldContribution_(id) + 
-           2.0 * computeInteractionContribution_(id);
 }

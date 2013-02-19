@@ -72,7 +72,6 @@ class System
         void    findNeighbors_();
         void    checkCloseNeighbors_();
         float   computeEnergyContribution_(int);
-        float   computeTotalEnergyContribution_(int);
 
 };
 

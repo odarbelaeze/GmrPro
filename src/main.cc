@@ -15,6 +15,7 @@ int main(int argc, char const *argv[])
     }
 
     std::cout << "# system zise: " << gmrSystem.getParticles().size() << std::endl;
+    std::cout << "# initial energy: " << gmrSystem.getEnergy()  << std::endl;
 
     for (int i = 0; i < 10; ++i)
     {

@@ -114,7 +114,7 @@ float   GmrSystem::computeInteractionContribution_(int i)
 
 void    GmrSystem::onThermalEventCb_(Particle& particle, float energyDelta)
 {
-    std::cout << time_  << "   " << computeEnergy() << "   " << energyDelta << std::endl;
+    std::cout << time_  << "   " << energy_ << "    " << computeEnergy() << "   " << energyDelta << std::endl;
 }
 
 
