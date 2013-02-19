@@ -104,7 +104,7 @@ System::~System()
 void System::initSystem_(const Json::Value& root)
 {
     systemInformation_      = root["system"];
-    interactionInformation_ = root["interaction_info"];
+    interactionInformation_ = root["interactionInformation"];
     thermalEnergy_          = 0.0001;
     time_                   = 0;
     neighborCutOff_         = systemInformation_["neighborCutOff"].asFloat();
@@ -148,7 +148,7 @@ void System::initSystem_(const Json::Value& root)
     }
 
     Vector vector;
-    Particle particle("Ión");
+    Particle particle("ion");
 
     if (structure_ == "sc")
     {
@@ -156,7 +156,7 @@ void System::initSystem_(const Json::Value& root)
         {
             for (int j = 0; j < dimensions_[1]; ++j)
             {
-                for (int k = 0; k < dimensions_[3]; ++k)
+                for (int k = 0; k < dimensions_[2]; ++k)
                 {
                     vector[0] = (i + 0.0f) * scale_;
                     vector[1] = (j + 0.0f) * scale_;
@@ -175,7 +175,7 @@ void System::initSystem_(const Json::Value& root)
         {
             for (int j = 0; j < dimensions_[1]; ++j)
             {
-                for (int k = 0; k < dimensions_[3]; ++k)
+                for (int k = 0; k < dimensions_[2]; ++k)
                 {
                     vector[0] = (i + 0.0f) * scale_;
                     vector[1] = (j + 0.0f) * scale_;
@@ -201,7 +201,7 @@ void System::initSystem_(const Json::Value& root)
         {
             for (int j = 0; j < dimensions_[1]; ++j)
             {
-                for (int k = 0; k < dimensions_[3]; ++k)
+                for (int k = 0; k < dimensions_[2]; ++k)
                 {
                     vector[0] = (i + 0.0f) * scale_;
                     vector[1] = (j + 0.0f) * scale_;
@@ -243,8 +243,8 @@ void System::initSystem_(const Json::Value& root)
     }
 
     dimensions_ = scale_ * dimensions_;
-    particle = Particle("Electrón");
-    int electronCount = systemInformation_["number_of_free_electrons"].asInt();
+    particle = Particle("electron");
+    int electronCount = systemInformation_["freeElectronCount"].asInt();
 
     for (int i = 0; i < electronCount; ++i)
     {
@@ -386,7 +386,7 @@ void System::monteCarloThermalStep(bool needNeighborUpdate, bool callback)
     for (int iii = 0; iii < particles_.size(); iii++)
     {
         time_ += 1.0;
-        i      = rand() % particles_.size();
+        i      = iii; // rand() % particles_.size();
 
         oldEnergy = computeEnergyContribution_(i);
         particles_[i].updateSpin(deltaSpin);

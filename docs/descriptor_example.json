@@ -1,16 +1,15 @@
 {
-    "system": 
-    {
+    "system": {
         "_doc": "This object stores the system configurations.",
 
         // The dimensions of the system are expected to be in a dimensions object
         // containing the width lenght and height of the system in unit cells.
         // All of these are optional and will be one (1) inside the program if no
         // user input is especified.
-        "dimensions": { "width": 20, "lenght": 20, "height": 8 },
+        "dimensions": { "width": 10, "lenght": 10, "height": 5 },
 
         // The estructure of the system, sc, fcc, 
-        "structure" : "bcc",
+        "structure" : "sc",
 
         // The scale for the structure
         "scale": 1.0,
@@ -19,7 +18,7 @@
         "neighborCutOff": 1.1,
 
         // Boundary conditions of the system
-        "boundaryconditions": {"x": 1, "y": 1, "z": 0},
+        "boundaryConditions": {"x": 1, "y": 1, "z": 0},
 
         // Muffin-tin radi for pseudo solid potentials
         "muffinTinRadi": 0.001,
@@ -31,23 +30,19 @@
         },
 
         // The number of free electrons is still needed
-        "freeElectronCount": 3200,
+        "freeElectronCount": 500
     },
+
     // This is gonna be passet to every interaction in the program.
     // So this is gonna contain all every single parameter needed in the
     // interactions.
-    "interaction_info": {
-        "all": {
-            "J": 1.0,
-            "K_0": 1.0,
-            "I_0": 1.0
-        },
-        "zeeman": {
-
-        }
+    "interactionInformation": {
+        "J": 1.0,
+        "K_0": 1.0,
+        "I_0": 1.0
     },
 
-    "runs":[
+    "runs": [
         {
             "thermalSteps": 100,
             "dynamicSteps": 100,
