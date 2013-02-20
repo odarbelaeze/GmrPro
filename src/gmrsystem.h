@@ -5,9 +5,9 @@
 
 struct InteractionTraits
 {
-    float J;
-    float I_0;
-    float K_0;
+    double J;
+    double I_0;
+    double K_0;
 };
 
 class GmrSystem : public System
@@ -24,10 +24,10 @@ public:
     Vector& getElectricFiedlRef();
 
 protected:
-    virtual float   computeFieldContribution_(int);
-    virtual float   computeInteractionContribution_(int);
-    virtual void    onThermalEventCb_(Particle&, float);
-    virtual void    onDynamicEventCb_(Particle&, float);
+    virtual double   computeFieldContribution_(int);
+    virtual double   computeInteractionContribution_(int);
+    virtual void    onThermalEventCb_(Particle&, double);
+    virtual void    onDynamicEventCb_(Particle&, double);
 
 private:
     InteractionTraits   interactionTraits_;

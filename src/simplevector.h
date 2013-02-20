@@ -17,40 +17,40 @@ class Vector
 {
 public:
     Vector();
-    Vector(float);
-    Vector(float, float, float);
+    Vector(double);
+    Vector(double, double, double);
     ~Vector();
 
-    const float getX();
-    const float getY();
-    const float getZ();
+    const double getX();
+    const double getY();
+    const double getZ();
     
-    void setX(float);
-    void setY(float);
-    void setZ(float);
+    void setX(double);
+    void setY(double);
+    void setZ(double);
 
     void pacmanEffect(const Vector&);
 
-    float& operator() (int i);
-    float& operator[] (int i);
+    double& operator() (int i);
+    double& operator[] (int i);
 
     Vector operator* (const Vector&);
     Vector operator+ (const Vector&);
     Vector operator- (const Vector&);
-    Vector operator* (float);
-    Vector operator/ (float);
+    Vector operator* (double);
+    Vector operator/ (double);
 
     bool operator== (const Vector&);
     bool operator!= (const Vector&);
 
-    friend float norm(const Vector&);
+    friend double norm(const Vector&);
     friend Vector abs(const Vector&);
 
-    friend Vector operator* (float, const Vector&);
+    friend Vector operator* (double, const Vector&);
     friend Vector operator- (const Vector&);
-    friend float dot(const Vector&, const Vector&);
-    friend float distance(const Vector&, const Vector&);
-    friend float distancePbc(const Vector&, const Vector&, const Vector&, const Vector&);
+    friend double dot(const Vector&, const Vector&);
+    friend double distance(const Vector&, const Vector&);
+    friend double distancePbc(const Vector&, const Vector&, const Vector&, const Vector&);
     friend Vector min(const Vector&, const Vector&);
     friend Vector vfmod(const Vector&, const Vector&);
     friend std::ostream& operator<< (std::ostream&, const Vector&);
@@ -58,9 +58,9 @@ public:
 protected:
 
 private:
-    float x_;
-    float y_;
-    float z_;
+    double x_;
+    double y_;
+    double z_;
 };
 
 Vector randomVector();

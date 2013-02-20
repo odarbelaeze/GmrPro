@@ -107,8 +107,8 @@ void System::initSystem_(const Json::Value& root)
     interactionInformation_ = root["interactionInformation"];
     thermalEnergy_          = 0.0001;
     time_                   = 0;
-    neighborCutOff_         = systemInformation_["neighborCutOff"].asFloat();
-    muffinTinRadi_          = systemInformation_["muffinTinRadi"].asFloat();
+    neighborCutOff_         = systemInformation_["neighborCutOff"].asDouble();
+    muffinTinRadi_          = systemInformation_["muffinTinRadi"].asDouble();
     structure_              = systemInformation_["structure"].asString();
 
     try
@@ -340,21 +340,28 @@ Vector System::getDimensions()
 
 
 
-float System::getThermalEnergy()
+double System::getThermalEnergy()
 {
     return thermalEnergy_;
 }
 
 
 
-float System::getEnergy()
+double System::getEnergy()
 {
     return energy_;
 }
 
 
 
-float System::computeEnergy()
+unsigned long int System::getTime()
+{
+    return time_;
+}
+
+
+
+double System::computeEnergy_()
 {
     double energy = 0.0;
     for (int id = 0; id < particles_.size(); id++)
@@ -364,7 +371,7 @@ float System::computeEnergy()
 
 
 
-void System::setThermalEnergy(const float& thermalEnergy)
+void System::setThermalEnergy(const double& thermalEnergy)
 {
     thermalEnergy_ = thermalEnergy;
 
@@ -377,21 +384,21 @@ void System::monteCarloThermalStep(bool needNeighborUpdate, bool callback)
     if (needNeighborUpdate == true)
         findNeighbors_();
     if (time_ == 0)
-        energy_ = computeEnergy();
+        energy_ = computeEnergy_();
 
     int   i = 0;
-    float oldEnergy;
-    float energyDelta;
-    float deltaSpin = systemInformation_["updatePolicy"]["deltaSpin"].asFloat();
+    double oldEnergy;
+    double energyDelta;
+    double deltaSpin = systemInformation_["updatePolicy"]["deltaSpin"].asDouble();
 
     for (int iii = 0; iii < particles_.size(); iii++)
     {
         time_ += 1.0;
         i      = rand() % particles_.size();
 
-        oldEnergy = computeEnergyContribution_(i);
+        oldEnergy = computeRelatedEnergy_(i);
         particles_[i].updateSpin(deltaSpin);
-        energyDelta = computeEnergyContribution_(i) - oldEnergy;
+        energyDelta = computeRelatedEnergy_(i) - oldEnergy;
 
         if (energyDelta <= 0.0f)
         {
@@ -419,12 +426,12 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
     if (needNeighborUpdate == true)
         findNeighbors_();
     if (time_ == 0)
-        energy_ = computeEnergy();
+        energy_ = computeEnergy_();
 
     int i = 0;
-    float oldEnergy;
-    float energyDelta;
-    float deltaPosition = systemInformation_["updatePolicy"]["deltaPosition"].asFloat(); 
+    double oldEnergy;
+    double energyDelta;
+    double deltaPosition = systemInformation_["updatePolicy"]["deltaPosition"].asDouble(); 
 
     for (int iii = 0; iii < particles_.size(); iii++)
     {
@@ -433,10 +440,10 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
         
         if (particles_[i].getMovable() == true)
         {
-            oldEnergy   = computeEnergyContribution_(i);
+            oldEnergy   = computeRelatedEnergy_(i);
             particles_[i].updatePosition(deltaPosition);
             particles_[i].pacmanEffect(dimensions_);
-            energyDelta = computeEnergyContribution_(i) - oldEnergy;
+            energyDelta = computeRelatedEnergy_(i) - oldEnergy;
             
             if (energyDelta <= 0)
             {
@@ -465,22 +472,22 @@ void System::resetSystem()
     time_ = 0;
     findNeighbors_();
     checkCloseNeighbors_();
-    energy_ = computeEnergy();
+    energy_ = computeEnergy_();
 }
 
 
 
-float System::computeFieldContribution_(int id)
+double System::computeFieldContribution_(int id)
 {
     return 0.0;
 }
 
 
 
-float System::computeInteractionContribution_(int id)
+double System::computeInteractionContribution_(int id)
 {
-    float sum = 0;
-    float dis;
+    double sum = 0;
+    double dis;
     std::vector<int> neighbors = particles_[id].getNeighbors();
 
     for (int i = 0; i < neighbors.size(); ++i)
@@ -495,22 +502,41 @@ float System::computeInteractionContribution_(int id)
 
 
 
-void  System::onThermalEventCb_(Particle& particle, float energyDelta)
+void  System::onThermalEventCb_(Particle& particle, double energyDelta)
 {
 
 }
 
 
 
-void  System::onDynamicEventCb_(Particle& particle, float energyDelta)
+void  System::onDynamicEventCb_(Particle& particle, double energyDelta)
 {
 
 }
 
 
 
-float System::computeEnergyContribution_(int id)
+double System::computeEnergyContribution_(int id)
 {
     return computeFieldContribution_(id) + 
            computeInteractionContribution_(id);
+}
+
+
+
+double System::computeRelatedEnergy_(int i)
+{
+    int j = 0;
+    double sum = 0.0;
+    std::vector<int> neighbors = particles_[i].getNeighbors();
+
+    sum += computeEnergyContribution_(i);
+
+    for (int ii = 0; ii < neighbors.size(); ++ii)
+    {
+        j    = neighbors[ii];
+        sum += computeEnergyContribution_(j);
+    }
+
+    return sum;
 }

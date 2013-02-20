@@ -35,9 +35,9 @@ Particle::Particle(const std::string& type)
 Particle::~Particle(){}
 
 
-void Particle::updateSpin(float radius)
+void Particle::updateSpin(double radius)
 {
-    float spinNorm = norm(spin_);
+    double spinNorm = norm(spin_);
     oldSpin_ = spin_; 
     spin_ = spin_ + radius * randomVector();
     spin_ = spinNorm * spin_ / norm(spin_);
@@ -48,10 +48,10 @@ void Particle::updateSpin(float radius)
 
 
 
-void Particle::updatePosition(float radius)
+void Particle::updatePosition(double radius)
 {
     oldPosition_ = position_; 
-    position_ = position_ + radius * randomVector();
+    position_ = position_ + radius * drand48() * randomVector();
 }
 
 
@@ -128,7 +128,7 @@ void Particle::setType(const std::string& type)
 
 
 
-void Particle::setCharge(const float charge)
+void Particle::setCharge(const double charge)
 {
     charge_ = charge;
 }
@@ -198,7 +198,7 @@ std::string Particle::getType()
 
 
 
-float Particle::getCharge()
+double Particle::getCharge()
 {
     return charge_;
 }

@@ -37,11 +37,11 @@ class System
         const Json::Value&              getSystemInformation();
         const Json::Value&              getInteractionInformation();
         Vector                          getDimensions();
-        float                           getThermalEnergy();
-        float                           getEnergy();
-        float                           computeEnergy();
+        double                           getThermalEnergy();
+        double                           getEnergy();
+        unsigned long int               getTime();
 
-        void setThermalEnergy(const float&);
+        void setThermalEnergy(const double&);
         void resetSystem();
 
         void monteCarloThermalStep(bool needNeighborUpdate, bool callback = true);
@@ -50,28 +50,30 @@ class System
     protected:
         Vector                  boundaryConditions_;
         Vector                  dimensions_;
-        float                   energy_;
         Json::Value             interactionInformation_;
-        float                   muffinTinRadi_;
-        float                   neighborCutOff_;
+        double                   muffinTinRadi_;
+        double                   neighborCutOff_;
         std::vector<Particle>   particles_;
-        float                   scale_;
+        double                   scale_;
         std::string             structure_;
         Json::Value             systemInformation_;
-        float                   thermalEnergy_;
-        unsigned long int       time_;
+        double                   thermalEnergy_;
 
-        virtual float computeFieldContribution_(int);
-        virtual float computeInteractionContribution_(int);
-        virtual void  onThermalEventCb_(Particle&, float);
-        virtual void  onDynamicEventCb_(Particle&, float);
+        virtual double computeFieldContribution_(int);
+        virtual double computeInteractionContribution_(int);
+        virtual void  onThermalEventCb_(Particle&, double);
+        virtual void  onDynamicEventCb_(Particle&, double);
 
     private:
+        double                   energy_;
+        unsigned long int       time_;
 
         void    initSystem_(const Json::Value&);
         void    findNeighbors_();
         void    checkCloseNeighbors_();
-        float   computeEnergyContribution_(int);
+        double   computeEnergyContribution_(int);
+        double   computeRelatedEnergy_(int);
+        double   computeEnergy_();
 
 };
 

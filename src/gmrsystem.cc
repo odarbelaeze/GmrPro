@@ -9,9 +9,9 @@ GmrSystem::GmrSystem()
 GmrSystem::GmrSystem(const Json::Value& root)
  : System(root), electricField_()
 {
-    interactionTraits_.J = interactionInformation_["J"].asFloat();
-    interactionTraits_.I_0 = interactionInformation_["I_0"].asFloat();
-    interactionTraits_.K_0 = interactionInformation_["K_0"].asFloat();
+    interactionTraits_.J = interactionInformation_["J"].asDouble();
+    interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
+    interactionTraits_.K_0 = interactionInformation_["K_0"].asDouble();
 }
 
 
@@ -19,9 +19,9 @@ GmrSystem::GmrSystem(const Json::Value& root)
 GmrSystem::GmrSystem(const std::string fileName)
  : System(fileName), electricField_()
 {
-    interactionTraits_.J = interactionInformation_["J"].asFloat();
-    interactionTraits_.I_0 = interactionInformation_["I_0"].asFloat();
-    interactionTraits_.K_0 = interactionInformation_["K_0"].asFloat();
+    interactionTraits_.J = interactionInformation_["J"].asDouble();
+    interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
+    interactionTraits_.K_0 = interactionInformation_["K_0"].asDouble();
 }
 
 
@@ -29,9 +29,9 @@ GmrSystem::GmrSystem(const std::string fileName)
 GmrSystem::GmrSystem(const char* fileName)
  : System(fileName), electricField_()
 {
-    interactionTraits_.J = interactionInformation_["J"].asFloat();
-    interactionTraits_.I_0 = interactionInformation_["I_0"].asFloat();
-    interactionTraits_.K_0 = interactionInformation_["K_0"].asFloat();
+    interactionTraits_.J = interactionInformation_["J"].asDouble();
+    interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
+    interactionTraits_.K_0 = interactionInformation_["K_0"].asDouble();
 }
 
 
@@ -39,9 +39,9 @@ GmrSystem::GmrSystem(const char* fileName)
 GmrSystem::GmrSystem(std::istream& istream)
  : System(istream), electricField_()
 {
-    interactionTraits_.J = interactionInformation_["J"].asFloat();
-    interactionTraits_.I_0 = interactionInformation_["I_0"].asFloat();
-    interactionTraits_.K_0 = interactionInformation_["K_0"].asFloat();
+    interactionTraits_.J = interactionInformation_["J"].asDouble();
+    interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
+    interactionTraits_.K_0 = interactionInformation_["K_0"].asDouble();
 }
 
 
@@ -65,21 +65,21 @@ Vector& GmrSystem::getElectricFiedlRef()
 
 
 
-float   GmrSystem::computeFieldContribution_(int i)
+double   GmrSystem::computeFieldContribution_(int i)
 {
     return - particles_[i].getCharge() * dot(particles_[i].getPosition(), electricField_);
 }
 
 
 
-float   GmrSystem::computeInteractionContribution_(int i)
+double   GmrSystem::computeInteractionContribution_(int i)
 {
-    float sum = System::computeInteractionContribution_(i);
+    double sum = System::computeInteractionContribution_(i);
     std::vector<int> neighbors = particles_[i].getNeighbors();
 
-    float dis;
-    float dott;
-    float j;
+    double dis;
+    double dott;
+    double j;
 
     for (int iii = 0; iii < neighbors.size(); iii++)
     {
@@ -112,14 +112,14 @@ float   GmrSystem::computeInteractionContribution_(int i)
 
 
 
-void    GmrSystem::onThermalEventCb_(Particle& particle, float energyDelta)
+void    GmrSystem::onThermalEventCb_(Particle& particle, double energyDelta)
 {
-    std::cout << time_  << "   " << energy_ << "    " << computeEnergy() << "   " << energyDelta << std::endl;
+    std::cout << getTime()  << "   " << getEnergy() << "   " << energyDelta << std::endl;
 }
 
 
 
-void    GmrSystem::onDynamicEventCb_(Particle& particle, float energyDelta)
+void    GmrSystem::onDynamicEventCb_(Particle& particle, double energyDelta)
 {}
 
 

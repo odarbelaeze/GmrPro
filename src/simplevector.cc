@@ -15,14 +15,14 @@ Vector::Vector() : x_(0.0), y_(0.0), z_(0.0)
 
 
 
-Vector::Vector(float value) : x_(value), y_(value), z_(value)
+Vector::Vector(double value) : x_(value), y_(value), z_(value)
 {
 
 }
 
 
 
-Vector::Vector(float x, float y, float z) : x_(x), y_(y), z_(z)
+Vector::Vector(double x, double y, double z) : x_(x), y_(y), z_(z)
 {
 
 }
@@ -36,42 +36,42 @@ Vector::~Vector()
 
 
 
-const float Vector::getX()
+const double Vector::getX()
 {
     return x_;
 }
 
 
 
-const float Vector::getY()
+const double Vector::getY()
 {
     return y_;
 }
 
 
 
-const float Vector::getZ()
+const double Vector::getZ()
 {
     return z_;
 }
 
 
 
-void Vector::setX(float x)
+void Vector::setX(double x)
 {
     x_ = x;
 }
 
 
 
-void Vector::setY(float y)
+void Vector::setY(double y)
 {
     y_ = y;
 }
 
 
 
-void Vector::setZ(float z)
+void Vector::setZ(double z)
 {
     z_ = z;
 }
@@ -88,7 +88,7 @@ void Vector::pacmanEffect(const Vector& other)
 
 
 
-float& Vector::operator() (int i)
+double& Vector::operator() (int i)
 {
     switch (i)
     {
@@ -108,7 +108,7 @@ float& Vector::operator() (int i)
 
 
 
-float& Vector::operator[] (int i)
+double& Vector::operator[] (int i)
 {
     switch (i)
     {
@@ -161,7 +161,7 @@ Vector Vector::operator- (const Vector& other)
 
 
 
-Vector Vector::operator* (float scalar)
+Vector Vector::operator* (double scalar)
 {
     Vector answer;
     answer.x_ = this -> x_ * scalar;
@@ -172,7 +172,7 @@ Vector Vector::operator* (float scalar)
 
 
 
-Vector Vector::operator/ (float scalar)
+Vector Vector::operator/ (double scalar)
 {
     Vector answer;
     answer.x_ = this -> x_ / scalar;
@@ -201,7 +201,7 @@ bool Vector::operator!= (const Vector& other)
 
 
 
-float norm(const Vector& vector)
+double norm(const Vector& vector)
 {
     return std::sqrt(dot(vector, vector));
 }
@@ -219,7 +219,7 @@ Vector abs(const Vector& vector)
 
 
 
-Vector operator* (float scalar, const Vector& vector)
+Vector operator* (double scalar, const Vector& vector)
 {
     return const_cast<Vector&>(vector) * scalar;
 }
@@ -233,7 +233,7 @@ Vector operator- (const Vector& vector)
 
 
 
-float dot(const Vector& vectorA, const Vector& vectorB)
+double dot(const Vector& vectorA, const Vector& vectorB)
 {
     return vectorA.x_ * vectorB.x_ +
            vectorA.y_ * vectorB.y_ +
@@ -242,14 +242,14 @@ float dot(const Vector& vectorA, const Vector& vectorB)
 
 
 
-float distance(const Vector& vectorA, const Vector& vectorB)
+double distance(const Vector& vectorA, const Vector& vectorB)
 {
     return norm(const_cast<Vector&>(vectorB) - const_cast<Vector&>(vectorA));
 }
 
 
 
-float distancePbc(const Vector& vectorA, const Vector& vectorB, 
+double distancePbc(const Vector& vectorA, const Vector& vectorB, 
                   const Vector& dimensions, const Vector& pbc)
 {
     Vector diference = const_cast<Vector&>(vectorB) - 
@@ -281,8 +281,8 @@ Vector vfmod(const Vector& u, const Vector& v)
 Vector randomVector()
 {
     Vector answer;
-    float theta = 2.0f * M_PI * drand48();
-    float phi   = 1.0f * M_PI * drand48();
+    double theta = 2.0f * M_PI * drand48();
+    double phi   = 1.0f * M_PI * drand48();
 
     answer.setX(sin (theta) * cos (phi));
     answer.setY(sin (theta) * sin (phi));

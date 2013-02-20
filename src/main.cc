@@ -14,10 +14,9 @@ int main(int argc, char const *argv[])
         std::cout << bde.what() << std::endl;
     }
 
-    std::cout << "# system zise: " << gmrSystem.getParticles().size() << std::endl;
-    std::cout << "# initial energy: " << gmrSystem.getEnergy()  << std::endl;
+    std::cout << "# system zise:    " << gmrSystem.getParticles().size() << std::endl;
 
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 50; ++i)
     {
         gmrSystem.monteCarloThermalStep(false, true);
     }
