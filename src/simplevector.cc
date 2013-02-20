@@ -94,10 +94,13 @@ float& Vector::operator() (int i)
     {
         case 0 :
             return x_;
+            break;
         case 1 :
             return y_;
+            break;
         case 2 :
             return z_;
+            break;
         default :
             throw OutOfBoundsException();
     }
@@ -111,10 +114,13 @@ float& Vector::operator[] (int i)
     {
         case 0 :
             return x_;
+            break;
         case 1 :
             return y_;
+            break;
         case 2 :
             return z_;
+            break;
         default :
             throw OutOfBoundsException();
     }

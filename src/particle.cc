@@ -6,17 +6,17 @@ Particle::Particle()
 
 Particle::Particle(const std::string& type)
 {
-    if (type == "Electrón")
+    if (type == "electron")
     {
-        type_ = "Electrón";
+        type_ = "electron";
         charge_ = -1;
         isMovable_ = true;
         spin_ = randomVector();
         oldSpin_ = spin_;
     }
-    else if (type == "Ión")
+    else if (type == "ion")
     {
-        type_ = "Ión";
+        type_ = "ion";
         charge_ = +1;
         isMovable_ = false;
         spin_ = randomVector();
