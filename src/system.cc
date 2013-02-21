@@ -442,8 +442,8 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
         {
             oldEnergy   = computeRelatedEnergy_(i);
             particles_[i].updatePosition(deltaPosition);
-            particles_[i].pacmanEffect(dimensions_);
             energyDelta = computeRelatedEnergy_(i) - oldEnergy;
+            particles_[i].pacmanEffect(dimensions_);
             
             if (energyDelta <= 0)
             {
