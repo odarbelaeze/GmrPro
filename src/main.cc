@@ -18,7 +18,15 @@ int main(int argc, char const *argv[])
 
     for (int i = 0; i < 50; ++i)
     {
-        gmrSystem.monteCarloThermalStep(false, true);
+        gmrSystem.monteCarloThermalStep(false, false);
+    }
+
+    gmrSystem.setElectricField(Vector(1.0, 0.0, 0.0));
+    gmrSystem.setThermalEnergy(0.5);
+
+    for (int i = 0; i < 100; ++i)
+    {
+        gmrSystem.monteCarloDynamicStep(false, true);
     }
 
     return 0;

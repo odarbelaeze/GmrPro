@@ -120,6 +120,10 @@ void    GmrSystem::onThermalEventCb_(Particle& particle, double energyDelta)
 
 
 void    GmrSystem::onDynamicEventCb_(Particle& particle, double energyDelta)
-{}
+{
+    Vector deltaR(particle.getPosition() - particle.getOldPosition());
+    std::cout << getTime() << "    " << getEnergy() << "    " << energyDelta << "    "
+              << deltaR[0] << "    " << deltaR[1] << "    " << deltaR[2] << std::endl;
+}
 
 
