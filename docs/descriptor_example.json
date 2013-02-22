@@ -18,7 +18,7 @@
         "neighborCutOff": 1.1,
 
         // Boundary conditions of the system
-        "boundaryConditions": {"x": 1, "y": 1, "z": 0},
+        "boundaryConditions": {"x": 1, "y": 1, "z": 1},
 
         // Muffin-tin radi for pseudo solid potentials
         "muffinTinRadi": 0.001,

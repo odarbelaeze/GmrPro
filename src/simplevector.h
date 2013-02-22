@@ -50,6 +50,7 @@ public:
     friend Vector operator- (const Vector&);
     friend double dot(const Vector&, const Vector&);
     friend double distance(const Vector&, const Vector&);
+    friend Vector diferencePbc(const Vector&, const Vector&, const Vector&, const Vector&);
     friend double distancePbc(const Vector&, const Vector&, const Vector&, const Vector&);
     friend Vector min(const Vector&, const Vector&);
     friend Vector vfmod(const Vector&, const Vector&);

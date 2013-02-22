@@ -1,5 +1,5 @@
 #include <cassert>
-#include "../simplevector.h"
+#include "simplevector.h"
 
 #define ASSERT(counter, condition) assert(condition);       \
     std::cout << ++counter << " Tests passed." << std::endl;
@@ -15,45 +15,12 @@
 
 int main(int argc, char const *argv[])
 {
-    Vector u(1, 0, 0);
-    Vector v(0, 1, 0);
-    Vector w;
+    Vector dimensions(10, 10, 10);
+    Vector boundaryConditions(1, 1, 1);
+    Vector a(9.5, 5, 5);
+    Vector b(0.5, 5, 5);
 
-    int passed = 0;
-
-    ASSERT(passed, dot(u, v) == 0)
-    ASSERT(passed, norm(u) == 1)
-    ASSERT(passed, norm(v) == 1)
-    ASSERT(passed, norm(u + v) == norm(u - v))
-    ASSERT(passed, u != v)
-    ASSERT(passed, u * v == w)
-    ASSERT(passed, u * 1 == u)
-    ASSERT(passed, 1 * u == u)
-    ASSERT(passed, (u / 2) * 2 == u)
-    ASSERT(passed, (u * 0) == Vector())
-    ASSERT(passed, (u + v) == Vector(1, 1, 0))
-    ASSERT(passed, (u - v) == Vector(1, -1, 0))
-    ASSERT(passed, -u == Vector(-1, 0, 0))
-    ASSERT(passed, u(0) == u[0])
-
-    u(0) = 5;
-    u[0] = 5;
-
-    ASSERT(passed, u(0) == 5)
-    ASSERT(passed, u[0] == 5)
-
-    u = v;
-    ASSERT(passed, u == v)
-
-    EXPECT_EXEPTION(passed, u(5) = 0, OutOfBoundsException)
-
-    std::cout << vfmod(Vector(1, 12.1, 12), Vector(12, 12, 12)) << std::endl;
-    Vector moduled = vfmod(Vector(1, 12.1, 12), Vector(12, 12, 12));
-    std::cout << moduled << std::endl;
-
-    Vector toPacmanize(12.1, - 0.1, 12);
-    toPacmanize.pacmanEffect(Vector(12, 12, 12));
-    std::cout << toPacmanize << std::endl;
-
+    std::cout << distancePbc(a, b, dimensions, boundaryConditions) << std::endl;
+    
     return 0;
 }

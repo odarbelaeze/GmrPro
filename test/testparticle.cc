@@ -1,6 +1,6 @@
 #include <cassert>
-#include "../particle.h"
-#include "../system.h"
+#include "particle.h"
+#include "system.h"
 
 
 #define ASSERT(counter, condition) assert(condition);       \

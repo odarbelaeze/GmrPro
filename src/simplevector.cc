@@ -249,13 +249,24 @@ double distance(const Vector& vectorA, const Vector& vectorB)
 
 
 
+Vector diferencePbc(const Vector& vectorA, const Vector& vectorB, 
+                  const Vector& dimensions, const Vector& pbc)
+{
+    Vector absDiference = abs(const_cast<Vector&>(vectorB) - 
+                           const_cast<Vector&>(vectorA) );
+    return min(absDiference, abs(const_cast<Vector&>(dimensions) * 
+                                 const_cast<Vector&>(pbc) - absDiference));
+}
+
+
 double distancePbc(const Vector& vectorA, const Vector& vectorB, 
                   const Vector& dimensions, const Vector& pbc)
 {
-    Vector diference = const_cast<Vector&>(vectorB) - 
-                       const_cast<Vector&>(vectorA);
-    return norm(min(abs(diference), abs(const_cast<Vector&>(dimensions) * 
-                                   const_cast<Vector&>(pbc) - diference)));
+    // TODO: DRY this.
+    Vector absDiference = abs(const_cast<Vector&>(vectorB) - 
+                           const_cast<Vector&>(vectorA) );
+    return norm(min(absDiference, abs(const_cast<Vector&>(dimensions) * 
+                                      const_cast<Vector&>(pbc) - absDiference)));
 }
 
 

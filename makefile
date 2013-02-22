@@ -2,6 +2,7 @@ LDFLAGS = -ljsoncpp
 DEBUGFLAGS = -g3 -ggdb -pg
 RELEASEFLAGS = -O3
 LIBS = lib/simplevector.o lib/particle.o lib/system.o
+INCLUDE = -Isrc/
 
 main: release
 	g++ $(RELEASEFLAGS) -c src/gmrsystem.cc -o lib/gmrsystem.o
@@ -22,3 +23,7 @@ release:
 maindebug: debug
 	g++ $(DEBUGFLAGS) -c src/gmrsystem.cc -o lib/gmrsystem.o
 	g++ $(DEBUGFLAGS) -o bin/main src/main.cc lib/gmrsystem.o $(LIBS) $(LDFLAGS)
+
+test: debug
+	g++ $(DEBUGFLAGS) -o bin/testsimplevector test/testsimplevector.cc $(LIBS) $(LDFLAGS) $(INCLUDE)
+	# g++ $(DEBUGFLAGS) -o bin/testparticle test/testparticle.cc $(LIBS) $(LDFLAGS) $(INCLUDE)

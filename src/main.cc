@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
 
     for (int i = 0; i < 100; ++i)
     {
-        gmrSystem.monteCarloDynamicStep(false, true);
+        gmrSystem.monteCarloDynamicStep(false, false);
     }
 
     return 0;
