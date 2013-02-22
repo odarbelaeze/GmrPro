@@ -3,7 +3,7 @@ DEBUGFLAGS = -g3 -ggdb -pg
 RELEASEFLAGS = -O3
 LIBS = lib/simplevector.o lib/particle.o lib/system.o
 INCLUDE = -Isrc/
-SERVER = -static -m64
+SERVER = -static
 
 main: release
 	g++ $(RELEASEFLAGS) -c src/gmrsystem.cc -o lib/gmrsystem.o
