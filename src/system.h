@@ -67,6 +67,7 @@ class System
     private:
         double                   energy_;
         unsigned long int       time_;
+        int                     freeElectronCount_;
 
         void    initSystem_(const Json::Value&);
         void    findNeighbors_();

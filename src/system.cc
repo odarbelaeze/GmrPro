@@ -244,9 +244,9 @@ void System::initSystem_(const Json::Value& root)
 
     dimensions_ = scale_ * dimensions_;
     particle = Particle("electron");
-    int electronCount = systemInformation_["freeElectronCount"].asInt();
+    freeElectronCount_ = systemInformation_["freeElectronCount"].asInt();
 
-    for (int i = 0; i < electronCount; ++i)
+    for (int i = 0; i < freeElectronCount_; ++i)
     {
         particle.setPosition(dimensions_ * randomVectorInBox());
         particle.setOldPosition(particle.getPosition());
@@ -436,7 +436,7 @@ void System::monteCarloDynamicStep(bool needNeighborUpdate, bool callback)
     for (int iii = 0; iii < particles_.size(); iii++)
     {
         time_ += 1.0;
-        i      = rand() % particles_.size();
+        i      = rand() % (freeElectronCount_) + particles_.size() - freeElectronCount_;
         
         if (particles_[i].getMovable() == true)
         {
