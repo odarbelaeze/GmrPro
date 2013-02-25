@@ -22,6 +22,7 @@ public:
 
     void    setElectricField(const Vector&);
     Vector& getElectricFiedlRef();
+    Vector  collectDisplacementData();
 
 protected:
     virtual double   computeFieldContribution_(int);
@@ -32,6 +33,7 @@ protected:
 private:
     InteractionTraits   interactionTraits_;
     Vector              electricField_;
+    Vector              displacementAcumulator_;
 
 };
 

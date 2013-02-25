@@ -42,27 +42,15 @@
         "I_0": 1.0
     },
 
-    "runs": [
-        {
-            "thermalSteps": 5,
-            "dynamicSteps": 5,
-            "multiplier":   5,
-            "electricField": [100.0, 0.0, 0.0],
-            "thermalEnergyDelta": 0.1
-        },
-        {
-            "thermalSteps": 5,
-            "dynamicSteps": 5,
-            "multiplier":   5,
-            "electricField": [100.0, 0.0, 0.0],
-            "thermalEnergyDelta": 1.0
-        },
-        {
-            "thermalSteps": 5,
-            "dynamicSteps": 5,
-            "multiplier":   5,
-            "electricField": [100.0, 0.0, 0.0],
-            "thermalEnergyDelta": 10.0
-        }
-    ]
+    "program": {
+        "betaMin": 0.001,
+        "betaMax": 100.0,
+        "deltaBeta": 1.0,
+        "electricField": [250.0, 0.0, 0.0],
+        "processes": [
+            { "type": "thermal", "count": 10, "relevant": false },
+            { "type": "dynamic", "count": 10, "relevant": true  }
+        ],
+        "multiplier": 10
+    }
 }

@@ -1,13 +1,13 @@
 #include "gmrsystem.h"
 
 GmrSystem::GmrSystem()
- : System(), electricField_()
+ : System(), electricField_(), displacementAcumulator_()
 {}
 
 
 
 GmrSystem::GmrSystem(const Json::Value& root)
- : System(root), electricField_()
+ : System(root), electricField_(), displacementAcumulator_()
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -17,7 +17,7 @@ GmrSystem::GmrSystem(const Json::Value& root)
 
 
 GmrSystem::GmrSystem(const std::string fileName)
- : System(fileName), electricField_()
+ : System(fileName), electricField_(), displacementAcumulator_()
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -27,7 +27,7 @@ GmrSystem::GmrSystem(const std::string fileName)
 
 
 GmrSystem::GmrSystem(const char* fileName)
- : System(fileName), electricField_()
+ : System(fileName), electricField_(), displacementAcumulator_()
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -37,7 +37,7 @@ GmrSystem::GmrSystem(const char* fileName)
 
 
 GmrSystem::GmrSystem(std::istream& istream)
- : System(istream), electricField_()
+ : System(istream), electricField_(), displacementAcumulator_()
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -122,8 +122,16 @@ void    GmrSystem::onThermalEventCb_(Particle& particle, double energyDelta)
 void    GmrSystem::onDynamicEventCb_(Particle& particle, double energyDelta)
 {
     Vector deltaR(particle.getPosition() - particle.getOldPosition());
-    std::cout << getTime() << "    " << getEnergy() << "    " << energyDelta << "    "
-              << deltaR[0] << "    " << deltaR[1] << "    " << deltaR[2] << std::endl;
+    double deltaPosition = systemInformation_["updatePolicy"]["deltaPosition"].asDouble(); 
+    if (abs(deltaR[0]) < deltaPosition && abs(deltaR[1]) < deltaPosition && abs(deltaR[2]) < deltaPosition)
+        displacementAcumulator_ = displacementAcumulator_ + deltaR;
 }
 
 
+
+Vector  GmrSystem::collectDisplacementData()
+{
+    Vector data = displacementAcumulator_;
+    displacementAcumulator_ = Vector(0.0);
+    return data;
+}
