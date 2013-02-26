@@ -494,7 +494,7 @@ double System::computeInteractionContribution_(int id)
     {
         dis = distancePbc(particles_[i].getPosition(), particles_[id].getPosition(), 
                           dimensions_, boundaryConditions_);
-        sum += exp(1 / (dis * muffinTinRadi_));
+        sum += exp(muffinTinRadi_ / dis);
     }
 
     return sum;
