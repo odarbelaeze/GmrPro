@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     std::cout << "# OK" << std::endl;
     std::cout << "# Simulating..." << std::endl;
 
-    REP(i, 100)
+    REP(i, 500)
     {
         REP(j, 10) gmrSystem.monteCarloThermalStep(false, false);
         REP(j, 10) 

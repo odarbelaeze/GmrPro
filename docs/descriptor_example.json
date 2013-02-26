@@ -6,10 +6,10 @@
         // containing the width lenght and height of the system in unit cells.
         // All of these are optional and will be one (1) inside the program if no
         // user input is especified.
-        "dimensions": { "width": 10, "lenght": 10, "height": 10 },
+        "dimensions": { "width": 20, "lenght": 10, "height": 10 },
 
         // The estructure of the system, sc, fcc, 
-        "structure" : "sc",
+        "structure" : "bcc",
 
         // The scale for the structure
         "scale": 1.0,
@@ -30,7 +30,7 @@
         },
 
         // The number of free electrons is still needed
-        "freeElectronCount": 1000
+        "freeElectronCount": 2000
     },
 
     // This is gonna be passet to every interaction in the program.
