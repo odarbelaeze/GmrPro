@@ -22,7 +22,11 @@ public:
 
     void    setElectricField(const Vector&);
     Vector& getElectricFiedlRef();
+    Vector  getMagnetization();
+    Vector  recalculateMagnetization();
+
     Vector  collectDisplacementData();
+    float   collectMagnetizationData();
 
 protected:
     virtual double   computeFieldContribution_(int);
@@ -34,6 +38,8 @@ private:
     InteractionTraits   interactionTraits_;
     Vector              electricField_;
     Vector              displacementAcumulator_;
+    Vector              magnetization_;
+    float               magnetizationAcumulator_;
 
 };
 

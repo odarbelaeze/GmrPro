@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
     std::cout << "# OK" << std::endl;
     std::cout << "# Setting up conditions..." << std::endl;
 
-    gmrSystem.setElectricField(Vector(250.0, 0.0, 0.0));
+    gmrSystem.recalculateMagnetization();
 
     std::cout << "# OK" << std::endl;
     std::cout << "# Simulating..." << std::endl;

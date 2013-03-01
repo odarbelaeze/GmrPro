@@ -65,6 +65,24 @@ Vector& GmrSystem::getElectricFiedlRef()
 
 
 
+Vector  GmrSystem::getMagnetization()
+{
+    return magnetization_;
+}
+
+
+
+Vector  GmrSystem::recalculateMagnetization()
+{
+    magnetization_ = Vector(0.0);
+    for (int i = 0; i < particles_.size(); ++i)
+    {
+        magnetization_ = magnetization_ + particles_[i].getSpin();
+    }
+}
+
+
+
 double   GmrSystem::computeFieldContribution_(int i)
 {
     return - particles_[i].getCharge() * dot(particles_[i].getPosition(), electricField_);
@@ -114,7 +132,9 @@ double   GmrSystem::computeInteractionContribution_(int i)
 
 void    GmrSystem::onThermalEventCb_(Particle& particle, double energyDelta)
 {
-    std::cout << getTime()  << "   " << getEnergy() << "   " << energyDelta << std::endl;
+    Vector deltaM(particle.getSpin() - particle.getOldSpin());
+    magnetization_ = magnetization_ + deltaM;
+    magnetizationAcumulator_ = magnetizationAcumulator_ + magnetization_;
 }
 
 
@@ -133,5 +153,14 @@ Vector  GmrSystem::collectDisplacementData()
 {
     Vector data = displacementAcumulator_;
     displacementAcumulator_ = Vector(0.0);
+    return data;
+}
+
+
+
+Vector  GmrSystem::collectMagnetizationData()
+{
+    Vector data = magnetizationAcumulator_;
+    magnetizationAcumulator_ = Vector(0.0);
     return data;
 }
