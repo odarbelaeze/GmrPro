@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     REP(i, 20)
     {
         REP(j, 10) gmrSystem.monteCarloThermalStep(false, false);
-        REP(j, 10) gmrSystem.monteCarloDynamicStep((j == 9), false);
+        // REP(j, 10) gmrSystem.monteCarloDynamicStep((j == 9), false);
     }
 
     std::cout << "# OK" << std::endl;
@@ -33,9 +33,10 @@ int main(int argc, char const *argv[])
     std::cout << "# OK" << std::endl;
     std::cout << "# Simulating..." << std::endl;
 
-    REP(i, 500)
+    REP(i, 100)
     {
-        REP(j, 10) 
+        REP(j, 50) gmrSystem.monteCarloThermalStep(false, false);
+        REP(j, 50) 
         {
             gmrSystem.monteCarloThermalStep(false, true);
             double averageMagnetization = gmrSystem.collectMagnetizationData();

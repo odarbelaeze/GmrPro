@@ -30,7 +30,7 @@
         },
 
         // The number of free electrons is still needed
-        "freeElectronCount": 2000
+        "freeElectronCount": 0
     },
 
     // This is gonna be passet to every interaction in the program.
