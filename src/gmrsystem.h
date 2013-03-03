@@ -39,6 +39,7 @@ private:
     Vector              electricField_;
     Vector              displacementAcumulator_;
     Vector              magnetization_;
+    long                magnetizationCounter_;
     float               magnetizationAcumulator_;
 
 };

@@ -1,13 +1,15 @@
 #include "gmrsystem.h"
 
 GmrSystem::GmrSystem()
- : System(), electricField_(), displacementAcumulator_()
+ : System(), electricField_(), displacementAcumulator_(),
+   magnetizationAcumulator_(0.0), magnetizationCounter_(0)
 {}
 
 
 
 GmrSystem::GmrSystem(const Json::Value& root)
- : System(root), electricField_(), displacementAcumulator_()
+ : System(root), electricField_(), displacementAcumulator_(),
+   magnetizationAcumulator_(0.0), magnetizationCounter_(0)
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -17,7 +19,8 @@ GmrSystem::GmrSystem(const Json::Value& root)
 
 
 GmrSystem::GmrSystem(const std::string fileName)
- : System(fileName), electricField_(), displacementAcumulator_()
+ : System(fileName), electricField_(), displacementAcumulator_(),
+   magnetizationAcumulator_(0.0), magnetizationCounter_(0)
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -27,7 +30,8 @@ GmrSystem::GmrSystem(const std::string fileName)
 
 
 GmrSystem::GmrSystem(const char* fileName)
- : System(fileName), electricField_(), displacementAcumulator_()
+ : System(fileName), electricField_(), displacementAcumulator_(),
+   magnetizationAcumulator_(0.0), magnetizationCounter_(0)
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -37,7 +41,8 @@ GmrSystem::GmrSystem(const char* fileName)
 
 
 GmrSystem::GmrSystem(std::istream& istream)
- : System(istream), electricField_(), displacementAcumulator_()
+ : System(istream), electricField_(), displacementAcumulator_(),
+   magnetizationAcumulator_(0.0), magnetizationCounter_(0)
 {
     interactionTraits_.J = interactionInformation_["J"].asDouble();
     interactionTraits_.I_0 = interactionInformation_["I_0"].asDouble();
@@ -134,7 +139,7 @@ void    GmrSystem::onThermalEventCb_(Particle& particle, double energyDelta)
 {
     Vector deltaM(particle.getSpin() - particle.getOldSpin());
     magnetization_ = magnetization_ + deltaM;
-    magnetizationAcumulator_ = magnetizationAcumulator_ + magnetization_;
+    magnetizationAcumulator_ = magnetizationAcumulator_ + norm(magnetization_);
 }
 
 
@@ -158,9 +163,10 @@ Vector  GmrSystem::collectDisplacementData()
 
 
 
-Vector  GmrSystem::collectMagnetizationData()
+float   GmrSystem::collectMagnetizationData()
 {
-    Vector data = magnetizationAcumulator_;
-    magnetizationAcumulator_ = Vector(0.0);
+    float data = magnetizationAcumulator_ / magnetizationCounter_;
+    magnetizationAcumulator_ = 0.0;
+    magnetizationCounter_ = 0;
     return data;
 }
