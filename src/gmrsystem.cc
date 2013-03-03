@@ -139,6 +139,7 @@ void    GmrSystem::onThermalEventCb_(Particle& particle, double energyDelta)
 {
     Vector deltaM(particle.getSpin() - particle.getOldSpin());
     magnetization_ = magnetization_ + deltaM;
+    magnetizationCounter_ += 1
     magnetizationAcumulator_ = magnetizationAcumulator_ + norm(magnetization_);
 }
 
