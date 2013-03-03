@@ -26,7 +26,7 @@ public:
     Vector  recalculateMagnetization();
 
     Vector  collectDisplacementData();
-    float   collectMagnetizationData();
+    double  collectMagnetizationData();
 
 protected:
     virtual double   computeFieldContribution_(int);
@@ -40,7 +40,7 @@ private:
     Vector              displacementAcumulator_;
     Vector              magnetization_;
     long                magnetizationCounter_;
-    float               magnetizationAcumulator_;
+    double              magnetizationAcumulator_;
 
 };
 

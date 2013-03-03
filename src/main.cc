@@ -35,17 +35,13 @@ int main(int argc, char const *argv[])
 
     REP(i, 500)
     {
-        REP(j, 10) gmrSystem.monteCarloThermalStep(false, false);
         REP(j, 10) 
         {
-            gmrSystem.monteCarloDynamicStep((j == 9), true);
-            Vector totalDisplacement = gmrSystem.collectDisplacementData();
+            gmrSystem.monteCarloThermalStep(false, true);
+            double averageMagnetization = gmrSystem.collectMagnetizationData();
             std::cout << gmrSystem.getThermalEnergy() << "    "
-                      << totalDisplacement[0]         << "    "
-                      << totalDisplacement[1]         << "    "
-                      << totalDisplacement[2]         << std::endl;
+                      << averageMagnetization         << std::endl;
         }
-        gmrSystem.setThermalEnergy(gmrSystem.getThermalEnergy() + 1.0);
     }
 
     std::cout << "# OK" << std::endl;

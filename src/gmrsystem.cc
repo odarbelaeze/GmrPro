@@ -163,9 +163,9 @@ Vector  GmrSystem::collectDisplacementData()
 
 
 
-float   GmrSystem::collectMagnetizationData()
+double   GmrSystem::collectMagnetizationData()
 {
-    float data = magnetizationAcumulator_ / magnetizationCounter_;
+    double data = magnetizationAcumulator_ / magnetizationCounter_;
     magnetizationAcumulator_ = 0.0;
     magnetizationCounter_ = 0;
     return data;
