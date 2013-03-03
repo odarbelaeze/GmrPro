@@ -42,6 +42,7 @@ int main(int argc, char const *argv[])
             std::cout << gmrSystem.getThermalEnergy() << "    "
                       << averageMagnetization         << std::endl;
         }
+        gmrSystem.setThermalEnergy(gmrSystem.getThermalEnergy() + 1.0);
     }
 
     std::cout << "# OK" << std::endl;
