@@ -84,6 +84,7 @@ Vector  GmrSystem::recalculateMagnetization()
     {
         magnetization_ = magnetization_ + particles_[i].getSpin();
     }
+    return magnetization_;
 }
 
 
@@ -137,8 +138,7 @@ double   GmrSystem::computeInteractionContribution_(int i)
 
 void    GmrSystem::onThermalEventCb_(Particle& particle, double energyDelta)
 {
-    Vector deltaM(particle.getSpin() - particle.getOldSpin());
-    magnetization_ = magnetization_ + deltaM;
+    recalculateMagnetization();
     magnetizationCounter_++;
     magnetizationAcumulator_ = magnetizationAcumulator_ + norm(magnetization_);
 }
