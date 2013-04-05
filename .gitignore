@@ -19,3 +19,6 @@ data/*
 
 # Compiled binaries that show up
 *.out
+
+# Another security copies
+*~

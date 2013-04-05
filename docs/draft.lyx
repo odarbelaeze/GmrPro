@@ -179,7 +179,7 @@ Model's itinerant and lattice spin geometry.
 The Hamiltonian is defined as: 
 \begin_inset Formula 
 \begin{equation}
-\mathcal{H}=\mathcal{H}_{ll}+\mathcal{H}_{li}+\mathcal{H}_{ii}+\mathcal{H}_{\rho}
+\mathcal{H}=\mathcal{H}_{ll}+\mathcal{H}_{li}+\mathcal{H}_{ii}+\mathcal{H}_{\rho}+\mathcal{H}_{E}
 \end{equation}
 
 \end_inset
@@ -225,16 +225,33 @@ takes into account the interaction between itinerant spins,
 \begin_inset Formula $\zeta$
 \end_inset
 
- are the characteristic constants of this interaction, finally 
+ are the characteristic constants of this interaction, 
 \begin_inset Formula 
 \begin{equation}
-\mathcal{H}_{\rho}=\sum_{ij}\exp\left(\varepsilon\left|\mathbf{r}_{ij}\right|\right)^{-1}
+\mathcal{H}_{\rho}=\sum_{ij}\exp\left(\varepsilon\left|\mathbf{r}_{ij}\right|^{-1}\right)
 \end{equation}
 
 \end_inset
 
 which grows too big when 
-\begin_inset Formula $\varepsilon\left|\mathbf{r}_{ij}\right|\ll1$
+\begin_inset Formula $\left|\mathbf{r}_{ij}\right|<\varepsilon$
+\end_inset
+
+.
+ Finally, the electric field contribution to the Hamiltonian writes, 
+\begin_inset Formula 
+\begin{equation}
+\mathcal{H}_{E}=-\sum q_{i}\mathbf{E}\cdot\mathbf{r}_{i}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $q_{i}$
+\end_inset
+
+ is the charge of the particle labeled with 
+\begin_inset Formula $i$
 \end_inset
 
 .
@@ -242,10 +259,6 @@ which grows too big when
 
 \begin_layout Subsection
 Method
-\end_layout
-
-\begin_layout Standard
-
 \end_layout
 
 \end_body
