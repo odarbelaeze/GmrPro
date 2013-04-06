@@ -19,3 +19,7 @@ data/*
 
 # Compiled binaries that show up
 *.out
+*.exe
+
+# Back up data
+*~
