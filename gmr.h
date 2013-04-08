@@ -75,4 +75,5 @@ namespace gmr
 namespace gmr
 {
     double norm(const darray&);
+    double stddev (double, double);
 }

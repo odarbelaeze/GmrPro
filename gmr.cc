@@ -216,6 +216,10 @@ namespace gmr
         return std::sqrt(std::pow(vec, 2.0).sum());
     }
 
+    double stddev(double mean, double meansq)
+    {
+        return std::sqrt(meansq - std::pow(mean, 2));
+    }
 }
 
 int main(int argc, char const *argv[])
@@ -229,9 +233,12 @@ int main(int argc, char const *argv[])
     updateNeighbors(particles, 1.01);
 
     // Set up random devices
-    // std::random_device rd;
+    std::random_device rd;
     std::mt19937_64 engine;
-    std::uniform_real_distribution<> uniform;
+    std::uniform_real_distribution<> uniform(0.0,1.0);
+
+    // Set up output
+    std::cout << std::setprecision(8) << std::scientific;
 
     // Pick up a Hamiltonian
 
@@ -242,10 +249,12 @@ int main(int argc, char const *argv[])
         return energy;
     };
 
-    // Perform a Monte Carlo step
+    // Perform a Monte Carlo thermalization
 
     for (double kbT = 40.0; kbT >= 0.0; kbT -= 1.0)
     {
+        double e;
+        double m;
         double eacum = 0.0;
         double eacumsq = 0.0;
         double macum = 0.0;
@@ -253,15 +262,21 @@ int main(int argc, char const *argv[])
         int    mcs  = 1000;
         for (int i = 0; i < mcs; ++i)
         {
-            mcStep(particles, Hamiltonian, [&engine, &uniform](){
-                return uniform(engine);
+            mcStep(particles, Hamiltonian, [&rd, &uniform](){
+                return uniform(rd);
             }, kbT);
-            eacum += energy(particles, Hamiltonian);
-            macum += magnetization(particles);
+            e = energy(particles, Hamiltonian);
+            m = magnetization(particles);
+            eacum += e;
+            macum += m;
+            eacumsq += std::pow(e, 2);
+            macumsq += std::pow(m, 2);
         }
-        std::cout << std::setw(10) << kbT
+        std::cout << std::setw(20) << kbT
                   << std::setw(20) << eacum / mcs
-                  << std::setw(30) << macum / mcs
+                  << std::setw(20) << stddev(eacum / mcs, eacumsq / mcs)
+                  << std::setw(20) << macum / mcs
+                  << std::setw(20) << stddev(macum / mcs, macumsq / mcs)
                   << std::endl;
     }
 
