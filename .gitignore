@@ -20,6 +20,7 @@ data/*
 # Compiled binaries that show up
 *.out
 *.exe
+gmr
 
 # Back up data
 *~

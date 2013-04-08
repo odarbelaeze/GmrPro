@@ -51,7 +51,7 @@ namespace gmr
 
     void Particle::setNbh (const std::vector<Particle*>& nbh)
     {
-        nbh_ = std::vector<Particle*>(nbh);
+        nbh_ = nbh;
     }
 
     int operator * (const Spin& a, const Spin& b) 
@@ -147,13 +147,12 @@ namespace gmr
 
     void updateNeighbors (std::vector<Particle>& particles, double cutoff)
     {
-        for (auto particle : particles)
+        for (auto&& particle : particles)
         {
             auto nbh = std::vector<Particle*>();
-            for (auto other : particles)
+            for (auto&& other : particles)
                 if (&particle != &other && norm(particle.getPosition() - other.getPosition()) < cutoff)
                     nbh.push_back(&other);
-            std::cout << "Pushing " << nbh.size() << " neighbors" << std::endl;
             particle.setNbh(nbh);
         }
     }
@@ -169,25 +168,10 @@ int main(int argc, char const *argv[])
 {
     using namespace gmr;
 
-    std::vector<Particle> particles;
+    auto particles = std::vector<Particle>();
 
-    insertParticles(particles, Specie::Ion, Lattice::sc, { 2, 2, 2 });
-
-    insertParticles(particles, Specie::Electron, 10, { 2, 2, 2 });
-
-    for (auto particle : particles)
-    {
-        for (auto i : particle.getPosition())
-            std::cout << i << " ";
-        std::cout << std::endl;
-    }
-
+    insertParticles(particles, Specie::Ion, Lattice::bcc, {5, 5, 5});
     updateNeighbors(particles, 1.01);
-
-    for (auto particle : particles)
-    {
-        std::cout  << particle.getNbh().size() << std::endl;
-    }
 
     return 0;
 }

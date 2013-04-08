@@ -1,4 +1,9 @@
-CPPFLAGS = -std=c++0x
+CPPFLAGS = -std=c++11
+DEBUGFLAGS = -g3
+OPTIMFLAGS = -O2
 
 all:
-	g++ $(CPPFLAGS) gmr.cc -o gmr
+	g++ $(OPTIMFLAGS) $(CPPFLAGS) gmr.cc -o gmr
+
+debug:
+	g++ $(DEBUGFLAGS) $(OPTIMFLAGS) $(CPPFLAGS) gmr.cc -o gmr
