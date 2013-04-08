@@ -43,6 +43,7 @@ namespace gmr
     };
 
     int operator * (const Spin&, const Spin&);
+    Spin operator - (const Spin&);
 }
 
 // System construction helpers
@@ -56,6 +57,18 @@ namespace gmr
     void updateNeighbors (std::vector<Particle>&, double);
 }
 
+// Monte carlo stuff
+
+namespace gmr
+{
+    void mcStep (std::vector<Particle>&, 
+                 std::function<double(const Particle&)>,
+                 std::function<double()>,
+                 double);
+    double energy (std::vector<Particle>&, 
+                   std::function<double(const Particle&)>);
+    double magnetization (const std::vector<Particle>&);
+}
 
 // Mathematic helpers
 

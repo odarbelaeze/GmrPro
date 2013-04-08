@@ -59,6 +59,12 @@ namespace gmr
         return static_cast<int> ( a == b );
     }
 
+    Spin operator - (const Spin& spin)
+    {
+        if (spin == Spin::Up) return Spin::Down;
+        else return Spin::Up;
+    }
+
     void insertParticles (std::vector<Particle>& particles, Specie sp, Lattice lt, int w, int h, int l)
     {
         insertParticles(particles, sp, lt, {w, h, l});
@@ -157,6 +163,54 @@ namespace gmr
         }
     }
 
+    void mcStep (std::vector<Particle>& particles, 
+                 std::function<double(const Particle&)> contribution,
+                 std::function<double()> rng,
+                 double kbT)
+    {
+        auto relatedEnergy = [&contribution](const Particle& particle) {
+            double rEnergy = contribution(particle);
+            for (auto&& nb : particle.getNbh())
+                rEnergy += contribution(*nb);
+            return rEnergy;
+        };
+
+        for (auto&& particle : particles)
+        {
+            double oldEnergy = relatedEnergy(particle);
+            particle.setSpin( - particle.getSpin());
+            double deltaE = relatedEnergy(particle) - oldEnergy;
+            double r = rng();
+            if (r > std::exp(- deltaE / kbT))
+            {
+                particle.setSpin( - particle.getSpin());
+            }
+        }
+    }
+
+    double energy (std::vector<Particle>& particles, 
+                   std::function<double(const Particle&)> contribution)
+    {
+        double e = 0.0;
+        for (auto&& particle : particles)
+            e += contribution(particle);
+        return e;
+    }
+
+    double magnetization (const std::vector<Particle>& particles)
+    {
+        // N = #Up + #Down
+        // M = |#Up - #Down| / N
+        // #Down = N - #Up
+        // M = |2#Up - N| / N
+        int numberUp = std::count_if(
+            begin(particles), end(particles), [](const Particle& p){
+                return p.getSpin() == Spin::Up;
+            });
+        int N = particles.size();
+        return (double) std::abs(2.0 * numberUp - N) / N;
+    }
+
     double norm(const darray& vec)
     {
         return std::sqrt(std::pow(vec, 2.0).sum());
@@ -171,7 +225,45 @@ int main(int argc, char const *argv[])
     auto particles = std::vector<Particle>();
 
     insertParticles(particles, Specie::Ion, Lattice::bcc, {5, 5, 5});
+    insertParticles(particles, Specie::Electron, 125, {5, 5, 5});
     updateNeighbors(particles, 1.01);
+
+    // Set up random devices
+    // std::random_device rd;
+    std::mt19937_64 engine;
+    std::uniform_real_distribution<> uniform;
+
+    // Pick up a Hamiltonian
+
+    auto Hamiltonian = [](const Particle& particle){
+        double energy = 0.0;
+        for (auto&& nb : particle.getNbh())
+            energy -= particle.getSpin() * (*nb).getSpin();
+        return energy;
+    };
+
+    // Perform a Monte Carlo step
+
+    for (double kbT = 40.0; kbT >= 0.0; kbT -= 1.0)
+    {
+        double eacum = 0.0;
+        double eacumsq = 0.0;
+        double macum = 0.0;
+        double macumsq = 0.0;
+        int    mcs  = 1000;
+        for (int i = 0; i < mcs; ++i)
+        {
+            mcStep(particles, Hamiltonian, [&engine, &uniform](){
+                return uniform(engine);
+            }, kbT);
+            eacum += energy(particles, Hamiltonian);
+            macum += magnetization(particles);
+        }
+        std::cout << std::setw(10) << kbT
+                  << std::setw(20) << eacum / mcs
+                  << std::setw(30) << macum / mcs
+                  << std::endl;
+    }
 
     return 0;
 }

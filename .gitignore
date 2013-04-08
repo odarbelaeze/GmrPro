@@ -24,3 +24,7 @@ gmr
 
 # Back up data
 *~
+
+# Images and other data
+*.png
+*data*
