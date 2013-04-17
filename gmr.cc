@@ -188,6 +188,44 @@ namespace gmr
         }
     }
 
+    void mcDynamicStep (std::vector<Particle>& particles, 
+                        Specie specie,
+                        std::function<double(const Particle&)> contribution,
+                        std::function<double()> rng,
+                        double kbT)
+    {
+        auto relatedEnergy = [&contribution](const Particle& particle) {
+            double rEnergy = contribution(particle);
+            for (auto&& nb : particle.getNbh())
+                rEnergy += contribution(*nb);
+            return rEnergy;
+        };
+
+        std::vector<Particle*> targets;
+        for (auto&& particle : particles)
+        {
+            if (particle.getSpecie() == specie)
+            {
+                targets.push_back(&particle);
+            }
+        }
+        if(targets.size() == 0) return;
+        
+        for (auto&& particle : particles)
+        {
+            double oldEnergy = relatedEnergy(particle);
+            darray oldPos    = particle.getPosition();
+            darray delta({rng() - 0.5, rng() - 0.5, rng() - 0.5});
+            particle.setPosition(particle.getPosition() + delta);
+            double deltaE = relatedEnergy(particle) - oldEnergy;
+            double r = rng();
+            if (r > std::exp(- deltaE / kbT))
+            {
+                particle.setPosition(oldPos);
+            }
+        }
+    }
+
     double energy (std::vector<Particle>& particles, 
                    std::function<double(const Particle&)> contribution)
     {

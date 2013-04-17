@@ -65,6 +65,11 @@ namespace gmr
                  std::function<double(const Particle&)>,
                  std::function<double()>,
                  double);
+    void mcDynamicStep (std::vector<Particle>&, 
+                        Specie,
+                        std::function<double(const Particle&)>,
+                        std::function<double()>,
+                        double);
     double energy (std::vector<Particle>&, 
                    std::function<double(const Particle&)>);
     double magnetization (const std::vector<Particle>&);

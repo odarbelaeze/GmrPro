@@ -1,4 +1,4 @@
-CPPFLAGS = -std=c++11
+CPPFLAGS = -std=c++0x
 DEBUGFLAGS = -g3
 OPTIMFLAGS = -O2
 
