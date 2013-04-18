@@ -1,5 +1,5 @@
 #include "Gmr.h"
-
+#include <cmath>
 
 namespace gmr
 {
@@ -89,5 +89,18 @@ namespace gmr
         }
     }
 
-    void updateNeighbors (particles_t&, double);
+    void updateNeighbors (particles_t& particles, double radius)
+    {
+        for (auto&& particle : particles)
+        {
+            std::vector<Particle*> vecinitos;
+            for (auto&& other : particles)
+            {
+                if (&other != &particle 
+                    && sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()) <= radius)
+                    vecinitos.push_back(&other);
+            }
+            particle.setNbh(vecinitos);
+        }
+    }
 }

@@ -16,6 +16,11 @@ namespace gmr
     void insertParticles (particles_t&, Specie, int, std::initializer_list<int>);
     void updateNeighbors (particles_t&, double);
 
+    void mcStep (std::vector<Particle>&, 
+                 std::function<double(const Particle&)>,
+                 std::function<double()>,
+                 double);
+
 }
 
 

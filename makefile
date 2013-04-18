@@ -2,8 +2,18 @@ CPPFLAGS = -std=c++0x
 DEBUGFLAGS = -g3
 OPTIMFLAGS = -O2
 
-all:
-	g++ $(OPTIMFLAGS) $(CPPFLAGS) gmr.cc -o gmr
+all: gmr
+	g++ $(OPTIMFLAGS) $(CPPFLAGS) -o main main.cc Particle.o Gmr.o
+.PHONY: all
 
-debug:
-	g++ $(DEBUGFLAGS) $(OPTIMFLAGS) $(CPPFLAGS) gmr.cc -o gmr
+main:
+	g++ $(OPTIMFLAGS) $(CPPFLAGS) -o main main.cc Particle.o Gmr.o
+.PHONY: main
+
+gmr: particle
+	g++ $(OPTIMFLAGS) $(CPPFLAGS) -c Gmr.cc -o Gmr.o
+.PHONY: gmr
+
+particle:
+	g++ $(OPTIMFLAGS) $(CPPFLAGS) -c Particle.cc -o Particle.o
+.PHONY: particle
