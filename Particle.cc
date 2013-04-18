@@ -2,7 +2,7 @@
 
 namespace gmr
 {
-	Particle::Particle()
+    Particle::Particle()
      : position_(0.0, 3), spin_(gmr::Spin::Up), specie_(gmr::Specie::Ion), nbh_() 
     {}
 
@@ -56,12 +56,12 @@ namespace gmr
 
     int operator* (const Spin& a, const Spin& b)
     {
-    	return a == b? 1 : -1;
+        return a == b? 1 : -1;
     }
 
     Spin operator- (const Spin& spin)
     {
-    	return spin == Spin::Up ? Spin::Down : Spin::Up;
+        return spin == Spin::Up ? Spin::Down : Spin::Up;
     }
 
 }

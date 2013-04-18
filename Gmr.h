@@ -9,16 +9,22 @@
 
 namespace gmr
 {
-	typedef std::vector<Particle> particles_t;
-	enum class Lattice { sc, fcc, bcc };
+    typedef std::vector<Particle> particles_t;
+    enum class Lattice { sc, fcc, bcc };
 
     void insertParticles (particles_t&, Specie, Lattice, std::initializer_list<int>);
     void insertParticles (particles_t&, Specie, int, std::initializer_list<int>);
     void updateNeighbors (particles_t&, double);
 
-    void mcStep (std::vector<Particle>&, 
+    void mcThermalStep (std::vector<Particle>&, 
                  std::function<double(const Particle&)>,
-                 std::function<double()>,
+                 std::mt19937_64&,
+                 double);
+
+    void mcThermalStep (std::vector<Particle>&, 
+                 std::initializer_list<Specie>,
+                 std::function<double(const Particle&)>,
+                 std::mt19937_64&,
                  double);
 
 }

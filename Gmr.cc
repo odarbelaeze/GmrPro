@@ -1,6 +1,6 @@
 #include "Gmr.h"
 #include <cmath>
-
+#include <iostream>
 namespace gmr
 {
     void insertParticles (particles_t& particles, Specie specie, 
@@ -101,6 +101,37 @@ namespace gmr
                     vecinitos.push_back(&other);
             }
             particle.setNbh(vecinitos);
+        }
+    }
+
+    void mcThermalStep (std::vector<Particle>& particles, 
+                        std::function<double(const Particle&)> contribution,
+                        std::mt19937_64& engine,
+                        double thermalEnergy)
+    {
+
+        std::function<double(const Particle&)> relatedEnergy = 
+            [&contribution](const Particle& particle) {
+                double energy = contribution(particle);
+                for (auto&& other : particle.getNbh())
+                    energy += contribution(*other);
+                return energy;
+            };
+        
+        Deck<Particle*> targets;
+        for (auto& particle : particles)
+            targets.push(&particle);
+
+        std::uniform_real_distribution<> distribution(0.0, 1.0);
+
+        while (!targets.isEmpty())
+        {
+            Particle* particle = targets.pop();
+            double oldEnergy = relatedEnergy(*particle);
+            particle -> setSpin( - particle -> getSpin());
+            double energyDelta = relatedEnergy(*particle) - oldEnergy;
+            if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
+                particle -> setSpin( - particle -> getSpin());
         }
     }
 }
