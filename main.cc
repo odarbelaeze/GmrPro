@@ -31,11 +31,39 @@ int main(int argc, char const *argv[])
     gmr::updateNeighbors(particles, 1.0);
 
     double Jex = 1.0;
+    double k_0 = 1.0;
+    double i_0 = 1.0;
 
-    auto contribution = [&Jex](const gmr::Particle& particle){
+    auto K = [&k_0](const gmr::Particle& particle, const gmr::Particle& other) {
+        return k_0 * std::exp( - sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()));
+    };
+
+    auto I = [&i_0](const gmr::Particle& particle, const gmr::Particle& other) {
+        return i_0 * std::exp( - sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()));
+    };
+
+    auto contribution = [&Jex, &K, &I](const gmr::Particle& particle){
         double contribution = 0;
+        #ifndef _SPECIE
+        #define _SPECIE(p, sp) (p).getSpecie() == gmr::Specie::sp
+        #endif
         for (auto&& other : particle.getNbh())
-            contribution -= Jex * (particle.getSpin() * other -> getSpin());
+        {
+            if (_SPECIE(particle, Ion) && _SPECIE(*other, Ion))
+            {
+                contribution -= Jex * (particle.getSpin() * other -> getSpin());
+            }
+            else if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
+                     || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
+            {
+                contribution -= I(particle, *other) * (particle.getSpin() * other -> getSpin());
+            }
+            else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
+            {
+                contribution -= K(particle, *other) * (particle.getSpin() * other -> getSpin());
+            }
+        }
+        #undef _SPECIE
         return contribution;
     };
 
