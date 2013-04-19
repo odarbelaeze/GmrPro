@@ -134,4 +134,88 @@ namespace gmr
                 particle -> setSpin( - particle -> getSpin());
         }
     }
+
+    void mcThermalStep (std::vector<Particle>& particles, 
+                 std::initializer_list<Specie> targetSp,
+                 std::function<double(const Particle&)> contribution,
+                 std::mt19937_64& engine,
+                 double thermalEnergy)
+    {
+        std::function<double(const Particle&)> relatedEnergy = 
+            [&contribution](const Particle& particle) {
+                double energy = contribution(particle);
+                for (auto&& other : particle.getNbh())
+                    energy += contribution(*other);
+                return energy;
+            };
+        
+        Deck<Particle*> targets;
+        // use std::any_of(begin, end, function -> bool)
+        for (auto&& particle : particles)
+            if (std::any_of(begin(targetSp), end(targetSp), [&particle](Specie sp){
+                return particle.getSpecie() == sp;
+            })) targets.push(&particle);
+
+        std::uniform_real_distribution<> distribution(0.0, 1.0);
+
+        while (!targets.isEmpty())
+        {
+            Particle* particle = targets.pop();
+            double oldEnergy = relatedEnergy(*particle);
+            particle -> setSpin( - particle -> getSpin());
+            double energyDelta = relatedEnergy(*particle) - oldEnergy;
+            if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
+                particle -> setSpin( - particle -> getSpin());
+        }
+    }
+
+
+
+     void mcDynamicStep (std::vector<Particle>& particles, 
+                 std::initializer_list<Specie> targetSp,
+                 std::function<double(const Particle&)> contribution,
+                 std::mt19937_64& engine,
+                 double thermalEnergy)
+     {
+        std::function<double(const Particle&)> relatedEnergy = 
+            [&contribution](const Particle& particle) {
+                double energy = contribution(particle);
+                for (auto&& other : particle.getNbh())
+                    energy += contribution(*other);
+                return energy;
+            };
+
+        std::uniform_real_distribution<> theta(0.0, M_PI);
+        std::uniform_real_distribution<> phi(0.0, 2.0 * M_PI);
+
+        auto randVec3D = [&theta, &phi, &engine](){
+            double t = theta(engine)
+                 , p = phi(engine);
+            return darray({
+                std::sin(t) * std::cos(p),
+                std::sin(t) * std::sin(p),
+                std::cos(t)
+            });
+        };
+
+        Deck<Particle*> targets;
+        // use std::any_of(begin, end, function -> bool)
+        for (auto&& particle : particles)
+            if (std::any_of(begin(targetSp), end(targetSp), [&particle](Specie sp){
+                return particle.getSpecie() == sp;
+            })) targets.push(&particle);
+
+        std::uniform_real_distribution<> distribution(0.0, 1.0);
+
+        while (!targets.isEmpty())
+        {
+            Particle* particle = targets.pop();
+            double oldEnergy = relatedEnergy(*particle);
+            darray oldPosition = particle -> getPosition();
+            particle -> setPosition(oldPosition + randVec3D())
+            double energyDelta = relatedEnergy(*particle) - oldEnergy;
+            if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
+                particle -> setPosition(oldPosition);
+        }
+     }
 }

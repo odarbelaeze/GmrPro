@@ -97,7 +97,7 @@ int main(int argc, char const *argv[])
         int mcs = 1000;
         for (int i = 0; i < mcs; ++i)
         {
-            mcThermalStep(particles, contribution, engine, thermalEnergy);
+            mcThermalStep(particles, { gmr::Specie::Ion }, contribution, engine, thermalEnergy);
             double e = energy(particles);
             double m = magnetization(particles);
             eacum += e;
