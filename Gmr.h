@@ -27,7 +27,8 @@ namespace gmr
                  std::mt19937_64&,
                  double);
 
-    void mcDynamicStep (std::vector<Particle>&, 
+    void mcDynamicStep (std::vector<Particle>&,
+                 std::initializer_list<int> dim_list,
                  std::initializer_list<Specie>,
                  std::function<double(const Particle&)>,
                  std::mt19937_64&,

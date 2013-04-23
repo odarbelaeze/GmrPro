@@ -33,6 +33,7 @@ int main(int argc, char const *argv[])
     double Jex = 1.0;
     double k_0 = 1.0;
     double i_0 = 1.0;
+    gmr::darray electricField({ 5.0, 0, 0 });
 
     auto K = [&k_0](const gmr::Particle& particle, const gmr::Particle& other) {
         return k_0 * std::exp( - sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()));
@@ -66,6 +67,34 @@ int main(int argc, char const *argv[])
         #undef _SPECIE
         return contribution;
     };
+
+
+    auto electricContribution = [&electricField, &K, &I](const gmr::Particle& particle){
+        double contribution = 0;
+        #ifndef _SPECIE
+        #define _SPECIE(p, sp) (p).getSpecie() == gmr::Specie::sp
+        #endif
+        for (auto&& other : particle.getNbh())
+        {
+            if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
+                     || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
+            {
+                contribution -= I(particle, *other) * (particle.getSpin() * other -> getSpin());
+            }
+            else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
+            {
+                contribution -= K(particle, *other) * (particle.getSpin() * other -> getSpin());
+            }
+        }
+
+        contribution -= particle.getCharge() * (electricField * particle.getPosition()).sum();
+        #undef _SPECIE
+        return contribution;
+    };
+
+
+
+
 
     auto energy = [&contribution](const gmr::particles_t particles){
         double energy = 0;
@@ -114,5 +143,7 @@ int main(int argc, char const *argv[])
         thermalEnergy -= 0.2;
     }
 
+
+    
     return 0;
 }

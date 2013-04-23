@@ -8,7 +8,10 @@ namespace gmr
 
     Particle::Particle (darray position, Spin spin, Specie specie)
      : position_(position), spin_(spin), specie_(specie), nbh_()
-    {}
+    {
+        if (specie == Specie::Ion) charge_ = 1.0;
+        if (specie == Specie::Electron) charge_ = - 1.0;
+    }
 
     Particle::~Particle()
     {}
@@ -21,6 +24,11 @@ namespace gmr
     Spin Particle::getSpin () const
     {
         return spin_;
+    }
+
+    double Particle::getCharge() const
+    {
+        return charge_;
     }
 
     Specie Particle::getSpecie () const
@@ -42,6 +50,11 @@ namespace gmr
     void Particle::setSpin (const Spin& spin)
     {
         spin_ = spin;
+    }
+
+    void Particle::setCharge(double charge)
+    {
+        charge_ = charge;
     }
 
     void Particle::setSpecie (const Specie& specie)

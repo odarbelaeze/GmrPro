@@ -171,12 +171,16 @@ namespace gmr
 
 
 
-     void mcDynamicStep (std::vector<Particle>& particles, 
+     void mcDynamicStep (std::vector<Particle>& particles,
+                 std::initializer_list<int> dim_list,
                  std::initializer_list<Specie> targetSp,
                  std::function<double(const Particle&)> contribution,
                  std::mt19937_64& engine,
                  double thermalEnergy)
      {
+        std::vector<int> dimensions(dim_list);
+
+
         std::function<double(const Particle&)> relatedEnergy = 
             [&contribution](const Particle& particle) {
                 double energy = contribution(particle);
@@ -212,10 +216,12 @@ namespace gmr
             Particle* particle = targets.pop();
             double oldEnergy = relatedEnergy(*particle);
             darray oldPosition = particle -> getPosition();
-            particle -> setPosition(oldPosition + randVec3D())
+            particle -> setPosition(oldPosition + randVec3D());
             double energyDelta = relatedEnergy(*particle) - oldEnergy;
             if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setPosition(oldPosition);
+            else
+                particle -> setPosition(fmod(particle -> getPosition(), dim_list));
         }
      }
 }
