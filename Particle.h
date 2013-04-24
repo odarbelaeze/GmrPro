@@ -18,12 +18,14 @@ namespace gmr
         ~Particle();
 
         darray getPosition () const;
+        darray getOldPosition () const;
         Spin getSpin () const;
         double getCharge() const;
         Specie getSpecie () const;
         std::vector<Particle*> getNbh () const;
 
         void setPosition (const darray&);
+        void setOldPosition (const darray&);
         void setSpin (const Spin&);
         void setCharge(double);
         void setSpecie (const Specie&);
@@ -31,6 +33,7 @@ namespace gmr
 
     private:
         darray position_;
+        darray oldPosition_;
         Spin spin_;
         double charge_;
         Specie specie_;

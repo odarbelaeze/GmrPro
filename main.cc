@@ -30,6 +30,11 @@ int main(int argc, char const *argv[])
     gmr::insertParticles (particles, gmr::Specie::Electron, 125, dim_list);
     gmr::updateNeighbors(particles, 1.0);
 
+    for (auto&& particulita : particles)
+    {
+        particulita.setOldPosition (particulita.getPosition());
+    }
+
     double Jex = 1.0;
     double k_0 = 1.0;
     double i_0 = 1.0;
@@ -114,39 +119,52 @@ int main(int argc, char const *argv[])
 
     std::cout << std::setprecision(5) << std::fixed;
 
-    double thermalEnergy = 30.0;
-    while (thermalEnergy > 0)
+    double thermalEnergy = 3000.0;
+    // while (thermalEnergy > 0)
+    // {
+    //     // Your code here
+    //     double e, m;
+    //     double eacum = 0.0;
+    //     double macum = 0.0;
+    //     double eacumsq = 0.0;
+    //     double macumsq = 0.0;
+    //     int mcs = 100;
+
+    //     for (int i = 0; i < mcs; ++i)
+    //     {
+    //         mcThermalStep(particles, { gmr::Specie::Ion }, contribution, engine, thermalEnergy);
+    //         mcDynamicStep (particles, dim_list, {gmr::Specie::Electron}, electricContribution, engine, thermalEnergy);
+
+    //         double e = energy(particles);
+    //         double m = magnetization(particles);
+    //         eacum += e;
+    //         macum += m;
+    //         eacumsq += e * e;
+    //         macumsq += m * m;
+    //     }
+    //     std::cout  << std::setw(20) << thermalEnergy 
+    //                << std::setw(20) << eacum / mcs
+    //                << std::setw(20) << std::sqrt(eacumsq / mcs - std::pow(eacum / mcs, 2))
+    //                << std::setw(20) << macum / mcs 
+    //                << std::setw(20) << std::sqrt(std::abs(macumsq / mcs - std::pow(macum / mcs, 2))) 
+    //                << std::endl;
+    //     thermalEnergy -= 0.2;
+    // }
+
+
+
+    // probando que si funcionen desplazamientos
+    for (int i = 0; i < 15; ++i)
     {
-        // Your code here
-        double e, m;
-        double eacum = 0.0;
-        double macum = 0.0;
-        double eacumsq = 0.0;
-        double macumsq = 0.0;
-        int mcs = 100;
-
-        for (int i = 0; i < mcs; ++i)
+        std::cout << std::endl;
+        for (auto&& particulita : particles)
         {
-            mcThermalStep(particles, { gmr::Specie::Ion }, contribution, engine, thermalEnergy);
-            mcDynamicStep (particles, dim_list, {gmr::Specie::Electron}, electricContribution, engine, thermalEnergy);
-
-            double e = energy(particles);
-            double m = magnetization(particles);
-            eacum += e;
-            macum += m;
-            eacumsq += e * e;
-            macumsq += m * m;
+            std::cout << std::sqrt((std::pow(particulita.getPosition() - particulita.getOldPosition(), 2)).sum()) 
+                      << "  " << ((particulita.getSpecie() == gmr::Specie::Ion)? "Ion": "Electron") << std::endl;
         }
-        std::cout  << std::setw(20) << thermalEnergy 
-                   << std::setw(20) << eacum / mcs
-                   << std::setw(20) << std::sqrt(eacumsq / mcs - std::pow(eacum / mcs, 2))
-                   << std::setw(20) << macum / mcs 
-                   << std::setw(20) << std::sqrt(std::abs(macumsq / mcs - std::pow(macum / mcs, 2))) 
-                   << std::endl;
-        thermalEnergy -= 0.2;
+
+        mcDynamicStep (particles, dim_list, {gmr::Specie::Electron}, electricContribution, engine, thermalEnergy);
     }
-
-
     
     return 0;
 }

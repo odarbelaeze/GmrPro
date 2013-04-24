@@ -221,6 +221,7 @@ namespace gmr
             if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setPosition(oldPosition);
             else
+                particle -> setOldPosition(oldPosition);
                 particle -> setPosition(fmod(particle -> getPosition(), dim_list));
         }
      }
