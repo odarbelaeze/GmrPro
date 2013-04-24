@@ -22,12 +22,12 @@ std::ostream& operator<< (std::ostream& os, gmr::Spin spin)
 int main(int argc, char const *argv[])
 {
     // srand(time(NULL));
-
+    std::initializer_list<int> dim_list({ 5, 5, 5 });
     std::mt19937_64 engine;
 
     gmr::particles_t particles;
-    gmr::insertParticles (particles, gmr::Specie::Ion, gmr::Lattice::sc, { 5, 5, 5 });
-    gmr::insertParticles (particles, gmr::Specie::Electron, 125, { 5, 5, 5 });
+    gmr::insertParticles (particles, gmr::Specie::Ion, gmr::Lattice::sc, dim_list);
+    gmr::insertParticles (particles, gmr::Specie::Electron, 125, dim_list);
     gmr::updateNeighbors(particles, 1.0);
 
     double Jex = 1.0;
@@ -123,10 +123,13 @@ int main(int argc, char const *argv[])
         double macum = 0.0;
         double eacumsq = 0.0;
         double macumsq = 0.0;
-        int mcs = 1000;
+        int mcs = 100;
+
         for (int i = 0; i < mcs; ++i)
         {
             mcThermalStep(particles, { gmr::Specie::Ion }, contribution, engine, thermalEnergy);
+            mcDynamicStep (particles, dim_list, {gmr::Specie::Electron}, electricContribution, engine, thermalEnergy);
+
             double e = energy(particles);
             double m = magnetization(particles);
             eacum += e;
@@ -138,7 +141,7 @@ int main(int argc, char const *argv[])
                    << std::setw(20) << eacum / mcs
                    << std::setw(20) << std::sqrt(eacumsq / mcs - std::pow(eacum / mcs, 2))
                    << std::setw(20) << macum / mcs 
-                   << std::setw(20) << std::sqrt(macumsq / mcs - std::pow(macum / mcs, 2)) 
+                   << std::setw(20) << std::sqrt(std::abs(macumsq / mcs - std::pow(macum / mcs, 2))) 
                    << std::endl;
         thermalEnergy -= 0.2;
     }
