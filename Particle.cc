@@ -21,11 +21,6 @@ namespace gmr
         return position_;
     }
 
-    darray Particle::getOldPosition () const
-    {
-        return oldPosition_;
-    }
-
     Spin Particle::getSpin () const
     {
         return spin_;
@@ -50,11 +45,6 @@ namespace gmr
     void Particle::setPosition (const darray& position)
     {
         position_ = position;
-    }
-
-    void Particle::setOldPosition (const darray& oldPosition)
-    {
-        oldPosition_ = oldPosition;
     }
 
     void Particle::setSpin (const Spin& spin)
