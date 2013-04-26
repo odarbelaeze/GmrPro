@@ -92,10 +92,6 @@ int main(int argc, char const *argv[])
         return contribution;
     };
 
-
-
-
-
     auto energy = [&contribution](const gmr::particles_t particles){
         double energy = 0;
         for (auto&& particle : particles)
@@ -127,8 +123,9 @@ int main(int argc, char const *argv[])
 
         for (int i = 0; i < mcs; ++i)
         {
-            mcThermalStep(particles, { gmr::Specie::Ion }, contribution, engine, thermalEnergy);
-            mcDynamicStep (particles, dim_list, {gmr::Specie::Electron}, electricContribution, engine, thermalEnergy);
+            mcThermalStep(particles, contribution, engine, thermalEnergy);
+            mcDynamicStep (particles, dim_list, {gmr::Specie::Electron}, 
+                           electricContribution, engine, thermalEnergy);
 
             double e = energy(particles);
             double m = magnetization(particles);
@@ -146,7 +143,5 @@ int main(int argc, char const *argv[])
         thermalEnergy -= 0.2;
     }
 
-
-    
     return 0;
 }
