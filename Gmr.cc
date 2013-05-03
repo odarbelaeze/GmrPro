@@ -1,7 +1,8 @@
 #include "Gmr.h"
 #include <cmath>
 #include <iostream>
-namespace gmr
+
+namespace Gmr
 {
     void insertParticles (particles_t& particles, Specie specie, 
                           Lattice lattice, std::initializer_list<int> dim_list)

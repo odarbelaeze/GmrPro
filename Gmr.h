@@ -7,7 +7,7 @@
 #include <random>
 #include <algorithm>
 
-namespace gmr
+namespace Gmr
 {
     typedef std::vector<Particle> particles_t;
     enum class Lattice { sc, fcc, bcc };

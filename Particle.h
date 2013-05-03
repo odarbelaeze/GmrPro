@@ -4,7 +4,7 @@
 #include <valarray>
 #include <vector>
 
-namespace gmr
+namespace Gmr
 {
     typedef std::valarray<double> darray;
     enum class Spin { Up, Down };

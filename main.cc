@@ -1,7 +1,4 @@
-#include "Gmr.h"
-
-#include <iostream>
-#include <iomanip>
+#include "GmrPro.h"
 
 template<typename T>
 std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
@@ -12,133 +9,53 @@ std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
     return os;
 }
 
-std::ostream& operator<< (std::ostream& os, gmr::Spin spin)
+std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 {
-    os << (spin == gmr::Spin::Up? "Up" : "Down");
+    os << (spin == Gmr::Spin::Up? "Up" : "Down");
     return os;
 }
 
 
 int main(int argc, char const *argv[])
 {
-    // srand(time(NULL));
     std::initializer_list<int> dim_list({ 5, 5, 5 });
     std::mt19937_64 engine;
 
-    gmr::particles_t particles;
-    gmr::insertParticles (particles, gmr::Specie::Ion, gmr::Lattice::sc, dim_list);
-    gmr::insertParticles (particles, gmr::Specie::Electron, 125, dim_list);
-    gmr::updateNeighbors(particles, 1.0);
+    Gmr::particles_t particles;
+    Gmr::insertParticles (particles, Gmr::Specie::Ion, Gmr::Lattice::sc, dim_list);
+    Gmr::insertParticles (particles, Gmr::Specie::Electron, 125, dim_list);
+    Gmr::updateNeighbors(particles, 1.0);
 
-    double Jex = 1.0;
-    double k_0 = 1.0;
-    double i_0 = 1.0;
-    gmr::darray electricField({ 5.0, 0, 0 });
-
-    auto K = [&k_0](const gmr::Particle& particle, const gmr::Particle& other) {
-        return k_0 * std::exp( - sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()));
-    };
-
-    auto I = [&i_0](const gmr::Particle& particle, const gmr::Particle& other) {
-        return i_0 * std::exp( - sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()));
-    };
-
-    auto contribution = [&Jex, &K, &I](const gmr::Particle& particle){
-        double contribution = 0;
-        #ifndef _SPECIE
-        #define _SPECIE(p, sp) (p).getSpecie() == gmr::Specie::sp
-        #endif
-        for (auto&& other : particle.getNbh())
-        {
-            if (_SPECIE(particle, Ion) && _SPECIE(*other, Ion))
-            {
-                contribution -= Jex * (particle.getSpin() * other -> getSpin());
-            }
-            else if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
-                     || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
-            {
-                contribution -= I(particle, *other) * (particle.getSpin() * other -> getSpin());
-            }
-            else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
-            {
-                contribution -= K(particle, *other) * (particle.getSpin() * other -> getSpin());
-            }
-        }
-        #undef _SPECIE
-        return contribution;
-    };
-
-
-    auto electricContribution = [&electricField, &K, &I](const gmr::Particle& particle){
-        double contribution = 0;
-        #ifndef _SPECIE
-        #define _SPECIE(p, sp) (p).getSpecie() == gmr::Specie::sp
-        #endif
-        for (auto&& other : particle.getNbh())
-        {
-            if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
-                     || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
-            {
-                contribution -= I(particle, *other) * (particle.getSpin() * other -> getSpin());
-            }
-            else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
-            {
-                contribution -= K(particle, *other) * (particle.getSpin() * other -> getSpin());
-            }
-        }
-
-        contribution -= particle.getCharge() * (electricField * particle.getPosition()).sum();
-        #undef _SPECIE
-        return contribution;
-    };
-
-    auto energy = [&contribution](const gmr::particles_t particles){
-        double energy = 0;
-        for (auto&& particle : particles)
-            energy += contribution(particle);
-        return energy;
-    };
-
-    auto magnetization = [](const gmr::particles_t& particles){
-        float magnetization = 0;
-        for (auto&& particle : particles)
-        {
-            magnetization += particle.getSpin() == gmr::Spin::Up ? 1.0: -1.0;
-        }
-        return std::abs(magnetization / particles.size());
-    };
+    std::map<std::string, Gmr::Accumulator> acumulators;
+    acumulators["magnetization"] = Gmr::Accumulator();
+    acumulators["energy"] = Gmr::Accumulator();
 
     std::cout << std::setprecision(5) << std::fixed;
 
     double thermalEnergy = 30.0;
     while (thermalEnergy > 0)
     {
-        // Your code here
-        double e, m;
-        double eacum = 0.0;
-        double macum = 0.0;
-        double eacumsq = 0.0;
-        double macumsq = 0.0;
         int mcs = 100;
+        for (auto&& acumulator : acumulators)
+            acumulator.second.reset();
+
+        if (mcs % 10 == 0)
+            Gmr::updateNeighbors(particles, 1.0);
 
         for (int i = 0; i < mcs; ++i)
         {
-            mcThermalStep(particles, contribution, engine, thermalEnergy);
-            mcDynamicStep (particles, dim_list, {gmr::Specie::Electron}, 
-                           electricContribution, engine, thermalEnergy);
+            mcThermalStep(particles, Gmr::contribution, engine, thermalEnergy);
+            mcDynamicStep (particles, dim_list, {Gmr::Specie::Electron}, 
+                           Gmr::electricContribution, engine, thermalEnergy);
 
-            double e = energy(particles);
-            double m = magnetization(particles);
-            eacum += e;
-            macum += m;
-            eacumsq += e * e;
-            macumsq += m * m;
+            acumulators["energy"] += energy(particles);
+            acumulators["magnetization"] += magnetization(particles);
         }
         std::cout  << std::setw(20) << thermalEnergy 
-                   << std::setw(20) << eacum / mcs
-                   << std::setw(20) << std::sqrt(eacumsq / mcs - std::pow(eacum / mcs, 2))
-                   << std::setw(20) << macum / mcs 
-                   << std::setw(20) << std::sqrt(std::abs(macumsq / mcs - std::pow(macum / mcs, 2))) 
+                   << std::setw(20) << acumulators["energy"].mean()
+                   << std::setw(20) << acumulators["energy"].stddev()
+                   << std::setw(20) << acumulators["magnetization"].mean()
+                   << std::setw(20) << acumulators["magnetization"].stddev()
                    << std::endl;
         thermalEnergy -= 0.2;
     }

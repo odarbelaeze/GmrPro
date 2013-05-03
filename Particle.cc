@@ -1,9 +1,9 @@
 #include "Particle.h"
 
-namespace gmr
+namespace Gmr
 {
     Particle::Particle()
-     : position_(0.0, 3), spin_(gmr::Spin::Up), specie_(gmr::Specie::Ion), nbh_() 
+     : position_(0.0, 3), spin_(Gmr::Spin::Up), specie_(Gmr::Specie::Ion), nbh_() 
     {}
 
     Particle::Particle (darray position, Spin spin, Specie specie)
