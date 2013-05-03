@@ -17,3 +17,7 @@ gmr: particle
 particle:
 	g++ $(OPTIMFLAGS) $(CPPFLAGS) -c Particle.cc -o Particle.o
 .PHONY: particle
+
+run: all
+	./main
+.PHONY: run
