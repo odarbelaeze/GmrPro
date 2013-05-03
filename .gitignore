@@ -21,6 +21,7 @@ data/*
 *.out
 *.exe
 gmr
+main
 
 # Back up data
 *~
