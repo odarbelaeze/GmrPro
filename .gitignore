@@ -20,5 +20,13 @@ data/*
 # Compiled binaries that show up
 *.out
 
-# Another security copies
+*.exe
+gmr
+main
+
+# Back up data
 *~
+
+# Images and other data
+*.png
+*data*
