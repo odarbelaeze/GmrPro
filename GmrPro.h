@@ -9,43 +9,10 @@
 #include <random>
 
 #include "Gmr.h"
+#include "Accumulator.h"
 
 namespace Gmr
 {
-    struct Accumulator
-    {
-        double acum = 0.0;
-        double acumsq = 0.0;
-        long   count = 0L;
-
-        void operator+= (double x) {
-            acum += x;
-            acumsq += x * x;
-            count++;
-        }
-
-        double mean () {
-            if (!count) throw std::exception();
-            return acum / (double) count;
-        }
-
-        double stddev ()
-        {
-            if (!count) throw std::exception();
-            return std::sqrt(
-                acumsq / (double) count -
-                mean() * mean()
-            );
-        }
-
-        void reset () {
-            acum = 0.0;
-            acumsq = 0.0;
-            count = 0L;
-        }
-
-    };
-
     template<typename T>
     std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
     {
