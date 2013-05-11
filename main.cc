@@ -18,10 +18,10 @@ std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 
 int main(int argc, char const *argv[])
 {
-    std::initializer_list<int> dim_list({ 5, 5, 5 });
-    std::mt19937_64 engine;
+    // std::initializer_list<int> dim_list({ 5, 5, 5 });
+    // std::mt19937_64 engine;
 
-    Gmr::particles_t particles;
+    // Gmr::particles_t particles;
     Gmr::insertParticles (particles, Gmr::Specie::Ion, Gmr::Lattice::sc, dim_list);
     Gmr::insertParticles (particles, Gmr::Specie::Electron, 125, dim_list);
     Gmr::updateNeighbors(particles, 1.0);
