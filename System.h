@@ -1,6 +1,12 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
+#include "Particle.h"
+#include "Deck.h"
+
+#include <random>
+#include <algorithm>
+
 namespace Gmr
 {
     enum class Lattice { sc, fcc, bcc };
@@ -38,7 +44,7 @@ namespace Gmr
         void setParticles(std::vector<Particle>);
         
     private:
-        std::vector<int> dimensions
+        std::vector<int> dimensions;
         std::mt19937_64 engine;
 
         std::vector<Particle> particles;

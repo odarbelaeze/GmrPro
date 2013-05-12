@@ -8,7 +8,7 @@
 #include <string>
 #include <random>
 
-#include "Gmr.h"
+#include "System.h"
 #include "Accumulator.h"
 
 namespace Gmr
@@ -108,14 +108,14 @@ namespace Gmr
         return contribution;
     };
 
-    double energy (const particles_t particles){
+    double energy (const std::vector<Particle> particles){
         double energy = 0;
         for (auto&& particle : particles)
             energy += contribution(particle);
         return energy;
     };
 
-    double magnetization (const particles_t& particles){
+    double magnetization (const std::vector<Particle>& particles){
         float magnetization = 0;
         for (auto&& particle : particles)
         {
