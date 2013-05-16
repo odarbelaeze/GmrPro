@@ -34,10 +34,10 @@ int main(int argc, char const *argv[])
 
     std::cout << std::setprecision(5) << std::fixed;
 
-    double thermalEnergy = 30.0;
+    double thermalEnergy = 12.0;
     while (thermalEnergy > 0)
     {
-        int mcs = 100;
+        int mcs = 1000;
         for (auto&& acumulator : acumulators)
             acumulator.second.reset();
 
