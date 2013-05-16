@@ -66,13 +66,13 @@ namespace Gmr
 
             else if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
                      || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
-                contribution -= I(particle, *other) * 
-                                (particle.getSpin() * other -> getSpin());
+                contribution -= I(particle, *other) * (particle.getSpin() * other -> getSpin());
 
             else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
-                contribution -= K(particle, *other) * 
-                                (particle.getSpin() * other -> getSpin());
+                contribution -= K(particle, *other) * (particle.getSpin() * other -> getSpin());
         }
+
+        contribution -= particle.getCharge() * (electricField * particle.getPosition()).sum();
 
         #undef _SPECIE
         return contribution;

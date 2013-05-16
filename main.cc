@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < mcs; ++i)
         {
             NUEVO.mcThermalStep(Gmr::contribution, thermalEnergy);
-            NUEVO.mcDynamicStep ({Gmr::Specie::Electron}, Gmr::electricContribution, thermalEnergy);
+            NUEVO.mcDynamicStep ({Gmr::Specie::Electron}, Gmr::contribution, thermalEnergy);
 
             acumulators["energy"] += energy(NUEVO.getParticles());
             acumulators["magnetization"] += magnetization(NUEVO.getParticles());
