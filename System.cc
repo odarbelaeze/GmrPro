@@ -12,14 +12,67 @@ namespace Gmr
         // std::vector<int> dim(dim_list);
         // dimensions = dim;
         dimensions = std::vector<int>(dim_list);
+        electricField = darray({ 0.0, 0.0, 0.0 });
+
+        parameters = std::map<std::string, double>{
+            { "Jex", 1.0 },
+            { "I_0", 1.0 },
+            { "K_0", 2.0 },
+            { "R_0", 0.001 } };
     }
 
     System::System(std::vector<int> dimensions)
     {
         this -> dimensions = dimensions;
+        electricField = darray({ 0.0, 0.0, 0.0 });
+
+        parameters = std::map<std::string, double>{
+            { "Jex", 1.0 },
+            { "I_0", 1.0 },
+            { "K_0", 2.0 },
+            { "R_0", 0.001 } };
     }
 
     System::~System(){}
+
+
+    double System::contribution (const Particle& particle){
+        double contribution = 0;
+        #ifndef _SPECIE
+        #define _SPECIE(p, sp) (p).getSpecie() == Specie::sp
+        #endif
+
+        for (auto&& other : particle.getNbh())
+        {
+            contribution += exp( 
+                - distance(particle.getPosition(), other -> getPosition())
+                / parameters["R_0"]
+            );
+
+            if (_SPECIE(particle, Ion) && _SPECIE(*other, Ion))
+                contribution -= parameters["Jex"] * 
+                                (particle.getSpin() * other -> getSpin());
+
+            else if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
+                     || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
+                contribution -= I(particle, *other) * (particle.getSpin() * other -> getSpin());
+
+            else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
+                contribution -= K(particle, *other) * (particle.getSpin() * other -> getSpin());
+        }
+
+        contribution -= particle.getCharge() * (electricField * particle.getPosition()).sum();
+
+        #undef _SPECIE
+        return contribution;
+    }
+
+    double System::relatedEnergy(const Particle& particle){
+        double energy = this -> contribution(particle);
+        for (auto&& other : particle.getNbh())
+            energy += this -> contribution(*other);
+        return energy;
+    }
 
     void System::insertParticles (Specie specie, Lattice lattice)
     {
@@ -110,16 +163,15 @@ namespace Gmr
         }
     }
 
-    void System::mcThermalStep (std::function<double(const Particle&)> contribution,
-                     double thermalEnergy)
+    void System::mcThermalStep (double thermalEnergy)
     {
-        std::function<double(const Particle&)> relatedEnergy = 
-            [&contribution](const Particle& particle) {
-                double energy = contribution(particle);
-                for (auto&& other : particle.getNbh())
-                    energy += contribution(*other);
-                return energy;
-            };
+        // std::function<double(const Particle&)> relatedEnergy = 
+        //     [&contribution](const Particle& particle) {
+        //         double energy = contribution(particle);
+        //         for (auto&& other : particle.getNbh())
+        //             energy += contribution(*other);
+        //         return energy;
+        //     };
         
         Deck<Particle*> targets;
         for (auto& particle : particles)
@@ -130,25 +182,24 @@ namespace Gmr
         while (!targets.isEmpty())
         {
             Particle* particle = targets.pop();
-            double oldEnergy = relatedEnergy(*particle);
+            double oldEnergy = this -> relatedEnergy(*particle);
             particle -> setSpin( - particle -> getSpin());
-            double energyDelta = relatedEnergy(*particle) - oldEnergy;
+            double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
             if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setSpin( - particle -> getSpin());
         }
     }
 
     void System::mcThermalStep (std::initializer_list<Specie> targetSp,
-                     std::function<double(const Particle&)> contribution,
                      double thermalEnergy)
     {
-        std::function<double(const Particle&)> relatedEnergy = 
-            [&contribution](const Particle& particle) {
-                double energy = contribution(particle);
-                for (auto&& other : particle.getNbh())
-                    energy += contribution(*other);
-                return energy;
-            };
+        // std::function<double(const Particle&)> relatedEnergy = 
+        //     [&contribution](const Particle& particle) {
+        //         double energy = contribution(particle);
+        //         for (auto&& other : particle.getNbh())
+        //             energy += contribution(*other);
+        //         return energy;
+        //     };
         
         Deck<Particle*> targets;
         // use std::any_of(begin, end, function -> bool)
@@ -162,25 +213,24 @@ namespace Gmr
         while (!targets.isEmpty())
         {
             Particle* particle = targets.pop();
-            double oldEnergy = relatedEnergy(*particle);
+            double oldEnergy = this -> relatedEnergy(*particle);
             particle -> setSpin( - particle -> getSpin());
-            double energyDelta = relatedEnergy(*particle) - oldEnergy;
+            double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
             if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setSpin( - particle -> getSpin());
         }
     }
 
     void System::mcDynamicStep (std::initializer_list<Specie> targetSp,
-                     std::function<double(const Particle&)> contribution,
                      double thermalEnergy)
     {
-        std::function<double(const Particle&)> relatedEnergy = 
-            [&contribution](const Particle& particle) {
-                double energy = contribution(particle);
-                for (auto&& other : particle.getNbh())
-                    energy += contribution(*other);
-                return energy;
-            };
+        // std::function<double(const Particle&)> relatedEnergy = 
+        //     [&contribution](const Particle& particle) {
+        //         double energy = contribution(particle);
+        //         for (auto&& other : particle.getNbh())
+        //             energy += contribution(*other);
+        //         return energy;
+        //     };
 
         std::uniform_real_distribution<> theta(0.0, M_PI);
         std::uniform_real_distribution<> phi(0.0, 2.0 * M_PI);
@@ -207,10 +257,10 @@ namespace Gmr
         while (!targets.isEmpty())
         {
             Particle* particle = targets.pop();
-            double oldEnergy = relatedEnergy(*particle);
+            double oldEnergy = this -> relatedEnergy(*particle);
             darray oldPosition = particle -> getPosition();
             particle -> setPosition(oldPosition + randVec3D());
-            double energyDelta = relatedEnergy(*particle) - oldEnergy;
+            double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
             if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setPosition(oldPosition);
             else

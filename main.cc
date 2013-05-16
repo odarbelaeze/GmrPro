@@ -1,4 +1,4 @@
-#include "GmrPro.h"
+#include "System.h"
 #include <iostream>
 
 template<typename T>
@@ -8,13 +8,13 @@ std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
         os << i << " ";
 
     return os;
-}
+};
 
 std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 {
     os << (spin == Gmr::Spin::Up? "Up" : "Down");
     return os;
-}
+};
 
 
 int main(int argc, char const *argv[])
@@ -46,11 +46,11 @@ int main(int argc, char const *argv[])
 
         for (int i = 0; i < mcs; ++i)
         {
-            NUEVO.mcThermalStep(Gmr::contribution, thermalEnergy);
-            NUEVO.mcDynamicStep ({Gmr::Specie::Electron}, Gmr::contribution, thermalEnergy);
+            NUEVO.mcThermalStep(thermalEnergy);
+            NUEVO.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy);
 
-            acumulators["energy"] += energy(NUEVO.getParticles());
-            acumulators["magnetization"] += magnetization(NUEVO.getParticles());
+            acumulators["energy"] += NUEVO.energy(NUEVO.getParticles());
+            acumulators["magnetization"] += NUEVO.magnetization(NUEVO.getParticles());
         }
         std::cout  << std::setw(20) << thermalEnergy 
                    << std::setw(20) << acumulators["energy"].mean()
