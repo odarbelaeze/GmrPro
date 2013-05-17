@@ -10,17 +10,29 @@ namespace Gmr
             throw std::exception();
 
         this -> dimensions = std::vector<int>(dim_list);
-        this -> setDefaultValues();
+        this -> setDefaultParameters();
     }
 
     System::System(std::vector<int> dimensions)
     {
         this -> dimensions = dimensions;
-        this -> setDefaultValues();
+        this -> setDefaultParameters();
     }
 
     System::~System(){}
 
+    void System::setDefaultParameters(){
+        this -> electricField = darray({ 0.0, 0.0, 0.0 });
+        this -> parameters = std::map<std::string, double>{
+            { "Jex", 1.0 },
+            { "I_0", 1.0 },
+            { "K_0", 2.0 },
+            { "R_0", 0.001 } };
+    };
+
+    double System::distance (const darray& a, const darray& b){
+        return std::sqrt(std::pow(b - a, 2).sum());
+    };
 
     double System::contribution (const Particle& particle){
         double contribution = 0;
@@ -61,8 +73,23 @@ namespace Gmr
         return energy;
     }
 
-    void System::insertParticles (Specie specie, Lattice lattice)
-    {
+    double System::energy (const std::vector<Particle> particles){
+        double energy = 0;
+        for (auto&& particle : particles)
+            energy += contribution(particle);
+        return energy;
+    };
+
+    double System::magnetization (const std::vector<Particle>& particles){
+        float magnetization = 0;
+        for (auto&& particle : particles)
+        {
+            magnetization += particle.getSpin() == Spin::Up ? 1.0: -1.0;
+        }
+        return std::abs(magnetization / particles.size());
+    };
+
+    void System::insertParticles (Specie specie, Lattice lattice){
 
         std::vector<darray> basis;
 
@@ -115,8 +142,7 @@ namespace Gmr
         }
     }
 
-    void System::insertParticles (Specie specie, int count)
-    {
+    void System::insertParticles (Specie specie, int count){
         Deck<Spin> spins;
         spins.push(Spin::Up);
         spins.push(Spin::Down);
@@ -135,8 +161,7 @@ namespace Gmr
         }
     }
 
-    void System::updateNeighbors (double radius)
-    {
+    void System::updateNeighbors (double radius){
         for (auto&& particle : this -> particles)
         {
             std::vector<Particle*> vecinitos;
@@ -150,8 +175,7 @@ namespace Gmr
         }
     }
 
-    void System::mcThermalStep (double thermalEnergy)
-    {       
+    void System::mcThermalStep (double thermalEnergy){       
         Deck<Particle*> targets;
         for (auto& particle : this -> particles)
             targets.push(&particle);
