@@ -61,27 +61,12 @@ namespace Gmr
         return std::sqrt(std::pow(b - a, 2).sum());
         };
 
-        double K (const Particle& particle, const Particle& other) {
-        return parameters["K_0"] * std::exp(
-            - distance(particle.getPosition(), other.getPosition())
-            );
-        };
-
-        double I (const Particle& particle, const Particle& other) {
-            return parameters["I_0"] * std::exp( 
-                - distance(particle.getPosition(), other.getPosition())
-            );
-        };
-
-        double relatedEnergy(const Particle& particle);
-
         double energy (const std::vector<Particle> particles){
             double energy = 0;
             for (auto&& particle : particles)
                 energy += contribution(particle);
             return energy;
         };
-
 
         double magnetization (const std::vector<Particle>& particles){
             float magnetization = 0;
@@ -92,7 +77,20 @@ namespace Gmr
             return std::abs(magnetization / particles.size());
         };
 
+        void setDefaultValues(){
+            this -> electricField = darray({ 0.0, 0.0, 0.0 });
+            this -> parameters = std::map<std::string, double>{
+                { "Jex", 1.0 },
+                { "I_0", 1.0 },
+                { "K_0", 2.0 },
+                { "R_0", 0.001 } };
+        };
+
+        void setParameter(std::string, double);
+
     private:
+        double relatedEnergy(const Particle& particle);
+
         std::vector<int> dimensions;
         std::mt19937_64 engine;
 

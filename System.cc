@@ -9,28 +9,14 @@ namespace Gmr
         if (std::any_of(std::begin(dim_list), std::end(dim_list), [](int i) { return i <= 0; }))
             throw std::exception();
 
-        // std::vector<int> dim(dim_list);
-        // dimensions = dim;
-        dimensions = std::vector<int>(dim_list);
-        electricField = darray({ 0.0, 0.0, 0.0 });
-
-        parameters = std::map<std::string, double>{
-            { "Jex", 1.0 },
-            { "I_0", 1.0 },
-            { "K_0", 2.0 },
-            { "R_0", 0.001 } };
+        this -> dimensions = std::vector<int>(dim_list);
+        this -> setDefaultValues();
     }
 
     System::System(std::vector<int> dimensions)
     {
         this -> dimensions = dimensions;
-        electricField = darray({ 0.0, 0.0, 0.0 });
-
-        parameters = std::map<std::string, double>{
-            { "Jex", 1.0 },
-            { "I_0", 1.0 },
-            { "K_0", 2.0 },
-            { "R_0", 0.001 } };
+        this -> setDefaultValues();
     }
 
     System::~System(){}
@@ -44,24 +30,25 @@ namespace Gmr
 
         for (auto&& other : particle.getNbh())
         {
-            contribution += exp( 
-                - distance(particle.getPosition(), other -> getPosition())
-                / parameters["R_0"]
-            );
+            float d = this -> distance(particle.getPosition(), other -> getPosition());
+            float dot = particle.getSpin() * other -> getSpin();
+            double K = this -> parameters["K_0"] * std::exp(- d);
+            double I = this -> parameters["I_0"] * std::exp(- d);
+
+            contribution += std::exp( - d / this -> parameters["R_0"]);
 
             if (_SPECIE(particle, Ion) && _SPECIE(*other, Ion))
-                contribution -= parameters["Jex"] * 
-                                (particle.getSpin() * other -> getSpin());
+                contribution -= this -> parameters["Jex"] * dot;
 
             else if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
                      || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
-                contribution -= I(particle, *other) * (particle.getSpin() * other -> getSpin());
+                contribution -= I * dot;
 
             else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
-                contribution -= K(particle, *other) * (particle.getSpin() * other -> getSpin());
+                contribution -= K * dot;
         }
 
-        contribution -= particle.getCharge() * (electricField * particle.getPosition()).sum();
+        contribution -= particle.getCharge() * (this -> electricField * particle.getPosition()).sum();
 
         #undef _SPECIE
         return contribution;
@@ -111,11 +98,11 @@ namespace Gmr
         spins.push(Spin::Up);
         spins.push(Spin::Down);
 
-        for (int i = 0; i < dimensions[0]; ++i)
+        for (int i = 0; i < this -> dimensions[0]; ++i)
         {
-            for (int j = 0; j < dimensions[1]; ++j)
+            for (int j = 0; j < this -> dimensions[1]; ++j)
             {
-                for (int k = 0; k < dimensions[2]; ++k)
+                for (int k = 0; k < this -> dimensions[2]; ++k)
                 {
                     for (auto position : basis)
                         particles.push_back(Particle(
@@ -141,7 +128,7 @@ namespace Gmr
         for (int i = 0; i < count; ++i)
         {
             particles.push_back(Particle(
-                darray({ x(engine), y(engine), z(engine) }),
+                darray({ x(this -> engine), y(this -> engine), z(this -> engine) }),
                 spins.sample(),
                 specie
             ));
@@ -150,10 +137,10 @@ namespace Gmr
 
     void System::updateNeighbors (double radius)
     {
-        for (auto&& particle : particles)
+        for (auto&& particle : this -> particles)
         {
             std::vector<Particle*> vecinitos;
-            for (auto&& other : particles)
+            for (auto&& other : this -> particles)
             {
                 if (&other != &particle 
                     && sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()) <= radius)
@@ -164,17 +151,9 @@ namespace Gmr
     }
 
     void System::mcThermalStep (double thermalEnergy)
-    {
-        // std::function<double(const Particle&)> relatedEnergy = 
-        //     [&contribution](const Particle& particle) {
-        //         double energy = contribution(particle);
-        //         for (auto&& other : particle.getNbh())
-        //             energy += contribution(*other);
-        //         return energy;
-        //     };
-        
+    {       
         Deck<Particle*> targets;
-        for (auto& particle : particles)
+        for (auto& particle : this -> particles)
             targets.push(&particle);
 
         std::uniform_real_distribution<> distribution(0.0, 1.0);
@@ -185,7 +164,7 @@ namespace Gmr
             double oldEnergy = this -> relatedEnergy(*particle);
             particle -> setSpin( - particle -> getSpin());
             double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
-            if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
+            if (distribution(this -> engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setSpin( - particle -> getSpin());
         }
     }
@@ -193,17 +172,9 @@ namespace Gmr
     void System::mcThermalStep (std::initializer_list<Specie> targetSp,
                      double thermalEnergy)
     {
-        // std::function<double(const Particle&)> relatedEnergy = 
-        //     [&contribution](const Particle& particle) {
-        //         double energy = contribution(particle);
-        //         for (auto&& other : particle.getNbh())
-        //             energy += contribution(*other);
-        //         return energy;
-        //     };
-        
         Deck<Particle*> targets;
-        // use std::any_of(begin, end, function -> bool)
-        for (auto&& particle : particles)
+
+        for (auto&& particle : this -> particles)
             if (std::any_of(begin(targetSp), end(targetSp), [&particle](Specie sp){
                 return particle.getSpecie() == sp;
             })) targets.push(&particle);
@@ -216,7 +187,7 @@ namespace Gmr
             double oldEnergy = this -> relatedEnergy(*particle);
             particle -> setSpin( - particle -> getSpin());
             double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
-            if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
+            if (distribution(this -> engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setSpin( - particle -> getSpin());
         }
     }
@@ -247,7 +218,7 @@ namespace Gmr
 
         Deck<Particle*> targets;
         // use std::any_of(begin, end, function -> bool)
-        for (auto&& particle : particles)
+        for (auto&& particle : this -> particles)
             if (std::any_of(begin(targetSp), end(targetSp), [&particle](Specie sp){
                 return particle.getSpecie() == sp;
             })) targets.push(&particle);
@@ -261,7 +232,7 @@ namespace Gmr
             darray oldPosition = particle -> getPosition();
             particle -> setPosition(oldPosition + randVec3D());
             double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
-            if (distribution(engine) > std::exp( - energyDelta / thermalEnergy))
+            if (distribution(this -> engine) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setPosition(oldPosition);
             else
                 particle -> setPosition(fmod(particle -> getPosition(), std::initializer_list<int>({dimensions[0],dimensions[1],dimensions[2]})));
@@ -270,17 +241,17 @@ namespace Gmr
 
     std::vector<int> System::getDimensions()
     {
-        return dimensions;
+        return this -> dimensions;
     }
 
     std::mt19937_64& System::getEngineRef()
     {
-        return engine;
+        return this -> engine;
     }
 
     std::vector<Particle> System::getParticles()
     {
-        return particles;
+        return this -> particles;
     }
 
 
@@ -297,6 +268,11 @@ namespace Gmr
     void System::setParticles(std::vector<Particle> particles)
     {
         this -> particles = particles;
+    }
+
+    void System::setParameter(std::string parameter, double value)
+    {
+        this -> parameters[parameter] = value;
     }
 
 }
