@@ -30,6 +30,15 @@ namespace Gmr
         return answer;
     }
 
+    template<typename T>
+    std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
+    {
+        for (auto&& i : vr)
+            os << i << " ";
+
+        return os;
+    }
+
 }
 
 #endif
