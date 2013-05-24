@@ -1,35 +1,23 @@
 #ifndef SYSTEM_H_
 #define SYSTEM_H_
 
-#include <iostream>
-#include <iomanip>
+#include <algorithm>
 #include <functional>
 #include <map>
-#include <string>
 #include <random>
-#include <algorithm>
+#include <string>
 
-#include "Particle.h"
 #include "Accumulator.h"
 #include "Deck.h"
+#include "Particle.h"
 
 namespace Gmr
 {
-    template<typename T>
-    std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
-    {
-        for (auto&& i : vr)
-            os << i << " ";
-
-        return os;
-    }
 
     enum class Lattice { sc, fcc, bcc };
 
     class System
     {
-    protected:
-        virtual double contribution(const Particle& particle);
 
     public:
         System(std::initializer_list<int> dim_list);
@@ -42,9 +30,6 @@ namespace Gmr
         void mcThermalStep (double);
         void mcThermalStep (std::initializer_list<Specie>, double);
         void mcDynamicStep (std::initializer_list<Specie>, double);
-        double distance (const darray&, const darray&);
-        double energy (const std::vector<Particle>);
-        double magnetization (const std::vector<Particle>&);
 
         std::vector<int> getDimensions();
         std::mt19937_64& getEngineRef();
@@ -56,17 +41,19 @@ namespace Gmr
         void setEngine(std::mt19937_64);
         void setParticles(std::vector<Particle>);
         
+    protected:
+        virtual double contribution_(const Particle& particle);
+        virtual double relatedEnergy_(const Particle& particle);
+
+        std::vector<int> dimensions_;
+        std::vector<Particle> particles_;
+        darray electricField_;
+        darray magneticField_;
+        std::map<std::string, double> parameters_;
 
     private:
-        double relatedEnergy(const Particle& particle);
-
-        std::vector<int> dimensions;
-        std::mt19937_64 engine;
-
-        std::vector<Particle> particles;
-        darray electricField;
-        
-        std::map<std::string, double> parameters;
+        std::mt19937_64 engine_;
+        std::uniform_real_distribution<> uniform_;
 
     };
 }
