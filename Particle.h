@@ -4,11 +4,15 @@
 #include <valarray>
 #include <vector>
 
+#include "Helpers.h"
+
 namespace Gmr
 {
-    typedef std::valarray<double> darray;
     enum class Spin { Up, Down };
     enum class Specie { Ion, Electron };
+
+    int operator* (const Spin&, const Spin&);
+    Spin operator- (const Spin&);
 
     class Particle
     {
@@ -36,27 +40,6 @@ namespace Gmr
         Specie specie_;
         std::vector<Particle*> nbh_;
     };
-
-    int operator* (const Spin&, const Spin&);
-    Spin operator- (const Spin&);
-
-
-    template <typename T>
-    darray fmod(const darray& da, std::initializer_list<T> dim_list)
-    {
-        if (da.size() != dim_list.size())
-            throw std::exception();
-
-        darray answer(da.size());
-        for (int i = 0; i < dim_list.size(); ++i)
-        {
-            answer[i] = std::fmod(da[i], (double)(*(dim_list.begin() + i)));
-            if (answer[i] < 0) answer[i] = answer[i] + (double)(*(dim_list.begin() + i));
-        }
-        
-        return answer;
-    }
-
 }
 
 #endif

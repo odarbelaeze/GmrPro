@@ -230,9 +230,9 @@ namespace Gmr
         std::uniform_real_distribution<> theta(0.0, M_PI);
         std::uniform_real_distribution<> phi(0.0, 2.0 * M_PI);
 
-        auto randVec3D = [&theta, &phi, &engine](){
-            double t = theta(engine)
-                 , p = phi(engine);
+        auto randVec3D = [&theta, &phi, &this/*, &engine*/](){
+            double t = theta(this -> engine)
+                 , p = phi(this -> engine);
             return darray({
                 std::sin(t) * std::cos(p),
                 std::sin(t) * std::sin(p),
