@@ -1,93 +1,110 @@
-#include <cmath>
-
 #include "System.h"
 
 namespace Gmr
 {
-    System::System(std::initializer_list<int> dim_list)
+    System::System (std::initializer_list<int> dim_list)
     {
-        if (std::any_of(std::begin(dim_list), std::end(dim_list), [](int i) { return i <= 0; }))
+        if (std::any_of(std::begin(dim_list), std::end(dim_list), 
+            [](int i) { return i <= 0; }))
             throw std::exception();
 
-        this -> dimensions = std::vector<int>(dim_list);
-        this -> setDefaultParameters();
+        dimensions_ = std::vector<int>(dim_list);
+        setDefaultParameters();
     }
 
-    System::System(std::vector<int> dimensions)
+    System::System (std::vector<int> dimensions)
     {
-        this -> dimensions = dimensions;
-        this -> setDefaultParameters();
+        if (std::any_of(std::begin(dimensions), std::end(dimensions), 
+            [](int i) { return i <= 0; }))
+            throw std::exception();
+
+        dimensions_ = dimensions;
+        setDefaultParameters();
     }
 
-    System::~System(){}
+    System::~System () {}
 
-    void System::setDefaultParameters(){
-        this -> electricField = darray({ 0.0, 0.0, 0.0 });
-        this -> parameters = std::map<std::string, double>{
+    void System::setDefaultParameters ()
+    {
+        uniform_ = std::uniform_real_distribution<> (0.0, 1.0);
+        electricField_ = darray({ 0.0, 0.0, 0.0 });
+        magneticField_ = darray({ 0.0, 0.0, 0.0 });
+        parameters_ = std::map<std::string, double>{
             { "Jex", 1.0 },
             { "I_0", 1.0 },
             { "K_0", 2.0 },
             { "R_0", 0.001 } };
     };
 
-    double System::distance (const darray& a, const darray& b){
-        return std::sqrt(std::pow(b - a, 2).sum());
-    };
-
-    double System::contribution (const Particle& particle){
+    double System::contribution_ (const Particle& particle) 
+    {
         double contribution = 0;
-        #ifndef _SPECIE
-        #define _SPECIE(p, sp) (p).getSpecie() == Specie::sp
+
+        double d;
+        double dot;
+        double K;
+        double I;
+
+        #ifndef SPECIE_
+        #define SPECIE_(p, sp) (p).getSpecie() == Specie::sp
         #endif
 
         for (auto&& other : particle.getNbh())
         {
-            float d = this -> distance(particle.getPosition(), other -> getPosition());
-            float dot = particle.getSpin() * other -> getSpin();
-            double K = this -> parameters["K_0"] * std::exp(- d);
-            double I = this -> parameters["I_0"] * std::exp(- d);
+            d   = distance(particle.getPosition(), other -> getPosition());
+            dot = particle.getSpin() * other -> getSpin();
+            K   = parameters_["K_0"] * std::exp( - d);
+            I   = parameters_["I_0"] * std::exp( - d);
 
-            contribution += std::exp( - d / this -> parameters["R_0"]);
+            contribution += std::exp( - d / parameters_["R_0"]);
 
-            if (_SPECIE(particle, Ion) && _SPECIE(*other, Ion))
-                contribution -= this -> parameters["Jex"] * dot;
+            if (SPECIE_(particle, Ion) && SPECIE_(*other, Ion))
+                contribution -= parameters_["Jex"] * dot;
 
-            else if ((_SPECIE(particle, Ion) && _SPECIE(*other, Electron))
-                     || (_SPECIE(particle, Electron) && _SPECIE(*other, Ion)))
+            else if ((SPECIE_(particle, Ion) && SPECIE_(*other, Electron))
+                     || (SPECIE_(particle, Electron) && SPECIE_(*other, Ion)))
                 contribution -= I * dot;
 
-            else if (_SPECIE(particle, Electron) && _SPECIE(*other, Electron))
+            else if (SPECIE_(particle, Electron) && SPECIE_(*other, Electron))
                 contribution -= K * dot;
         }
 
-        contribution -= particle.getCharge() * (this -> electricField * particle.getPosition()).sum();
+        contribution -= particle.getCharge() * 
+                        dot_product(electricField_, particle.getPosition());
 
-        #undef _SPECIE
+        #undef SPECIE_
+
         return contribution;
     }
 
-    double System::relatedEnergy(const Particle& particle){
-        double energy = this -> contribution(particle);
+    double System::relatedEnergy_ (const Particle& particle) 
+    {
+        double energy = contribution_(particle);
+
         for (auto&& other : particle.getNbh())
-            energy += this -> contribution(*other);
+            energy += contribution_(*other);
+        
         return energy;
     }
 
-    double System::energy (const std::vector<Particle> particles){
+    double System::energy ()
+    {
         double energy = 0;
-        for (auto&& particle : particles)
-            energy += contribution(particle);
-        return energy;
-    };
 
-    double System::magnetization (const std::vector<Particle>& particles){
+        for (auto&& particle : particles_)
+            energy += contribution_(particle);
+
+        return energy;
+    }
+
+    double System::magnetization (){
         float magnetization = 0;
-        for (auto&& particle : particles)
-        {
-            magnetization += particle.getSpin() == Spin::Up ? 1.0: -1.0;
-        }
-        return std::abs(magnetization / particles.size());
-    };
+        
+        for (auto&& particle : particles_)
+            magnetization += particle.getSpin() == Spin::Up ? 1.0: - 1.0;
+        
+        return std::abs(magnetization / particles_.size());
+    }
 
     void System::insertParticles (Specie specie, Lattice lattice){
 
@@ -125,14 +142,14 @@ namespace Gmr
         spins.push(Spin::Up);
         spins.push(Spin::Down);
 
-        for (int i = 0; i < this -> dimensions[0]; ++i)
+        for (int i = 0; i < dimensions_[0]; ++i)
         {
-            for (int j = 0; j < this -> dimensions[1]; ++j)
+            for (int j = 0; j < dimensions_[1]; ++j)
             {
-                for (int k = 0; k < this -> dimensions[2]; ++k)
+                for (int k = 0; k < dimensions_[2]; ++k)
                 {
                     for (auto position : basis)
-                        particles.push_back(Particle(
+                        particles_.push_back(Particle(
                             darray({ (double) i, (double) j, (double) k }) + position,
                             spins.sample(),
                             specie
@@ -147,14 +164,14 @@ namespace Gmr
         spins.push(Spin::Up);
         spins.push(Spin::Down);
 
-        std::uniform_real_distribution<> x(0.0, (double) dimensions[0]);
-        std::uniform_real_distribution<> y(0.0, (double) dimensions[1]);
-        std::uniform_real_distribution<> z(0.0, (double) dimensions[2]);
+        std::uniform_real_distribution<> x(0.0, (double) dimensions_[0]);
+        std::uniform_real_distribution<> y(0.0, (double) dimensions_[1]);
+        std::uniform_real_distribution<> z(0.0, (double) dimensions_[2]);
 
         for (int i = 0; i < count; ++i)
         {
-            particles.push_back(Particle(
-                darray({ x(this -> engine), y(this -> engine), z(this -> engine) }),
+            particles_.push_back(Particle(
+                darray({ x(engine_), y(engine_), z(engine_) }),
                 spins.sample(),
                 specie
             ));
@@ -162,33 +179,37 @@ namespace Gmr
     }
 
     void System::updateNeighbors (double radius){
-        for (auto&& particle : this -> particles)
+        for (auto&& p : particles_)
         {
-            std::vector<Particle*> vecinitos;
-            for (auto&& other : this -> particles)
+            std::vector<Particle*> nbh;
+
+            for (auto&& other : particles_)
             {
-                if (&other != &particle 
-                    && sqrt(pow(particle.getPosition() - other.getPosition(), 2).sum()) <= radius)
-                    vecinitos.push_back(&other);
+                if (   &other != &p 
+                    && distance(p.getPosition(), other.getPosition()) <= radius)
+                    nbh.push_back(&other);
             }
-            particle.setNbh(vecinitos);
+            
+            p.setNbh(nbh);
         }
     }
 
     void System::mcThermalStep (double thermalEnergy){       
+        
         Deck<Particle*> targets;
-        for (auto& particle : this -> particles)
+        
+        for (auto& particle : particles_)
             targets.push(&particle);
-
-        std::uniform_real_distribution<> distribution(0.0, 1.0);
 
         while (!targets.isEmpty())
         {
             Particle* particle = targets.pop();
-            double oldEnergy = this -> relatedEnergy(*particle);
+
+            double oldEnergy = relatedEnergy_(*particle);
             particle -> setSpin( - particle -> getSpin());
-            double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
-            if (distribution(this -> engine) > std::exp( - energyDelta / thermalEnergy))
+            double energyDelta = relatedEnergy_(*particle) - oldEnergy;
+            
+            if (uniform_(engine_) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setSpin( - particle -> getSpin());
         }
     }
@@ -198,105 +219,88 @@ namespace Gmr
     {
         Deck<Particle*> targets;
 
-        for (auto&& particle : this -> particles)
-            if (std::any_of(begin(targetSp), end(targetSp), [&particle](Specie sp){
-                return particle.getSpecie() == sp;
-            })) targets.push(&particle);
+        for (auto&& particle : particles_)
+            if (std::any_of(begin(targetSp), end(targetSp), 
+                [&particle](Specie sp){ return particle.getSpecie() == sp; })) 
 
-        std::uniform_real_distribution<> distribution(0.0, 1.0);
+                targets.push(&particle);
 
         while (!targets.isEmpty())
         {
             Particle* particle = targets.pop();
-            double oldEnergy = this -> relatedEnergy(*particle);
+
+            double oldEnergy = relatedEnergy_(*particle);
             particle -> setSpin( - particle -> getSpin());
-            double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
-            if (distribution(this -> engine) > std::exp( - energyDelta / thermalEnergy))
+            double energyDelta = relatedEnergy_(*particle) - oldEnergy;
+
+            if (uniform_(engine_) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setSpin( - particle -> getSpin());
         }
     }
 
     void System::mcDynamicStep (std::initializer_list<Specie> targetSp,
-                     double thermalEnergy)
+                                double thermalEnergy)
     {
-        // std::function<double(const Particle&)> relatedEnergy = 
-        //     [&contribution](const Particle& particle) {
-        //         double energy = contribution(particle);
-        //         for (auto&& other : particle.getNbh())
-        //             energy += contribution(*other);
-        //         return energy;
-        //     };
-
-        std::uniform_real_distribution<> theta(0.0, M_PI);
-        std::uniform_real_distribution<> phi(0.0, 2.0 * M_PI);
-
-        auto randVec3D = [&theta, &phi, &this/*, &engine*/](){
-            double t = theta(this -> engine)
-                 , p = phi(this -> engine);
-            return darray({
-                std::sin(t) * std::cos(p),
-                std::sin(t) * std::sin(p),
-                std::cos(t)
-            });
-        };
-
         Deck<Particle*> targets;
-        // use std::any_of(begin, end, function -> bool)
-        for (auto&& particle : this -> particles)
-            if (std::any_of(begin(targetSp), end(targetSp), [&particle](Specie sp){
-                return particle.getSpecie() == sp;
-            })) targets.push(&particle);
 
-        std::uniform_real_distribution<> distribution(0.0, 1.0);
+        for (auto&& particle : particles_)
+        {
+            if (std::any_of(begin(targetSp), end(targetSp), 
+                [&particle](Specie sp){ return particle.getSpecie() == sp; })) 
+                targets.push(&particle);
+        }
 
         while (!targets.isEmpty())
         {
             Particle* particle = targets.pop();
-            double oldEnergy = this -> relatedEnergy(*particle);
+
+            double oldEnergy = relatedEnergy_(*particle);
             darray oldPosition = particle -> getPosition();
-            particle -> setPosition(oldPosition + randVec3D());
-            double energyDelta = this -> relatedEnergy(*particle) - oldEnergy;
-            if (distribution(this -> engine) > std::exp( - energyDelta / thermalEnergy))
+            particle -> setPosition(oldPosition + rand3d(engine_, uniform_));
+            double energyDelta = relatedEnergy_(*particle) - oldEnergy;
+            
+            if (uniform_(engine_) > std::exp( - energyDelta / thermalEnergy))
                 particle -> setPosition(oldPosition);
             else
-                particle -> setPosition(fmod(particle -> getPosition(), std::initializer_list<int>({dimensions[0],dimensions[1],dimensions[2]})));
+                particle -> setPosition(
+                    fmod(particle -> getPosition(), dimensions_));
         }
     }
 
     std::vector<int> System::getDimensions()
     {
-        return this -> dimensions;
+        return dimensions_;
     }
 
     std::mt19937_64& System::getEngineRef()
     {
-        return this -> engine;
+        return engine_;
     }
 
     std::vector<Particle> System::getParticles()
     {
-        return this -> particles;
+        return particles_;
     }
 
 
     void System::setDimensions(std::vector<int> dimensions)
     {
-        this -> dimensions = dimensions;
+        dimensions_ = dimensions;
     }
 
-    void System::setEngine(std::mt19937_64)
+    void System::setEngine(std::mt19937_64& engine)
     {
-        this -> engine = engine;
+        engine_ = engine;
     }
 
     void System::setParticles(std::vector<Particle> particles)
     {
-        this -> particles = particles;
+        particles_ = particles;
     }
 
     void System::setParameter(std::string parameter, double value)
     {
-        this -> parameters[parameter] = value;
+        parameters_[parameter] = value;
     }
 
 }

@@ -1,27 +1,20 @@
+CC = g++
 CPPFLAGS = -std=c++0x
 DEBUGFLAGS = -g3
-OPTIMFLAGS = -O2
+OPTIMFLAGS = -O3
+OBJECTS = Helpers.o Particle.o System.o main.o
 
-all: gmr
-	g++ $(OPTIMFLAGS) $(CPPFLAGS) -o main main.cc Particle.o System.o
-.PHONY: all
-
-main:
-	g++ $(OPTIMFLAGS) $(CPPFLAGS) -o main main.cc Particle.o System.o
+main: $(OBJECTS)
+	$(CC) $(OPTIMFLAGS) $(CPPFLAGS) -o main $(OBJECTS)
 .PHONY: main
 
-# gmr: particle
-# 	g++ $(OPTIMFLAGS) $(CPPFLAGS) -c Gmr.cc -o Gmr.o
-# .PHONY: gmr
-
-gmr: particle
-	g++ $(OPTIMFLAGS) $(CPPFLAGS) -c System.cc -o System.o
-.PHONY: system
-
-particle:
-	g++ $(OPTIMFLAGS) $(CPPFLAGS) -c Particle.cc -o Particle.o
-.PHONY: particle
+%.o: %.cc
+	$(CC) $(OPTIMFLAGS) $(CPPFLAGS) -c $<
 
 run: all
 	./main
 .PHONY: run
+
+clean:
+	rm *.o main
+.PHONY: clean

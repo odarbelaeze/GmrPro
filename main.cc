@@ -1,5 +1,7 @@
-#include "System.h"
+#include <iomanip>
 #include <iostream>
+
+#include "System.h"
 
 template<typename T>
 std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
@@ -19,14 +21,11 @@ std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 
 int main(int argc, char const *argv[])
 {
-    Gmr::System NUEVO({ 5, 5, 5 });
-    // std::initializer_list<int> dim_list({ 5, 5, 5 });
-    // std::mt19937_64 engine;
+    Gmr::System system({ 5, 5, 5 });
 
-    // Gmr::particles_t particles;
-    NUEVO.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
-    NUEVO.insertParticles (Gmr::Specie::Electron, 125);
-    NUEVO.updateNeighbors(1.0);
+    system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
+    system.insertParticles (Gmr::Specie::Electron, 125);
+    system.updateNeighbors(1.0);
 
     std::map<std::string, Gmr::Accumulator> acumulators;
     acumulators["magnetization"] = Gmr::Accumulator();
@@ -42,15 +41,15 @@ int main(int argc, char const *argv[])
             acumulator.second.reset();
 
         if (mcs % 10 == 0)
-            NUEVO.updateNeighbors(1.0);
+            system.updateNeighbors(1.0);
 
         for (int i = 0; i < mcs; ++i)
         {
-            NUEVO.mcThermalStep(thermalEnergy);
-            NUEVO.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy);
+            system.mcThermalStep(thermalEnergy);
+            system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy);
 
-            acumulators["energy"] += NUEVO.energy(NUEVO.getParticles());
-            acumulators["magnetization"] += NUEVO.magnetization(NUEVO.getParticles());
+            acumulators["energy"] += system.energy();
+            acumulators["magnetization"] += system.magnetization();
         }
         std::cout  << std::setw(20) << thermalEnergy 
                    << std::setw(20) << acumulators["energy"].mean()

@@ -9,6 +9,7 @@
 
 #include "Accumulator.h"
 #include "Deck.h"
+#include "Helpers.h"
 #include "Particle.h"
 
 namespace Gmr
@@ -24,6 +25,8 @@ namespace Gmr
         System(std::vector<int> dimensions);
         ~System();
 
+        void setDefaultParameters();
+
         void insertParticles (Specie, Lattice);
         void insertParticles (Specie, int);
         void updateNeighbors (double);
@@ -31,19 +34,21 @@ namespace Gmr
         void mcThermalStep (std::initializer_list<Specie>, double);
         void mcDynamicStep (std::initializer_list<Specie>, double);
 
-        std::vector<int> getDimensions();
-        std::mt19937_64& getEngineRef();
-        std::vector<Particle> getParticles();
+        std::vector<int> getDimensions ();
+        std::mt19937_64& getEngineRef ();
+        std::vector<Particle> getParticles ();
 
-        void setDefaultParameters();
-        void setParameter(std::string, double);
-        void setDimensions(std::vector<int>);
-        void setEngine(std::mt19937_64);
-        void setParticles(std::vector<Particle>);
+        void setParameter (std::string, double);
+        void setDimensions (std::vector<int>);
+        void setEngine (std::mt19937_64&);
+        void setParticles (std::vector<Particle>);
         
+        double energy ();
+        double magnetization ();
+
     protected:
-        virtual double contribution_(const Particle& particle);
-        virtual double relatedEnergy_(const Particle& particle);
+        virtual double contribution_ (const Particle& particle);
+        virtual double relatedEnergy_ (const Particle& particle);
 
         std::vector<int> dimensions_;
         std::vector<Particle> particles_;

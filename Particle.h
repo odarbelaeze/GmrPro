@@ -1,7 +1,6 @@
 #ifndef PARTICLE_H_
 #define PARTICLE_H_ 
 
-#include <valarray>
 #include <vector>
 
 #include "Helpers.h"
