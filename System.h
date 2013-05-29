@@ -9,6 +9,7 @@
 
 #include "Accumulator.h"
 #include "Deck.h"
+#include "DynamicStats.h"
 #include "Helpers.h"
 #include "Particle.h"
 
@@ -33,6 +34,7 @@ namespace Gmr
         void mcThermalStep (double);
         void mcThermalStep (std::initializer_list<Specie>, double);
         void mcDynamicStep (std::initializer_list<Specie>, double);
+        void mcDynamicStep (std::initializer_list<Specie>, double, stats_map&);
 
         std::vector<int> getDimensions ();
         std::mt19937_64& getEngineRef ();
@@ -56,7 +58,6 @@ namespace Gmr
         darray magneticField_;
         std::map<std::string, double> parameters_;
 
-    private:
         std::mt19937_64 engine_;
         std::uniform_real_distribution<> uniform_;
 

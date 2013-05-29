@@ -10,6 +10,16 @@ namespace Gmr
         return (a * b).sum();
     }
 
+    double norm (const darray& a)
+    {
+        return std::sqrt(std::pow(a, 2.0).sum());
+    }
+
+    double normp (const darray& a, double p)
+    {
+        return std::pow(std::pow(a, p).sum(), 1.0 / p);
+    }
+
     darray rand3d (std::mt19937_64& engine, 
                    std::uniform_real_distribution<>& distribution) {
 

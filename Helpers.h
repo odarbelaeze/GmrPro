@@ -13,6 +13,8 @@ namespace Gmr
     double distance (const darray& a, const darray& b);
 
     double dot_product (const darray& a, const darray& b);
+    double norm (const darray& a);
+    double normp (const darray& a, double p);
 
     darray rand3d (std::mt19937_64& engine, 
                    std::uniform_real_distribution<>& distribution);

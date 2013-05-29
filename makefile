@@ -2,7 +2,7 @@ CC = g++
 CPPFLAGS = -std=c++0x
 DEBUGFLAGS = -g3
 OPTIMFLAGS = -O3
-OBJECTS = Helpers.o Accumulator.o Particle.o System.o main.o
+OBJECTS = Helpers.o Accumulator.o Particle.o DynamicStats.o System.o main.o
 
 main: $(OBJECTS)
 	$(CC) $(OPTIMFLAGS) $(CPPFLAGS) -o main $(OBJECTS)

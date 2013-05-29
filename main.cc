@@ -1,16 +1,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include "DynamicStats.h"
 #include "System.h"
-
-template<typename T>
-std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
-{
-    for (auto&& i : vr)
-        os << i << " ";
-
-    return os;
-};
 
 std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 {
@@ -22,6 +14,7 @@ std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 int main(int argc, char const *argv[])
 {
     Gmr::System system({ 5, 5, 5 });
+    Gmr::stats_map statistics;
 
     system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
     system.insertParticles (Gmr::Specie::Electron, 125);
@@ -46,7 +39,7 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < mcs; ++i)
         {
             system.mcThermalStep(thermalEnergy);
-            system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy);
+            system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy, statistics);
 
             acumulators["energy"] += system.energy();
             acumulators["magnetization"] += system.magnetization();

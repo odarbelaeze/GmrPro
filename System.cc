@@ -267,6 +267,45 @@ namespace Gmr
         }
     }
 
+    void System::mcDynamicStep (std::initializer_list<Specie> targetSp,
+                                double thermalEnergy,
+                                stats_map& statsMap)
+    {
+        Deck<Particle*> targets;
+
+        for (auto&& particle : particles_)
+        {
+            if (std::any_of(begin(targetSp), end(targetSp), 
+                [&particle](Specie sp){ return particle.getSpecie() == sp; })) 
+                targets.push(&particle);
+        }
+
+        while (!targets.isEmpty())
+        {
+            Particle* particle = targets.pop();
+            DynamicStats* stats = &(statsMap[particle]);
+
+            double oldEnergy = relatedEnergy_(*particle);
+            darray oldPosition = particle -> getPosition();
+            particle -> setPosition(oldPosition + rand3d(engine_, uniform_));
+            double energyDelta = relatedEnergy_(*particle) - oldEnergy;
+            
+            if (uniform_(engine_) > std::exp( - energyDelta / thermalEnergy))
+            {
+                particle -> setPosition(oldPosition);
+                stats -> record();
+            }
+            else
+            {
+                stats -> record (oldPosition, particle -> getPosition());
+
+                // Pacman effect
+                particle -> setPosition(
+                    fmod(particle -> getPosition(), dimensions_));
+            }
+        }
+    }
+
     std::vector<int> System::getDimensions()
     {
         return dimensions_;
