@@ -269,7 +269,7 @@ namespace Gmr
 
     void System::mcDynamicStep (std::initializer_list<Specie> targetSp,
                                 double thermalEnergy,
-                                stats_map& statsMap)
+                                DynamicStats& stats)
     {
         Deck<Particle*> targets;
 
@@ -283,7 +283,6 @@ namespace Gmr
         while (!targets.isEmpty())
         {
             Particle* particle = targets.pop();
-            DynamicStats* stats = &(statsMap[particle]);
 
             double oldEnergy = relatedEnergy_(*particle);
             darray oldPosition = particle -> getPosition();
@@ -293,11 +292,11 @@ namespace Gmr
             if (uniform_(engine_) > std::exp( - energyDelta / thermalEnergy))
             {
                 particle -> setPosition(oldPosition);
-                stats -> record();
+                stats.record(particle);
             }
             else
             {
-                stats -> record (oldPosition, particle -> getPosition());
+                stats.record (particle, oldPosition, particle -> getPosition());
 
                 // Pacman effect
                 particle -> setPosition(

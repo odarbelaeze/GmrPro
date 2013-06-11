@@ -12,22 +12,40 @@ namespace Gmr
 
     enum  class Stat { tau, nu, distance, dx, dy, dz };
 
+    struct Stage
+    {
+        double tau_;
+        double nu_;
+        double distance_;
+        double dx_;
+        double dy_;
+        double dz_;
+
+        Stage();
+        void   stage (Stat, double);
+        double clear (Stat);
+
+    };
+
+    typedef std::map<Particle*, Stage> stage_map;
+
     class DynamicStats
     {
 
     public:
 
-        DynamicStats();
-        ~DynamicStats();
+        DynamicStats ();
+        ~DynamicStats ();
 
-        void record ();
-        void record (const darray&, const darray&);
+        void record (Particle*);
+        void record (Particle*, const darray&, const darray&);
 
         double mean (Stat);
         double stddev (Stat);
 
     private:
 
+        stage_map   stages_;
         Accumulator tau_;
         Accumulator nu_;
         Accumulator distance_;
@@ -37,7 +55,6 @@ namespace Gmr
 
     };
 
-    typedef std::map<Particle*, DynamicStats> stats_map;
 
 }
 

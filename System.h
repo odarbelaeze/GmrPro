@@ -34,7 +34,7 @@ namespace Gmr
         void mcThermalStep (double);
         void mcThermalStep (std::initializer_list<Specie>, double);
         void mcDynamicStep (std::initializer_list<Specie>, double);
-        void mcDynamicStep (std::initializer_list<Specie>, double, stats_map&);
+        void mcDynamicStep (std::initializer_list<Specie>, double, DynamicStats&);
 
         std::vector<int> getDimensions ();
         std::mt19937_64& getEngineRef ();

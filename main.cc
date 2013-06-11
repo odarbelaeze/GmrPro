@@ -14,7 +14,6 @@ std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 int main(int argc, char const *argv[])
 {
     Gmr::System system({ 5, 5, 5 });
-    Gmr::stats_map statistics;
 
     system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
     system.insertParticles (Gmr::Specie::Electron, 125);
@@ -30,6 +29,8 @@ int main(int argc, char const *argv[])
     while (thermalEnergy > 0)
     {
         int mcs = 1000;
+        Gmr::DynamicStats statistics;
+
         for (auto&& acumulator : acumulators)
             acumulator.second.reset();
 
@@ -49,6 +50,12 @@ int main(int argc, char const *argv[])
                    << std::setw(20) << acumulators["energy"].stddev()
                    << std::setw(20) << acumulators["magnetization"].mean()
                    << std::setw(20) << acumulators["magnetization"].stddev()
+                   << std::setw(20) << statistics.mean(Gmr::Stat::tau)
+                   << std::setw(20) << statistics.mean(Gmr::Stat::nu)
+                   << std::setw(20) << statistics.mean(Gmr::Stat::distance)
+                   << std::setw(20) << statistics.mean(Gmr::Stat::dx)
+                   << std::setw(20) << statistics.mean(Gmr::Stat::dy)
+                   << std::setw(20) << statistics.mean(Gmr::Stat::dz)
                    << std::endl;
         thermalEnergy -= 0.2;
     }
