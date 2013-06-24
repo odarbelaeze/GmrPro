@@ -51,11 +51,17 @@ int main(int argc, char const *argv[])
                    << std::setw(20) << acumulators["magnetization"].mean()
                    << std::setw(20) << acumulators["magnetization"].stddev()
                    << std::setw(20) << statistics.mean(Gmr::Stat::tau)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::tau)
                    << std::setw(20) << statistics.mean(Gmr::Stat::nu)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::nu)
                    << std::setw(20) << statistics.mean(Gmr::Stat::distance)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::distance)
                    << std::setw(20) << statistics.mean(Gmr::Stat::dx)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::dx)
                    << std::setw(20) << statistics.mean(Gmr::Stat::dy)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::dy)
                    << std::setw(20) << statistics.mean(Gmr::Stat::dz)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::dz)
                    << std::endl;
         thermalEnergy -= 0.2;
     }
