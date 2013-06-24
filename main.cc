@@ -16,7 +16,7 @@ int main(int argc, char const *argv[])
     Gmr::System system({ 10, 10, 5 });
 
     system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
-    system.insertParticles (Gmr::Specie::Electron, 125);
+    system.insertParticles (Gmr::Specie::Electron, 500);
     system.updateNeighbors(1.0);
 
     std::map<std::string, Gmr::Accumulator> acumulators;

@@ -25,18 +25,21 @@ namespace Gmr
         double getCharge() const;
         Specie getSpecie () const;
         std::vector<Particle*> getNbh () const;
+        std::vector<Particle*> getNnbh () const;
 
         void setPosition (const darray&);
         void setSpin (const Spin&);
         void setCharge(double);
         void setSpecie (const Specie&);
         void setNbh (const std::vector<Particle*>&);
+        void setNnbh (const std::vector<Particle*>&);
 
     private:
         darray position_;
         Spin spin_;
         double charge_;
         Specie specie_;
+        std::vector<Particle*> nnbh_;
         std::vector<Particle*> nbh_;
     };
 }

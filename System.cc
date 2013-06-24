@@ -180,9 +180,10 @@ namespace Gmr
         }
     }
 
-    void System::updateNeighbors (double radius){
+    void System::updateNeighbors (double radius_nnb, double radius){
         for (auto&& p : particles_)
         {
+            std::vector<Particle*> nnbh;
             std::vector<Particle*> nbh;
 
             for (auto&& other : particles_)

@@ -30,7 +30,7 @@ namespace Gmr
 
         void insertParticles (Specie, Lattice);
         void insertParticles (Specie, int);
-        void updateNeighbors (double);
+        void updateNeighbors (double, double);
         void mcThermalStep (double);
         void mcThermalStep (std::initializer_list<Specie>, double);
         void mcDynamicStep (std::initializer_list<Specie>, double);

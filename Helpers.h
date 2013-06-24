@@ -15,6 +15,19 @@ namespace Gmr
     // distancia entre dos darrays
     double distance (const darray& a, const darray& b);
 
+    double distance (const darray& a, const darray& b, 
+                     const darray& dims, 
+                     const std::initializer_list<double> pbc);
+
+    double distance (const darray& a, const darray& b, 
+                     const std::vector<int> & dims, 
+                     const std::initializer_list<double> pbc);
+
+    double distance (const darray& a, const darray& b, 
+                     const std::initializer_list<int>& dims, 
+                     const std::initializer_list<double> pbc);
+
+
     // producto interno, producto punto o producto escalar entre dos darrays
     // A·B= A[a1, a2, ..., an]·B[b1, b2, ..., bn] = a1*b1 + a2*b2 + ... + an*bn
     double dot_product (const darray& a, const darray& b);
@@ -83,6 +96,52 @@ namespace Gmr
         }
         
         return answer;
+    }
+
+    template <typename T>
+    std::valarray<T> min(const std::valarray<T>& A, const std::valarray<T>& B)
+    {
+        if (A.size() != B.size()) throw std::exception();
+
+        std::valarray<T> min(A.size());
+        for (int i = 0; i < A.size(); i++)
+            min[i] = (A[i] < B[i])? A[i] : B[i];
+
+        return min;
+    }
+
+    darray min(const darray& A, const darray& B)
+    {
+        if (A.size() != B.size()) throw std::exception();
+
+        darray min(A.size());
+        for (int i = 0; i < A.size(); i++)
+            min[i] = (A[i] < B[i])? A[i] : B[i];
+
+        return min;
+    }
+
+    template <typename T>
+    std::valarray<T> max(const std::valarray<T>& A, const std::valarray<T>& B)
+    {
+        if (A.size() != B.size()) throw std::exception();
+
+        std::valarray<T> max(A.size());
+        for (int i = 0; i < A.size(); i++)
+            max[i] = (A[i] > B[i])? A[i] : B[i];
+
+        return max;
+    }
+
+    darray max(const darray& A, const darray& B)
+    {
+        if (A.size() != B.size()) throw std::exception();
+
+        darray max(A.size());
+        for (int i = 0; i < A.size(); i++)
+            max[i] = (A[i] > B[i])? A[i] : B[i];
+
+        return max;
     }
 
     // este segmento es para modificar el ostream y que imprima un valarray de

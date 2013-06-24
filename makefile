@@ -7,7 +7,7 @@ OBJECTS = Helpers.o Accumulator.o Particle.o DynamicStats.o System.o main.o
 main: $(OBJECTS)
 	$(CC) $(OPTIMFLAGS) $(CPPFLAGS) -o main $(OBJECTS)
 
-%.o: %.cc
+%.o: %.cc %.h
 	$(CC) $(OPTIMFLAGS) $(CPPFLAGS) -c $<
 
 run: main

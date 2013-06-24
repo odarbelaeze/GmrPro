@@ -49,6 +49,12 @@ namespace Gmr
         return nbh_;
     }
 
+    // retorna un vector de direcciones de particulas
+    std::vector<Particle*> Particle::getNnbh () const
+    {
+        return nnbh_;
+    }
+
     // asignar un valor a postion_
     void Particle::setPosition (const darray& position)
     {
@@ -77,6 +83,12 @@ namespace Gmr
     void Particle::setNbh (const std::vector<Particle*>& nbh)
     {
         nbh_ = nbh;
+    }
+
+    // se asigna el vector primeros de vecinos a la particula
+    void Particle::setNnbh (const std::vector<Particle*>& nnbh)
+    {
+        nnbh_ = nnbh;
     }
 
     // se sobrecarga el operador * con el fin de que de 1 en el caso que los

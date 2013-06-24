@@ -55,4 +55,33 @@ namespace Gmr
 
     }
 
+    double distance (const darray& a, const darray& b, 
+                     const darray& dims,
+                     const std::initializer_list<double> pbc = {1, 1, 1})
+    {
+        return norm(min(std::abs(b - a), std::abs(darray(pbc) * dims - (b - a))));
+    }
+
+    double distance (const darray& a, const darray& b, 
+                     const std::vector<int>& dims, 
+                     const std::initializer_list<double> pbc = {1, 1, 1})
+    {
+        std::valarray<int> dims_int(dims.data(), dims.size());
+        std::valarray<double> dims_double;
+        for (int i = 0; i < dims.size(); ++i)
+            dims_double[i] = dims_int[i];
+        return distance(a, b, dims_double, pbc);
+    }
+
+    double distance (const darray& a, const darray& b, 
+                     const std::initializer_list<int>& dims, 
+                     const std::initializer_list<double> pbc)
+    {
+        std::valarray<int> dims_int(dims);
+        std::valarray<double> dims_double;
+        for (int i = 0; i < dims.size(); ++i)
+            dims_double[i] = dims_int[i];
+        return distance(a, b, dims_double, pbc);
+    }
+
 }
