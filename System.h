@@ -15,7 +15,7 @@
 
 namespace Gmr
 {
-
+    // tipo de estructuras que puede tener el sistema
     enum class Lattice { sc, fcc, bcc };
 
     class System
@@ -52,12 +52,23 @@ namespace Gmr
         virtual double contribution_ (const Particle& particle);
         virtual double relatedEnergy_ (const Particle& particle);
 
+        // contiene las dimensiones del sistema
         std::vector<int> dimensions_;
+
+        // vector que contiene todas las particulas que constituyen el sistema
         std::vector<Particle> particles_;
+
+        // es un std::valarray<double> con las componentes del campo electrico
         darray electricField_;
+
+        // es un std::valarray<double> con las componentes del campo magnetico
         darray magneticField_;
+
+        // mapa de string a double con los parametros propios del sistema
+        // (como las constantes y esas cosas)
         std::map<std::string, double> parameters_;
 
+        // motor de numeros aleatorios y distribucion uniforme
         std::mt19937_64 engine_;
         std::uniform_real_distribution<> uniform_;
 

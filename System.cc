@@ -2,6 +2,8 @@
 
 namespace Gmr
 {
+    // el sistema se debe inicializar con el tamano del mismo, sea con un
+    // initializer_list o con un vector
     System::System (std::initializer_list<int> dim_list)
     {
         if (std::any_of(std::begin(dim_list), std::end(dim_list), 
