@@ -29,7 +29,7 @@ namespace Gmr
     void System::setDefaultParameters ()
     {
         uniform_ = std::uniform_real_distribution<> (0.0, 1.0);
-        electricField_ = darray({ 0.0, 0.0, 0.0 });
+        electricField_ = darray({ 1.0, 0.0, 0.0 });
         magneticField_ = darray({ 0.0, 0.0, 0.0 });
         parameters_ = std::map<std::string, double>{
             { "Jex", 1.0 },

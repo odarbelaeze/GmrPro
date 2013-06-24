@@ -13,7 +13,7 @@ std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 
 int main(int argc, char const *argv[])
 {
-    Gmr::System system({ 5, 5, 5 });
+    Gmr::System system({ 10, 10, 5 });
 
     system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
     system.insertParticles (Gmr::Specie::Electron, 125);
@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
     double thermalEnergy = 12.0;
     while (thermalEnergy > 0)
     {
-        int mcs = 1000;
+        int mcs = 10000;
         Gmr::DynamicStats statistics;
 
         for (auto&& acumulator : acumulators)
