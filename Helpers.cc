@@ -57,14 +57,14 @@ namespace Gmr
 
     double distance (const darray& a, const darray& b, 
                      const darray& dims,
-                     const std::initializer_list<double> pbc = {1, 1, 1})
+                     const std::initializer_list<double> pbc)
     {
         return norm(min(std::abs(b - a), std::abs(darray(pbc) * dims - (b - a))));
     }
 
     double distance (const darray& a, const darray& b, 
                      const std::vector<int>& dims, 
-                     const std::initializer_list<double> pbc = {1, 1, 1})
+                     const std::initializer_list<double> pbc)
     {
         std::valarray<int> dims_int(dims.data(), dims.size());
         std::valarray<double> dims_double;
@@ -82,6 +82,28 @@ namespace Gmr
         for (int i = 0; i < dims.size(); ++i)
             dims_double[i] = dims_int[i];
         return distance(a, b, dims_double, pbc);
+    }
+
+    darray min(const darray& A, const darray& B)
+    {
+        if (A.size() != B.size()) throw std::exception();
+
+        darray min(A.size());
+        for (int i = 0; i < A.size(); i++)
+            min[i] = (A[i] < B[i])? A[i] : B[i];
+
+        return min;
+    }
+
+    darray max(const darray& A, const darray& B)
+    {
+        if (A.size() != B.size()) throw std::exception();
+
+        darray max(A.size());
+        for (int i = 0; i < A.size(); i++)
+            max[i] = (A[i] > B[i])? A[i] : B[i];
+
+        return max;
     }
 
 }

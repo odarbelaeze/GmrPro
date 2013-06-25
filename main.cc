@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
 
     system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
     system.insertParticles (Gmr::Specie::Electron, 500);
-    system.updateNeighbors(1.0);
+    system.updateNeighbors(1.0, 1.0);
 
     std::map<std::string, Gmr::Accumulator> acumulators;
     acumulators["magnetization"] = Gmr::Accumulator();
@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
             acumulator.second.reset();
 
         if (mcs % 10 == 0)
-            system.updateNeighbors(1.0);
+            system.updateNeighbors(1.0, 1.0);
 
         for (int i = 0; i < mcs; ++i)
         {

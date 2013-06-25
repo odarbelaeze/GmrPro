@@ -17,15 +17,15 @@ namespace Gmr
 
     double distance (const darray& a, const darray& b, 
                      const darray& dims, 
-                     const std::initializer_list<double> pbc);
+                     const std::initializer_list<double> pbc = {1, 1, 1});
 
     double distance (const darray& a, const darray& b, 
                      const std::vector<int> & dims, 
-                     const std::initializer_list<double> pbc);
+                     const std::initializer_list<double> pbc = {1, 1, 1});
 
     double distance (const darray& a, const darray& b, 
                      const std::initializer_list<int>& dims, 
-                     const std::initializer_list<double> pbc);
+                     const std::initializer_list<double> pbc = {1, 1, 1});
 
 
     // producto interno, producto punto o producto escalar entre dos darrays
@@ -98,51 +98,9 @@ namespace Gmr
         return answer;
     }
 
-    template <typename T>
-    std::valarray<T> min(const std::valarray<T>& A, const std::valarray<T>& B)
-    {
-        if (A.size() != B.size()) throw std::exception();
+    darray min(const darray& A, const darray& B);
 
-        std::valarray<T> min(A.size());
-        for (int i = 0; i < A.size(); i++)
-            min[i] = (A[i] < B[i])? A[i] : B[i];
-
-        return min;
-    }
-
-    darray min(const darray& A, const darray& B)
-    {
-        if (A.size() != B.size()) throw std::exception();
-
-        darray min(A.size());
-        for (int i = 0; i < A.size(); i++)
-            min[i] = (A[i] < B[i])? A[i] : B[i];
-
-        return min;
-    }
-
-    template <typename T>
-    std::valarray<T> max(const std::valarray<T>& A, const std::valarray<T>& B)
-    {
-        if (A.size() != B.size()) throw std::exception();
-
-        std::valarray<T> max(A.size());
-        for (int i = 0; i < A.size(); i++)
-            max[i] = (A[i] > B[i])? A[i] : B[i];
-
-        return max;
-    }
-
-    darray max(const darray& A, const darray& B)
-    {
-        if (A.size() != B.size()) throw std::exception();
-
-        darray max(A.size());
-        for (int i = 0; i < A.size(); i++)
-            max[i] = (A[i] > B[i])? A[i] : B[i];
-
-        return max;
-    }
+    darray max(const darray& A, const darray& B);
 
     // este segmento es para modificar el ostream y que imprima un valarray de
     // cualquier tipo

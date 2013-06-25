@@ -53,7 +53,7 @@ namespace Gmr
 
         for (auto&& other : particle.getNbh())
         {
-            d   = distance(particle.getPosition(), other -> getPosition());
+            d   = distance(particle.getPosition(), other -> getPosition(), dimensions_);
             dot = particle.getSpin() * other -> getSpin();
             K   = parameters_["K_0"] * std::exp( - d);
             I   = parameters_["I_0"] * std::exp( - d);
@@ -189,7 +189,7 @@ namespace Gmr
             for (auto&& other : particles_)
             {
                 if (   &other != &p 
-                    && distance(p.getPosition(), other.getPosition()) <= radius)
+                    && distance(p.getPosition(), other.getPosition(), dimensions_) <= radius)
                     nbh.push_back(&other);
             }
             
