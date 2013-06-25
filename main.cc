@@ -22,7 +22,6 @@ int main(int argc, char const *argv[])
     std::map<std::string, Gmr::Accumulator> acumulators;
     acumulators["magnetization"] = Gmr::Accumulator();
     acumulators["energy"] = Gmr::Accumulator();
-    acumulators["paredes"] = Gmr::Accumulator();
 
     std::cout << std::setprecision(5) << std::fixed;
 
@@ -30,7 +29,7 @@ int main(int argc, char const *argv[])
     while (thermalEnergy > 0)
     {
         int mcs = 1000;
-        Gmr::DynamicStats statistics;
+        Gmr::DynamicStats statistics(5, 5.0);
 
         for (auto&& acumulator : acumulators)
             acumulator.second.reset();
@@ -47,20 +46,13 @@ int main(int argc, char const *argv[])
             acumulators["magnetization"] += system.magnetization();
         }
 
-        for(auto it = system.getParedes().begin(); it != system.getParedes().end(); it++)
-        {
-            acumulators["paredes"] += (it -> second);
-        }
-
-        system.clearParedes();
-
         std::cout  << std::setw(20) << thermalEnergy 
                    << std::setw(20) << acumulators["energy"].mean()
                    << std::setw(20) << acumulators["energy"].stddev()
                    << std::setw(20) << acumulators["magnetization"].mean()
                    << std::setw(20) << acumulators["magnetization"].stddev()
-                   << std::setw(20) << acumulators["paredes"].mean()
-                   << std::setw(20) << acumulators["paredes"].stddev()
+                   << std::setw(20) << statistics.mean(Gmr::Stat::wall)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::wall)
                    // << std::setw(20) << statistics.mean(Gmr::Stat::tau)
                    // << std::setw(20) << statistics.stddev(Gmr::Stat::tau)
                    // << std::setw(20) << statistics.mean(Gmr::Stat::nu)

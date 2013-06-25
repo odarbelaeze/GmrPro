@@ -98,6 +98,16 @@ namespace Gmr
         return a == b? 1 : -1;
     }
 
+    double operator* (const Spin& s, const double h)
+    {
+        return (s == Spin::Up ? 1.0 : - 1.0) * h;
+    }
+
+    double operator* (const double h, const Spin& s)
+    {
+        return s * h;
+    }
+
     // se sobrecarga el operador - con el fin de invertir el spin
     Spin operator- (const Spin& spin)
     {

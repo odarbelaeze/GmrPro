@@ -44,12 +44,9 @@ namespace Gmr
         void setDimensions (std::vector<int>);
         void setEngine (std::mt19937_64&);
         void setParticles (std::vector<Particle>);
-        void clearParedes();
         
         double energy ();
         double magnetization ();
-
-        std::map<double, int> getParedes();
 
     protected:
         virtual double contribution_ (const Particle& particle);
@@ -74,8 +71,6 @@ namespace Gmr
         // motor de numeros aleatorios y distribucion uniforme
         std::mt19937_64 engine_;
         std::uniform_real_distribution<> uniform_;
-
-        std::map<double, int> paredes_;
 
     };
 }

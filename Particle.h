@@ -1,6 +1,7 @@
 #ifndef PARTICLE_H_
 #define PARTICLE_H_ 
 
+#include <valarray>
 #include <vector>
 
 #include "Helpers.h"
@@ -11,6 +12,8 @@ namespace Gmr
     enum class Specie { Ion, Electron };
 
     int operator* (const Spin&, const Spin&);
+    double operator* (const Spin&, const double);
+    double operator* (const double, const Spin&);
     Spin operator- (const Spin&);
 
     class Particle

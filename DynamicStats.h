@@ -10,7 +10,7 @@
 namespace Gmr
 {
 
-    enum  class Stat { tau, nu, distance, dx, dy, dz };
+    enum  class Stat { tau, nu, distance, dx, dy, dz, wall };
 
     struct Stage
     {
@@ -35,6 +35,8 @@ namespace Gmr
     public:
 
         DynamicStats ();
+        DynamicStats (double, double, double min = 0.0);
+        explicit DynamicStats (int, double, double min = 0.0);
         ~DynamicStats ();
 
         void record (Particle*);
@@ -45,6 +47,7 @@ namespace Gmr
 
     private:
 
+        std::map<double, int> walls_;
         stage_map   stages_;
         Accumulator tau_;
         Accumulator nu_;
