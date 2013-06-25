@@ -34,7 +34,7 @@ namespace Gmr
         parameters_ = std::map<std::string, double>{
             { "Jex", 1.0 },
             { "I_0", 1.0 },
-            { "K_0", 2.0 },
+            { "K_0", 1.0 },
             { "R_0", 0.001 } };
     }
 
