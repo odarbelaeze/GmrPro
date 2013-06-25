@@ -149,10 +149,10 @@ namespace Gmr
         for(auto&& wall : walls_)
         {
             if (a[0] < wall.first && b[0] >= wall.first)
-                wall.second++;
+                wall.second += (p -> getCharge()) < 0 ? - 1 : 1;
 
             if (a[0] > wall.first && b[0] <= wall.first)
-                wall.second--;
+                wall.second -= (p -> getCharge()) < 0 ? - 1 : 1;
         }
 
     }
