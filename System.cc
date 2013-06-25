@@ -393,4 +393,12 @@ namespace Gmr
         parameters_[parameter] = value;
     }
 
+    void System::clearParedes()
+    {
+        for(auto it = paredes_.begin(); it != paredes_.end(); it++)
+        {
+            (it -> second) = 0;
+        }
+    }
+
 }

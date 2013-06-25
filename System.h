@@ -44,6 +44,7 @@ namespace Gmr
         void setDimensions (std::vector<int>);
         void setEngine (std::mt19937_64&);
         void setParticles (std::vector<Particle>);
+        void clearParedes();
         
         double energy ();
         double magnetization ();

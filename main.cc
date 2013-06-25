@@ -50,8 +50,9 @@ int main(int argc, char const *argv[])
         for(auto it = system.getParedes().begin(); it != system.getParedes().end(); it++)
         {
             acumulators["paredes"] += (it -> second);
-            it -> second = 0;
         }
+
+        system.clearParedes();
 
         std::cout  << std::setw(20) << thermalEnergy 
                    << std::setw(20) << acumulators["energy"].mean()
@@ -72,7 +73,6 @@ int main(int argc, char const *argv[])
                    // << std::setw(20) << statistics.stddev(Gmr::Stat::dy)
                    // << std::setw(20) << statistics.mean(Gmr::Stat::dz)
                    // << std::setw(20) << statistics.stddev(Gmr::Stat::dz)
-                   << std::setw(20)
                    << std::endl;
         thermalEnergy -= 0.2;
     }
