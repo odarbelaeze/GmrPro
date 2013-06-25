@@ -188,15 +188,28 @@ namespace Gmr
 
             for (auto&& other : particles_)
             {
-                if (   &other != &p 
-                    && distance(p.getPosition(), other.getPosition(), dimensions_) <= radius)
-                    nbh.push_back(&other);
-
-                if (p.getSpecie() == Specie::Ion && other.getSpecie() != Specie::Ion)
+                if (&other != &p)
                 {
-                    if (   &other != &p 
-                        && distance(p.getPosition(), other.getPosition(), dimensions_) <= radius_nnb)
-                        nnbh.push_back(&other);
+                    double d = distance(p.getPosition(), other.getPosition(), dimensions_);
+                    if (p.getSpecie() == Specie::Ion)
+                    {
+                        if (other.getSpecie() == Specie::Ion)
+                        {
+                            if (d <= radius)
+                                nnbh.push_back(&other);
+                        }
+                        else if (other.getSpecie() != Specie::Ion)
+                        {
+                            if (d <= radius)
+                                nbh.push_back(&other);
+                        }
+                    }
+                    else
+                    {
+                        if (d <= radius)
+                            nbh.push_back(&other);
+                    }
+
                 }
             }
             
