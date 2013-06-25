@@ -192,7 +192,7 @@ namespace Gmr
                     && distance(p.getPosition(), other.getPosition(), dimensions_) <= radius)
                     nbh.push_back(&other);
 
-                if (p.getSpecie() == Specie::Ion && other.getSpecie() == Specie::Ion)
+                if (p.getSpecie() == Specie::Ion && other.getSpecie() != Specie::Ion)
                 {
                     if (   &other != &p 
                         && distance(p.getPosition(), other.getPosition(), dimensions_) <= radius_nnb)
