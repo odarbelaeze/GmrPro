@@ -340,12 +340,12 @@ namespace Gmr
 
                 for(auto it = paredes_.begin(); it != paredes_.end(); it++)
                 {
-                    if (oldPosition[0] > (it -> first) && (particle -> getPosition())[0] <= (it -> first))
+                    if (oldPosition[0] < (it -> first) && (particle -> getPosition())[0] >= (it -> first))
                     {
                         (it -> second) += 1;
                     }
 
-                    if (oldPosition[0] < (it -> first) && (particle -> getPosition())[0] >= (it -> first))
+                    if (oldPosition[0] > (it -> first) && (particle -> getPosition())[0] <= (it -> first))
                     {
                         (it -> second) -= 1;
                     }
