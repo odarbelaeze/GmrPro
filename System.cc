@@ -37,8 +37,8 @@ namespace Gmr
             { "K_0", 2.0 },
             { "R_0", 0.001 } };
 
-        int intervaloParedes = 2;
-        for (int i = intervaloParedes; i < dimensions_[0]; i += intervaloParedes)
+        int intervaloParedes = 1;
+        for (int i = 0; i < dimensions_[0]; i += intervaloParedes)
         {
             paredes_[i] = 0;
         }
@@ -343,6 +343,11 @@ namespace Gmr
                     if (oldPosition[0] > (it -> first) && (particle -> getPosition())[0] <= (it -> first))
                     {
                         (it -> second) += 1;
+                    }
+
+                    if (oldPosition[0] < (it -> first) && (particle -> getPosition())[0] >= (it -> first))
+                    {
+                        (it -> second) -= 1;
                     }
                 }
                 // Pacman effect
