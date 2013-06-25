@@ -36,7 +36,13 @@ namespace Gmr
             { "I_0", 1.0 },
             { "K_0", 2.0 },
             { "R_0", 0.001 } };
-    };
+
+        int intervaloParedes = 2;
+        for (int i = intervaloParedes; i < dimensions_[0]; i += intervaloParedes)
+        {
+            paredes_[i] = 0;
+        }
+    }
 
     double System::contribution_ (const Particle& particle) 
     {
@@ -183,38 +189,48 @@ namespace Gmr
     void System::updateNeighbors (double radius_nnb, double radius){
         for (auto&& p : particles_)
         {
-            std::vector<Particle*> nnbh;
+            // std::vector<Particle*> nnbh;
             std::vector<Particle*> nbh;
 
             for (auto&& other : particles_)
             {
-                if (&other != &p)
-                {
-                    double d = distance(p.getPosition(), other.getPosition(), dimensions_);
-                    if (p.getSpecie() == Specie::Ion)
-                    {
-                        if (other.getSpecie() == Specie::Ion)
-                        {
-                            if (d <= radius)
-                                nnbh.push_back(&other);
-                        }
-                        else if (other.getSpecie() != Specie::Ion)
-                        {
-                            if (d <= radius)
-                                nbh.push_back(&other);
-                        }
-                    }
-                    else
-                    {
-                        if (d <= radius)
-                            nbh.push_back(&other);
-                    }
-
-                }
+                if (&other != &p && distance(p.getPosition(), other.getPosition(), dimensions_) <= radius)
+                    nbh.push_back(&other);
             }
             
             p.setNbh(nbh);
-            p.setNnbh(nnbh);
+
+            // for (auto&& other : particles_)
+            // {
+            //     if (&other != &p)
+            //     {
+            //         double d = distance(p.getPosition(), other.getPosition(), dimensions_);
+            //         if (p.getSpecie() == Specie::Ion)
+            //         {
+            //             if (other.getSpecie() == Specie::Ion)
+            //             {
+            //                 if (d <= radius)
+            //                     nnbh.push_back(&other);
+            //             }
+            //             else if (other.getSpecie() != Specie::Ion)
+            //             {
+            //                 if (d <= radius)
+            //                     nbh.push_back(&other);
+            //             }
+            //         }
+            //         else
+            //         {
+            //             if (d <= radius)
+            //                 nbh.push_back(&other);
+            //         }
+
+            //     }
+            // }
+            
+            // p.setNbh(nbh);
+            // p.setNnbh(nnbh);
+
+
         }
     }
 
@@ -322,6 +338,13 @@ namespace Gmr
             {
                 stats.record (particle, oldPosition, particle -> getPosition());
 
+                for(auto it = paredes_.begin(); it != paredes_.end(); it++)
+                {
+                    if (oldPosition[0] < (it -> first) && (particle -> getPosition())[0] >= (it -> first))
+                    {
+                        (it -> second) += 1;
+                    }
+                }
                 // Pacman effect
                 particle -> setPosition(
                     fmod(particle -> getPosition(), dimensions_));
@@ -342,6 +365,11 @@ namespace Gmr
     std::vector<Particle> System::getParticles()
     {
         return particles_;
+    }
+
+    std::map<double, int> System::getParedes()
+    {
+        return paredes_;
     }
 
 

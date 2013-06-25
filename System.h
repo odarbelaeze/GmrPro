@@ -48,6 +48,8 @@ namespace Gmr
         double energy ();
         double magnetization ();
 
+        std::map<double, int> getParedes();
+
     protected:
         virtual double contribution_ (const Particle& particle);
         virtual double relatedEnergy_ (const Particle& particle);
@@ -71,6 +73,8 @@ namespace Gmr
         // motor de numeros aleatorios y distribucion uniforme
         std::mt19937_64 engine_;
         std::uniform_real_distribution<> uniform_;
+
+        std::map<double, int> paredes_;
 
     };
 }
