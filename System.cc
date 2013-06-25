@@ -198,6 +198,7 @@ namespace Gmr
             }
             
             p.setNbh(nbh);
+            p.setNnbh(nnbh);
         }
     }
 
