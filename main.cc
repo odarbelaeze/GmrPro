@@ -13,10 +13,10 @@ std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 
 int main(int argc, char const *argv[])
 {
-    Gmr::System system({ 10, 10, 5 });
+    Gmr::System system({ 5, 5, 5 });
 
     system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
-    system.insertParticles (Gmr::Specie::Electron, 500);
+    system.insertParticles (Gmr::Specie::Electron, 125);
     system.updateNeighbors(1.0, 1.0);
 
     std::map<std::string, Gmr::Accumulator> acumulators;
@@ -28,8 +28,8 @@ int main(int argc, char const *argv[])
     double thermalEnergy = 12.0;
     while (thermalEnergy > 0)
     {
-        int mcs = 10000;
-        Gmr::DynamicStats statistics;
+        int mcs = 1000;
+        Gmr::DynamicStats statistics(5, 4.0, 1.0);
 
         for (auto&& acumulator : acumulators)
             acumulator.second.reset();
@@ -45,23 +45,26 @@ int main(int argc, char const *argv[])
             acumulators["energy"] += system.energy();
             acumulators["magnetization"] += system.magnetization();
         }
+
         std::cout  << std::setw(20) << thermalEnergy 
                    << std::setw(20) << acumulators["energy"].mean()
                    << std::setw(20) << acumulators["energy"].stddev()
                    << std::setw(20) << acumulators["magnetization"].mean()
                    << std::setw(20) << acumulators["magnetization"].stddev()
-                   << std::setw(20) << statistics.mean(Gmr::Stat::tau)
-                   << std::setw(20) << statistics.stddev(Gmr::Stat::tau)
-                   << std::setw(20) << statistics.mean(Gmr::Stat::nu)
-                   << std::setw(20) << statistics.stddev(Gmr::Stat::nu)
-                   << std::setw(20) << statistics.mean(Gmr::Stat::distance)
-                   << std::setw(20) << statistics.stddev(Gmr::Stat::distance)
-                   << std::setw(20) << statistics.mean(Gmr::Stat::dx)
-                   << std::setw(20) << statistics.stddev(Gmr::Stat::dx)
-                   << std::setw(20) << statistics.mean(Gmr::Stat::dy)
-                   << std::setw(20) << statistics.stddev(Gmr::Stat::dy)
-                   << std::setw(20) << statistics.mean(Gmr::Stat::dz)
-                   << std::setw(20) << statistics.stddev(Gmr::Stat::dz)
+                   << std::setw(20) << statistics.mean(Gmr::Stat::wall)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::wall)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::tau)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::tau)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::nu)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::nu)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::distance)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::distance)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::dx)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::dx)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::dy)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::dy)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::dz)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::dz)
                    << std::endl;
         thermalEnergy -= 0.2;
     }

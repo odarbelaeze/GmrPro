@@ -95,6 +95,20 @@ namespace Gmr
 
 
     DynamicStats::DynamicStats() {}
+    
+    DynamicStats::DynamicStats(double h, double max, double min)
+    {
+        for (double i = min; i < max; i += h)
+            walls_[i] = 0;
+    }
+
+    DynamicStats::DynamicStats(int n, double max, double min)
+    {
+        double h = (max - min) / n;
+        for (double i = min; i < max; i += h)
+            walls_[i] = 0;
+    }
+
     DynamicStats::~DynamicStats() {}
 
     void DynamicStats::record (Particle* p)
@@ -131,6 +145,16 @@ namespace Gmr
         (it -> second).stage(Stat::dx, b[0] - a[0]);
         (it -> second).stage(Stat::dy, b[1] - a[1]);
         (it -> second).stage(Stat::dz, b[2] - a[2]);
+
+        for(auto&& wall : walls_)
+        {
+            if (a[0] < wall.first && b[0] >= wall.first)
+                wall.second += (p -> getCharge()) < 0 ? - 1 : 1;
+
+            if (a[0] > wall.first && b[0] <= wall.first)
+                wall.second -= (p -> getCharge()) < 0 ? - 1 : 1;
+        }
+
     }
 
 
@@ -156,6 +180,15 @@ namespace Gmr
             case Stat::dz : 
                 return dz_.mean();
 
+            case Stat::wall :
+            {
+                if (walls_.size() == 0) return 0;
+                Accumulator wall_accumulator;
+                for (auto&& wall : walls_)
+                    wall_accumulator.accumulate(wall.second);
+                return wall_accumulator.mean();
+            }
+
         }
     }
 
@@ -180,6 +213,15 @@ namespace Gmr
 
             case Stat::dz : 
                 return dz_.stddev();
+
+            case Stat::wall :
+            {
+                if (walls_.size() == 0) return 0;
+                Accumulator wall_accumulator;
+                for (auto&& wall : walls_)
+                    wall_accumulator.accumulate(wall.second);
+                return wall_accumulator.stddev();
+            }
 
         }
     }

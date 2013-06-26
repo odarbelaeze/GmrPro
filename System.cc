@@ -36,11 +36,11 @@ namespace Gmr
             { "I_0", 1.0 },
             { "K_0", 2.0 },
             { "R_0", 0.001 } };
-    };
+    }
 
     double System::contribution_ (const Particle& particle) 
     {
-        double contribution = 0;
+        double contribution = particle.getSpin() * magneticField_[2];
 
         double d;
         double dot;
@@ -51,6 +51,15 @@ namespace Gmr
         #define SPECIE_(p, sp) (p).getSpecie() == Specie::sp
         #endif
 
+        if (SPECIE_(particle, Ion))
+        {
+            for (auto&& other : particle.getNnbh())
+            {
+                dot = particle.getSpin() * other -> getSpin();
+                contribution -= parameters_["Jex"] * dot;
+            }
+        }
+
         for (auto&& other : particle.getNbh())
         {
             d   = distance(particle.getPosition(), other -> getPosition(), dimensions_);
@@ -60,10 +69,7 @@ namespace Gmr
 
             contribution += std::exp( - d / parameters_["R_0"]);
 
-            if (SPECIE_(particle, Ion) && SPECIE_(*other, Ion))
-                contribution -= parameters_["Jex"] * dot;
-
-            else if ((SPECIE_(particle, Ion) && SPECIE_(*other, Electron))
+            if ((SPECIE_(particle, Ion) && SPECIE_(*other, Electron))
                      || (SPECIE_(particle, Electron) && SPECIE_(*other, Ion)))
                 contribution -= I * dot;
 
@@ -188,12 +194,34 @@ namespace Gmr
 
             for (auto&& other : particles_)
             {
-                if (   &other != &p 
-                    && distance(p.getPosition(), other.getPosition(), dimensions_) <= radius)
-                    nbh.push_back(&other);
+                if (&other != &p)
+                {
+                    double d = distance(p.getPosition(), other.getPosition(), dimensions_);
+                    
+                    if (p.getSpecie() == Specie::Ion)
+                    {
+                        if (other.getSpecie() == Specie::Ion)
+                        {
+                            if (d <= radius_nnb)
+                                nnbh.push_back(&other);
+                        }
+                        else
+                        {
+                            if (d <= radius)
+                                nbh.push_back(&other);
+                        }
+                    }
+                    else
+                    {
+                        if (d <= radius)
+                            nbh.push_back(&other);
+                    }
+
+                }
             }
             
             p.setNbh(nbh);
+            p.setNnbh(nnbh);
         }
     }
 
@@ -322,7 +350,6 @@ namespace Gmr
     {
         return particles_;
     }
-
 
     void System::setDimensions(std::vector<int> dimensions)
     {
