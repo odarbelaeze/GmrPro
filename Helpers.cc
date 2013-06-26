@@ -66,10 +66,8 @@ namespace Gmr
                      const std::vector<int>& dims, 
                      const std::initializer_list<double> pbc)
     {
-        std::valarray<int> dims_int(dims.data(), dims.size());
-        std::valarray<double> dims_double;
-        for (int i = 0; i < dims.size(); ++i)
-            dims_double[i] = dims_int[i];
+        std::valarray<double> dims_double(dims.size());
+        std::copy(begin(dims), end(dims), begin(dims_double));
         return distance(a, b, dims_double, pbc);
     }
 
@@ -77,10 +75,8 @@ namespace Gmr
                      const std::initializer_list<int>& dims, 
                      const std::initializer_list<double> pbc)
     {
-        std::valarray<int> dims_int(dims);
-        std::valarray<double> dims_double;
-        for (int i = 0; i < dims.size(); ++i)
-            dims_double[i] = dims_int[i];
+        std::valarray<double> dims_double(dims.size());
+        std::copy(begin(dims), end(dims), begin(dims_double));
         return distance(a, b, dims_double, pbc);
     }
 

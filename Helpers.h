@@ -1,6 +1,7 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <random>
