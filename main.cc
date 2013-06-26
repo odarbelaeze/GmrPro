@@ -29,7 +29,7 @@ int main(int argc, char const *argv[])
     while (thermalEnergy > 0)
     {
         int mcs = 1000;
-        Gmr::DynamicStats statistics(5, 5.0);
+        Gmr::DynamicStats statistics(5, 4.0, 1.0);
 
         for (auto&& acumulator : acumulators)
             acumulator.second.reset();

@@ -10,6 +10,9 @@ main: $(OBJECTS)
 %.o: %.cc %.h
 	$(CC) $(OPTIMFLAGS) $(CPPFLAGS) -c $<
 
+main.o: main.cc
+	$(CC) $(OPTIMFLAGS) $(CPPFLAGS) -c main.cc
+
 run: main
 	./main
 .PHONY: run
