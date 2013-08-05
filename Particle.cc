@@ -114,4 +114,9 @@ namespace Gmr
         return spin == Spin::Up ? Spin::Down : Spin::Up;
     }
 
+    int delta (const Spin& a, const Spin& b)
+    {
+        return a == b? 1 : 0;
+    }
+
 }

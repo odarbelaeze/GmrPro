@@ -15,6 +15,7 @@ namespace Gmr
     double operator* (const Spin&, const double);
     double operator* (const double, const Spin&);
     Spin operator- (const Spin&);
+    int delta(const Spin&, const Spin&);
 
     class Particle
     {

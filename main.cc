@@ -34,13 +34,12 @@ int main(int argc, char const *argv[])
         for (auto&& acumulator : acumulators)
             acumulator.second.reset();
 
-        if (mcs % 10 == 0)
-            system.updateNeighbors(1.0, 1.0);
-
         for (int i = 0; i < mcs; ++i)
         {
             system.mcThermalStep(thermalEnergy);
-            system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy, statistics);
+            for(int j = 0, j < 10, j++) 
+                system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy, statistics);
+            system.updateNeighbors(1.0, 1.0);
 
             acumulators["energy"] += system.energy();
             acumulators["magnetization"] += system.magnetization();

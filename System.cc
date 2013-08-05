@@ -71,7 +71,7 @@ namespace Gmr
 
             if ((SPECIE_(particle, Ion) && SPECIE_(*other, Electron))
                      || (SPECIE_(particle, Electron) && SPECIE_(*other, Ion)))
-                contribution -= I * dot;
+                contribution += I * delta(particle.getSpin(), other -> getSpin());
 
             else if (SPECIE_(particle, Electron) && SPECIE_(*other, Electron))
                 contribution -= K * dot;
