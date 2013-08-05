@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < mcs; ++i)
         {
             system.mcThermalStep(thermalEnergy);
-            for(int j = 0, j < 10, j++) 
+            for(int j = 0; j < 10; j++) 
                 system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy, statistics);
             system.updateNeighbors(1.0, 1.0);
 
