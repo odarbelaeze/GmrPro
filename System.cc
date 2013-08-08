@@ -74,7 +74,7 @@ namespace Gmr
                 contribution += I * (1 - delta(particle.getSpin(), other -> getSpin()));
 
             else if (SPECIE_(particle, Electron) && SPECIE_(*other, Electron))
-                contribution -= K * dot;
+                contribution -= 0.0; //K * dot;
         }
 
         contribution -= particle.getCharge() * 
