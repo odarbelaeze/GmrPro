@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
     double thermalEnergy = 12.0;
     while (thermalEnergy > 0)
     {
-        int mcs = 1000;
+        int mcs = 500;
         Gmr::DynamicStats statistics(5, 4.0, 1.0);
 
         for (auto&& acumulator : acumulators)
@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < mcs; ++i)
         {
             system.mcThermalStep(thermalEnergy);
-            for(int j = 0; j < 10; j++) 
+            for(int j = 0; j < 5; j++) 
                 system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy, statistics);
             system.updateNeighbors(1.0, 1.0);
 
