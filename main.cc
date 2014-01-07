@@ -26,9 +26,10 @@ int main(int argc, char const *argv[])
     std::cout << std::setprecision(5) << std::fixed;
 
     double thermalEnergy = 12.0;
+    
     while (thermalEnergy > 0)
     {
-        int mcs = 500;
+        int mcs = 1000;
         Gmr::DynamicStats statistics(5, 4.0, 1.0);
 
         for (auto&& acumulator : acumulators)
@@ -36,9 +37,11 @@ int main(int argc, char const *argv[])
 
         for (int i = 0; i < mcs; ++i)
         {
-            system.mcThermalStep(thermalEnergy);
-            for(int j = 0; j < 5; j++) 
+            for(int j = 0; j < 10; j++)
+                system.mcThermalStep(thermalEnergy);
+            for(int j = 0; j < 10; j++) 
                 system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy, statistics);
+            
             system.updateNeighbors(1.0, 1.0);
 
             acumulators["energy"] += system.energy();
@@ -65,7 +68,7 @@ int main(int argc, char const *argv[])
                    // << std::setw(20) << statistics.mean(Gmr::Stat::dz)
                    // << std::setw(20) << statistics.stddev(Gmr::Stat::dz)
                    << std::endl;
-        thermalEnergy -= 0.2;
+        thermalEnergy -= 0.05;
     }
 
     return 0;
