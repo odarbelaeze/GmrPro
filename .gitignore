@@ -1,21 +1,29 @@
-# Compiled Object files
-*.slo
-*.lo
+*~
 *.o
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-
-# Compiled Static libraries
-*.lai
-*.la
+*.lo
 *.a
+*.la
+/build*/
 
-# Compiled binary and output folders
-lib/*
-bin/*
-data/*
+# autotools stuff
+/m4/lt*.m4
+/m4/libtool.m4
+/aclocal.m4
+/ltmain.sh
+/install-sh
+/config.guess
+/config.h.in
+/config.sub
+/autom4te.cache/
+/compile
+/configure
+/depcomp
+/missing
+/test-driver
 
-# Compiled binaries that show up
-*.out
+# automake
+/ar-lib
+Makefile.in
+
+# cscope
+/cscope.*
