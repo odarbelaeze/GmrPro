@@ -1,17 +1,25 @@
-#include "helpers.h"
+#include "GmrHeisenberg.h"
 
 int main(int argc, char const *argv[])
 {
-    darray a { 10, 20, 30 };
-    std::cout << a[std::slice(1, 2, - 1)] << std::endl;
+    SampleTraits st;
+    InteractionTraits it;
+    ExternalTraits et;
 
-    darray b { 10, 20, 30, 40, 50, 60, 70, 80 };
+    st.w = 10;
+    st.l = 10;
+    st.h = 5;
+    st.lt = Lattice::bcc;
+    st.nElectrons = 500;
+    st.easyAxis = { 0.0, 0.0, 1.0 };
 
-    std::cout << b[std::gslice(1, {2, 1}, { 1, 2 })] << std::endl;
+    GmrHeisenberg gmr(st, it, et);
+
+    darray a { 1.0, 2.0, 3.0 };
+    darray b { 2.0, 2.0, 2.0 };
 
 
-    std::valarray<size_t> sel {1, 2, 3};
-    std::cout << b[sel] << std::endl;
+    std::cout << std::fmod( - 1.0, 2.0) << std::endl;
 
     return 0;
 }
