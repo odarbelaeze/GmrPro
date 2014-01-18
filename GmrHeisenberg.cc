@@ -37,9 +37,9 @@ void GmrHeisenberg::__init__()
     for (int i = 0; i < st_.electronCount(); ++i)
     {
         positions_[id++] = darray{
-            st_.w * real(engine),
-            st_.l * real(engine),
-            st_.h * real(engine)
+            st_.w * real_(engine_),
+            st_.l * real_(engine_),
+            st_.h * real_(engine_)
         };
     }
 
@@ -48,67 +48,67 @@ void GmrHeisenberg::__init__()
         spins_[i] = randomSpin();
     }
 
-    // Update neigbors    
+    updateNbh();
 }
 
 
-double GmrHeisenberg::interactionEnergyIon_(int i, darray spin, darray pos)
+double GmrHeisenberg::interactionEnergyIon_(int i, darray spin, darray pos) const
 {
-    ddarray ionDots = std::valarray<darray>(spins_[ionNbs_[i]]) * spin;
-    ddarray eleDots = std::valarray<darray>(spins_[electronNbs_[i]]) * spin;
-    ddarray ionDists = std::valarray<darray>(positions_[ionNbs_[i]]) - pos;
-    ddarray eleDists = std::valarray<darray>(positions_[electronNbs_[i]]) - pos;
+    ddarray ionDots = ddarray(spins_[ionNbs_[i]]) * spin;
+    ddarray eleDots = ddarray(spins_[electronNbs_[i]]) * spin;
+    ddarray ionDists = ddarray(positions_[ionNbs_[i]]) - pos;
+    ddarray eleDists = ddarray(positions_[electronNbs_[i]]) - pos;
 
     double energy = 0.0;
 
-    for (int j = 0; j < ionNbs_.size(); ++j)
+    for (int j = 0; j < ionNbs_[i].size(); ++j)
     {
-        energy += std::exp( - it_.pauli * norm(ionDists[i]));
+        // energy += std::exp(1.0 / (it_.pauli * norm(ionDists[j])));
         energy -= it_.ii * norm(ionDots[j]);
     }
 
-    for (int j = 0; j < electronNbs_.size(); ++j)
+    for (int j = 0; j < electronNbs_[i].size(); ++j)
     {
-        energy += std::exp(1.0 / (it_.pauli * norm(eleDists[i])));
-        energy -= it_.ei * norm(eleDots[j]) * std::exp( - norm(eleDists[i]));
+        // energy += std::exp(1.0 / (it_.pauli * norm(eleDists[j])));
+        energy -= it_.ei * norm(eleDots[j]) * std::exp( - norm(eleDists[j]));
     }
 
     return energy;
 }
 
 
-double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos)
+double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos) const
 {
-    ddarray ionDots = std::valarray<darray>(spins_[ionNbs_[i]]) * spin;
-    ddarray eleDots = std::valarray<darray>(spins_[electronNbs_[i]]) * spin;
-    ddarray ionDists = std::valarray<darray>(positions_[ionNbs_[i]]) - pos;
-    ddarray eleDists = std::valarray<darray>(positions_[electronNbs_[i]]) - pos;
+    ddarray ionDots = ddarray(spins_[ionNbs_[i]]) * spin;
+    ddarray eleDots = ddarray(spins_[electronNbs_[i]]) * spin;
+    ddarray ionDists = ddarray(positions_[ionNbs_[i]]) - pos;
+    ddarray eleDists = ddarray(positions_[electronNbs_[i]]) - pos;
 
     double energy = 0.0;
 
-    for (int j = 0; j < ionNbs_.size(); ++j)
+    for (int j = 0; j < ionNbs_[i].size(); ++j)
     {
-        energy += std::exp( - it_.pauli * norm(ionDists[i]));
+        // energy += std::exp(1.0 / (it_.pauli * norm(ionDists[j])));
         energy -= it_.ei * norm(ionDots[j]);
     }
 
-    for (int j = 0; j < electronNbs_.size(); ++j)
+    for (int j = 0; j < electronNbs_[i].size(); ++j)
     {
-        energy += std::exp(1.0 / (it_.pauli * norm(eleDists[i])));
-        energy -= it_.ee * norm(eleDots[j]) * std::exp( - norm(eleDists[i]));
+        // energy += std::exp(1.0 / (it_.pauli * norm(eleDists[j])));
+        energy -= it_.ee * norm(eleDots[j]) * std::exp( - norm(eleDists[j]));
     }
 
     return energy;
 }
 
 
-inline double GmrHeisenberg::deltaEnergyDynamic_(int i, darray newPos)
+inline double GmrHeisenberg::deltaEnergyDynamic_(int i, darray newPosition) const
 {
-    return energy(i, spins_[i], newPos) - energy(i);
+    return energy(i, spins_[i], newPosition) - energy(i);
 }
 
 
-inline double GmrHeisenberg::deltaEnergyThermal_(int i, darray newSpin)
+inline double GmrHeisenberg::deltaEnergyThermal_(int i, darray newSpin) const
 {
     return energy(i, newSpin, positions_[i]) - energy(i);
 }
@@ -117,9 +117,11 @@ inline double GmrHeisenberg::deltaEnergyThermal_(int i, darray newSpin)
 GmrHeisenberg::GmrHeisenberg(
     const SampleTraits& st, 
     const InteractionTraits& it, 
-    ExternalTraits& et)
+    ExternalTraits* et)
 
- : st_(st), it_(it), et_(&et)
+ : st_(st), it_(it), et_(et), 
+   electrons_(st.electronCount()),
+   particles_(st.particleCount())
 {
     __init__();
 }
@@ -133,11 +135,11 @@ GmrHeisenberg::~GmrHeisenberg()
 
 darray GmrHeisenberg::randomSpin()
 {
-    double theta = 2.0 * M_PI * real(engine);
-    double phi   = 0.0 * M_PI * real(engine);
+    double theta = 2.0 * M_PI * real_(engine_);
+    double phi   = 1.0 * M_PI * real_(engine_);
     return darray {
-        std::cos(theta) * sin(phi),
-        std::sin(theta) * sin(phi),
+        std::cos(theta) * std::sin(phi),
+        std::sin(theta) * std::sin(phi),
         std::cos(phi)
     };
 }
@@ -151,7 +153,7 @@ darray GmrHeisenberg::perturbedSpin(const darray& us)
 }
 
 
-double GmrHeisenberg::interactionEnergy(int i)
+double GmrHeisenberg::interactionEnergy(int i) const
 {
     if (species_[i] == Specie::Electron) 
     {
@@ -162,7 +164,7 @@ double GmrHeisenberg::interactionEnergy(int i)
 }
 
 
-double GmrHeisenberg::interactionEnergy(int i, darray spin, darray pos)
+double GmrHeisenberg::interactionEnergy(int i, darray spin, darray pos) const
 {
     if (species_[i] == Specie::Electron) 
     {
@@ -173,13 +175,13 @@ double GmrHeisenberg::interactionEnergy(int i, darray spin, darray pos)
 }
 
 
-double GmrHeisenberg::externalEnergy(int i)
+double GmrHeisenberg::externalEnergy(int i) const
 {
     return externalEnergy(i, spins_[i], positions_[i]);
 }
 
 
-double GmrHeisenberg::externalEnergy(int i, darray spin, darray pos)
+double GmrHeisenberg::externalEnergy(int i, darray spin, darray pos) const
 {
     double energy = 0;
     energy -= (et_ -> electricField * pos).sum();
@@ -189,19 +191,19 @@ double GmrHeisenberg::externalEnergy(int i, darray spin, darray pos)
 }
 
 
-inline double GmrHeisenberg::energy(int i)
+double GmrHeisenberg::energy(int i) const
 {
     return interactionEnergy(i) + externalEnergy(i);
 }
 
 
-inline double GmrHeisenberg::energy(int i, darray spin, darray pos)
+double GmrHeisenberg::energy(int i, darray spin, darray pos) const
 {
     return interactionEnergy(i, spin, pos) + externalEnergy(i, spin, pos);
 }
 
 
-double GmrHeisenberg::energy()
+double GmrHeisenberg::energy() const
 {
     double e = 0.0;
     for (int i = 0; i < st_.particleCount(); ++i)
@@ -212,9 +214,116 @@ double GmrHeisenberg::energy()
 }
 
 
-inline darray GmrHeisenberg::magnetization()
+darray GmrHeisenberg::magnetization() const
 {
-    return spins_.sum();
+    darray mag(3);
+    for (int i = 0; i < spins_.size(); ++i)
+    {
+        mag += spins_[i];
+    }
+    return mag;
+}
+
+
+void GmrHeisenberg::updateNbh()
+{
+    std::vector<int> inbs;
+    std::vector<int> enbs;
+    double d;
+
+    for (int i = 0; i < st_.particleCount(); ++i)
+    {
+        inbs.clear();
+        enbs.clear();
+        for (int j = 0; j < st_.particleCount(); ++j)
+        {
+            if (i != j)
+            {
+                d = distance(positions_[i], positions_[j]);
+                if (electronElectron(species_[i], species_[j]) && d <= it_.eeCutOff)
+                {
+                    enbs.push_back(j);
+                }
+                if (electronIon(species_[i], species_[j]) && d <= it_.eiCutOff)
+                {
+                    if (species_[j] == Specie::Electron) enbs.push_back(j);
+                    if (species_[j] == Specie::Ion) inbs.push_back(j);
+                }
+                if (ionIon(species_[i], species_[j]) && d <= it_.iiCutOff)
+                {
+                    inbs.push_back(j);
+                }
+            }
+        }
+
+        ionNbs_[i].resize(inbs.size());
+        std::copy(begin(inbs), end(inbs), begin(ionNbs_[i]));
+        
+        electronNbs_[i].resize(enbs.size());
+        std::copy(begin(enbs), end(enbs), begin(electronNbs_[i]));
+    }
+}
+
+
+std::vector<DynamicEvent> GmrHeisenberg::dynamicStep()
+{
+    int id;
+
+    darray newPosition(3);
+    double delta;
+    
+    std::vector<DynamicEvent> events;
+    DynamicEvent event;
+
+    for (int i = 0; i < st_.electronCount(); ++i)
+    {
+        id = st_.ionCount() + electrons_.pop();
+        newPosition = positions_[id] + 0.5 * randomSpin();
+        delta = deltaEnergyDynamic_(id, newPosition);
+
+        if (real_(engine_) < std::exp( - delta / et_ -> temperature))
+        {
+            event.particleId = id;
+            event.oldPosition = positions_[id];
+            event.newPosition = newPosition;
+            event.deltaEnergy = delta;
+            events.push_back(event);
+            positions_[id] = modclap(
+                newPosition, 
+                darray{(double) st_.w, (double) st_.l, (double) st_.h}
+                );
+        }
+    }
+
+    return events;
+}
+
+
+std::vector<ThermalEvent> GmrHeisenberg::thermalStep()
+{
+    int id;
+    darray newSpin(3);
+    double delta;
+
+    std::vector<ThermalEvent> events;
+    ThermalEvent event;
+
+    for (int i = 0; i < st_.particleCount(); ++i)
+    {
+        id = particles_.pop();
+        newSpin = perturbedSpin(spins_[id]);
+        delta = deltaEnergyThermal_(id, newSpin);
+
+        if (real_(engine_) < std::exp( - delta / et_ -> temperature))
+        {
+            event.particleId = id;
+            event.oldSpin = spins_[id];
+            event.newSpin = newSpin;
+            event.deltaEnergy = delta;
+            events.push_back(event);
+            spins_[id] = newSpin;
+        }
+    }
 }
 
 
@@ -223,7 +332,8 @@ std::ostream& operator << (std::ostream& os, GmrHeisenberg& gmr)
     for (int i = 0; i < gmr.st_.particleCount(); ++i)
     {
         os << gmr.positions_[i] << " " << gmr.spins_[i] << " "
-           << (gmr.species_[i] == Specie::Ion ? "Ion" : "Electron")
+           << (gmr.species_[i] == Specie::Ion ? "Ion" : "Electron") << " "
+           << gmr.ionNbs_[i] << " " << gmr.electronNbs_[i]
            << std::endl;
     }
     return os;

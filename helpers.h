@@ -11,7 +11,7 @@ typedef std::valarray<darray> ddarray;
 
 inline double norm(darray da)
 {
-    return std::pow(da, 2.0).sum();
+    return std::sqrt(std::pow(da, 2.0).sum());
 }
 
 inline double distance(darray da, darray db)
@@ -41,7 +41,7 @@ struct SampleTraits
     Lattice lt;
     darray easyAxis;
 
-    int ionCount()
+    int ionCount() const
     {
         int n = w * h * l;
         switch (lt) 
@@ -64,17 +64,17 @@ struct SampleTraits
         }
     }
 
-    int electronCount()
+    int electronCount() const
     {
         return nElectrons;
     }
 
-    int particleCount()
+    int particleCount() const
     {
         return ionCount() + electronCount();
     }
 
-    ddarray getBasis()
+    ddarray getBasis() const
     {
         ddarray basis;
 
@@ -100,7 +100,7 @@ struct SampleTraits
         return basis;
     }
 
-    int getBasisSize()
+    int getBasisSize() const
     {
         int basis;
 
@@ -176,6 +176,61 @@ private:
     int count_;
     int top_;
 
+};
+
+
+inline bool electronIon(Specie& a, Specie& b)
+{
+    return (a == Specie::Ion && b == Specie::Electron) || 
+           (a == Specie::Electron && b == Specie::Ion);
+}
+
+
+inline bool electronElectron(Specie& a, Specie& b)
+{
+    return a == Specie::Electron && b == Specie::Electron;
+}
+
+
+inline bool ionIon(Specie& a, Specie& b)
+{
+    return a == Specie::Ion && b == Specie::Ion;
+}
+
+inline double modclap(double a, double m)
+{
+    if (a < 0) return modclap(a + m, m);
+    return std::fmod(a, m);
+}
+
+
+template<typename T>
+std::valarray<T> modclap(std::valarray<T> a, std::valarray<T> m)
+{
+    std::valarray<T> mod;
+    mod.resize(a.size());
+    for (int i = 0; i < a.size(); ++i)
+    {
+        mod[i] = modclap(a[i], m[i]);
+    }
+    return mod;
+}
+
+
+struct DynamicEvent
+{
+    int particleId;
+    darray oldPosition;
+    darray newPosition;
+    double deltaEnergy;
+};
+
+struct ThermalEvent
+{
+    int particleId;
+    darray oldSpin;
+    darray newSpin;
+    double deltaEnergy;
 };
 
 #endif
