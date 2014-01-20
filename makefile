@@ -16,5 +16,13 @@ clear:
 	rm *.o main
 .PHONY: clear
 
+run: main
+	./main
+.PHONY: run
+
+data: main
+	./main > data
+.PHONY: data
+
 debug: FLAGS = -g3
 debug: main

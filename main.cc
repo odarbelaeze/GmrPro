@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
 
     et.electricField = { 1.0, 0.0, 0.0 };
     et.magneticField = { 0.0, 0.0, 0.0 };
-    et.temperature = 15.0;
+    et.temperature = 5.0;
 
     GmrHeisenberg gmr(st, it, &et);
 
@@ -45,7 +45,7 @@ int main(int argc, char const *argv[])
                   << energy.mean() << " "
                   << std::endl;
 
-        et.temperature -= 0.1;
+        et.temperature -= 0.03;
     }
 
 

@@ -64,13 +64,13 @@ double GmrHeisenberg::interactionEnergyIon_(int i, darray spin, darray pos) cons
     for (int j = 0; j < ionNbs_[i].size(); ++j)
     {
         // energy += std::exp(1.0 / (it_.pauli * norm(ionDists[j])));
-        energy -= it_.ii * norm(ionDots[j]);
+        energy -= it_.ii * ionDots[j].sum();
     }
 
     for (int j = 0; j < electronNbs_[i].size(); ++j)
     {
         // energy += std::exp(1.0 / (it_.pauli * norm(eleDists[j])));
-        energy -= it_.ei * norm(eleDots[j]) * std::exp( - norm(eleDists[j]));
+        energy -= it_.ei * eleDots[j].sum() * std::exp( - norm(eleDists[j]));
     }
 
     return energy;
@@ -89,13 +89,13 @@ double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos)
     for (int j = 0; j < ionNbs_[i].size(); ++j)
     {
         // energy += std::exp(1.0 / (it_.pauli * norm(ionDists[j])));
-        energy -= it_.ei * norm(ionDots[j]);
+        energy -= it_.ei * ionDots[j].sum();
     }
 
     for (int j = 0; j < electronNbs_[i].size(); ++j)
     {
         // energy += std::exp(1.0 / (it_.pauli * norm(eleDists[j])));
-        energy -= it_.ee * norm(eleDots[j]) * std::exp( - norm(eleDists[j]));
+        energy -= it_.ee * eleDots[j].sum() * std::exp( - norm(eleDists[j]));
     }
 
     return energy;
@@ -324,6 +324,8 @@ std::vector<ThermalEvent> GmrHeisenberg::thermalStep()
             spins_[id] = newSpin;
         }
     }
+
+    return events;
 }
 
 
