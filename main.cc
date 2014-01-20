@@ -10,7 +10,7 @@ int main(int argc, char const *argv[])
     st.w = 10;
     st.l = 10;
     st.h = 5;
-    st.nElectrons = 0;
+    st.nElectrons = 500;
     st.lt = Lattice::sc;
     st.easyAxis = { 0.0, 0.0, 1.0 };
 
@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
 
     et.electricField = { 1.0, 0.0, 0.0 };
     et.magneticField = { 0.0, 0.0, 0.0 };
-    et.temperature = 5.0;
+    et.temperature = 3.0;
 
     GmrHeisenberg gmr(st, it, &et);
 
@@ -36,6 +36,11 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < 1000; ++i)
         {
             gmr.thermalStep();
+        }
+
+        for (int i = 0; i < 2000; ++i)
+        {
+            gmr.thermalStep();
             energy.accum(gmr.energy());
             magnetization.accum(norm(gmr.magnetization()));
         }
@@ -45,7 +50,7 @@ int main(int argc, char const *argv[])
                   << energy.mean() << " "
                   << std::endl;
 
-        et.temperature -= 0.03;
+        et.temperature -= 0.01;
     }
 
 
