@@ -37,6 +37,7 @@ protected:
     std::valarray<Specie> species_;
     ddarray positions_;
     ddarray spins_;
+    darray dims_;
 
     std::valarray<std::valarray<size_t> > ionNbs_;
     std::valarray<std::valarray<size_t> > electronNbs_;

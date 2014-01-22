@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
     it.ee = 0.5;
     it.ei = 0.5;
     it.ii = 1.0;
-    it.pauli = 0.1;
+    it.eePauli = 0.5;
     it.eeCutOff = 2.0;
     it.eiCutOff = 1.0;
     it.iiCutOff = 1.0;
@@ -33,16 +33,23 @@ int main(int argc, char const *argv[])
         Accumulator energy;
         Accumulator magnetization;
 
-        for (int i = 0; i < 1000; ++i)
+        for (int i = 0; i < 50; ++i)
         {
-            gmr.thermalStep();
+            for (int j = 0; j < 10; ++j) gmr.thermalStep();
+            for (int j = 0; j < 10; ++j) gmr.dynamicStep();
+            gmr.updateNbh();
         }
 
-        for (int i = 0; i < 2000; ++i)
+        for (int i = 0; i < 50; ++i)
         {
-            gmr.thermalStep();
-            energy.accum(gmr.energy());
-            magnetization.accum(norm(gmr.magnetization()));
+            for (int j = 0; j < 10; ++j)
+            {
+                gmr.thermalStep();
+                energy.accum(gmr.energy());
+                magnetization.accum(norm(gmr.magnetization()));
+            }
+            for (int j = 0; j < 10; ++j) gmr.dynamicStep();
+            gmr.updateNbh();
         }
 
         std::cout << et.temperature << " "
@@ -50,9 +57,8 @@ int main(int argc, char const *argv[])
                   << energy.mean() << " "
                   << std::endl;
 
-        et.temperature -= 0.01;
+        et.temperature -= 0.03;
     }
-
 
     return 0;
 }

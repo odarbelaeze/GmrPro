@@ -9,15 +9,67 @@
 typedef std::valarray<double> darray;
 typedef std::valarray<darray> ddarray;
 
-inline double norm(darray da)
+
+inline double norm(const darray& da)
 {
     return std::sqrt(std::pow(da, 2.0).sum());
 }
 
-inline double distance(darray da, darray db)
+
+inline darray min(const darray& a, const darray& b)
+{
+    darray minval(std::max(a.size(), b.size()));
+
+    for (int i = 0; i < minval.size(); ++i)
+    {
+        if ((a.size() > i) && (b.size() > i)) 
+        {
+            minval[i] = std::min(a[i], b[i]);
+        }
+        else
+        {
+            if (!(a.size() < i)) minval[i] = b[i];
+            if (!(b.size() < i)) minval[i] = a[i];
+        }
+    }
+
+    return minval;
+}
+
+
+inline double distance(const darray& da, const darray& db)
 {
     return norm(db - da);
 }
+
+
+inline double distance(const darray& da, const darray& db, const darray& dims)
+{
+    return norm(min(db - da, dims - (db - da)));
+}
+
+
+inline darray distance(const ddarray& da, const darray& db)
+{
+    darray distances(da.size());
+    for (int i = 0; i < da.size(); ++i)
+    {
+        distances = distance(da[i], db);
+    }
+    return distances;
+}
+
+
+inline darray distance(const ddarray& da, const darray& db, const darray& dims)
+{
+    darray distances(da.size());
+    for (int i = 0; i < da.size(); ++i)
+    {
+        distances = distance(da[i], db, dims);
+    }
+    return distances;
+}
+
 
 template<typename T>
 std::ostream& operator << (std::ostream& os, std::valarray<T> da)
@@ -29,8 +81,10 @@ std::ostream& operator << (std::ostream& os, std::valarray<T> da)
     return os;
 }
 
+
 enum class Lattice { sc, bcc, fcc };
 enum class Specie { Ion, Electron };
+
 
 struct SampleTraits
 {
@@ -125,16 +179,18 @@ struct SampleTraits
 
 };
 
+
 struct InteractionTraits
 {
     double ee;
     double ei;
     double ii;
-    double pauli;
+    double eePauli;
     double eeCutOff;
     double eiCutOff;
     double iiCutOff;
 };
+
 
 struct ExternalTraits
 {
@@ -142,6 +198,7 @@ struct ExternalTraits
     darray magneticField;
     double temperature;
 };
+
 
 class ExaustDeck
 {
@@ -197,6 +254,7 @@ inline bool ionIon(Specie& a, Specie& b)
     return a == Specie::Ion && b == Specie::Ion;
 }
 
+
 inline double modclap(double a, double m)
 {
     if (a < 0) return modclap(a + m, m);
@@ -224,6 +282,7 @@ struct DynamicEvent
     darray newPosition;
     double deltaEnergy;
 };
+
 
 struct ThermalEvent
 {

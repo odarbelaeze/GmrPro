@@ -56,21 +56,19 @@ double GmrHeisenberg::interactionEnergyIon_(int i, darray spin, darray pos) cons
 {
     ddarray ionDots = ddarray(spins_[ionNbs_[i]]) * spin;
     ddarray eleDots = ddarray(spins_[electronNbs_[i]]) * spin;
-    ddarray ionDists = ddarray(positions_[ionNbs_[i]]) - pos;
-    ddarray eleDists = ddarray(positions_[electronNbs_[i]]) - pos;
+    // darray ionDists = distance(ddarray(positions_[ionNbs_[i]]), pos, dims_);
+    darray eleDists = distance(ddarray(positions_[electronNbs_[i]]), pos, dims_);
 
     double energy = 0.0;
 
     for (int j = 0; j < ionNbs_[i].size(); ++j)
     {
-        // energy += std::exp(1.0 / (it_.pauli * norm(ionDists[j])));
         energy -= it_.ii * ionDots[j].sum();
     }
 
     for (int j = 0; j < electronNbs_[i].size(); ++j)
     {
-        // energy += std::exp(1.0 / (it_.pauli * norm(eleDists[j])));
-        energy -= it_.ei * eleDots[j].sum() * std::exp( - norm(eleDists[j]));
+        energy -= it_.ei * eleDots[j].sum() * std::exp( - eleDists[j]);
     }
 
     return energy;
@@ -81,8 +79,8 @@ double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos)
 {
     ddarray ionDots = ddarray(spins_[ionNbs_[i]]) * spin;
     ddarray eleDots = ddarray(spins_[electronNbs_[i]]) * spin;
-    ddarray ionDists = ddarray(positions_[ionNbs_[i]]) - pos;
-    ddarray eleDists = ddarray(positions_[electronNbs_[i]]) - pos;
+    // darray ionDists = distance(ddarray(positions_[ionNbs_[i]]), pos, dims_);
+    darray eleDists = distance(ddarray(positions_[electronNbs_[i]]), pos, dims_);
 
     double energy = 0.0;
 
@@ -95,7 +93,8 @@ double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos)
     for (int j = 0; j < electronNbs_[i].size(); ++j)
     {
         // energy += std::exp(1.0 / (it_.pauli * norm(eleDists[j])));
-        energy -= it_.ee * eleDots[j].sum() * std::exp( - norm(eleDists[j]));
+        if(eleDists[j] <= it_.eeCutOff / 2.0) energy += it_.eePauli;
+        energy -= it_.ee * eleDots[j].sum() * std::exp( - eleDists[j]);
     }
 
     return energy;
@@ -121,7 +120,8 @@ GmrHeisenberg::GmrHeisenberg(
 
  : st_(st), it_(it), et_(et), 
    electrons_(st.electronCount()),
-   particles_(st.particleCount())
+   particles_(st.particleCount()),
+   dims_({ (double) st.w, (double) st.l, (double) st.h })
 {
     __init__();
 }
@@ -239,7 +239,7 @@ void GmrHeisenberg::updateNbh()
         {
             if (i != j)
             {
-                d = distance(positions_[i], positions_[j]);
+                d = distance(positions_[i], positions_[j], dims_);
                 if (electronElectron(species_[i], species_[j]) && d <= it_.eeCutOff)
                 {
                     enbs.push_back(j);
