@@ -26,4 +26,9 @@ data: main
 
 debug: FLAGS = -g3
 debug: main
+	mv main debug
+
+profile: FLAGS = -pg
+profile: main
 	mv main profile
+
