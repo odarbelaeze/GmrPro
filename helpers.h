@@ -82,6 +82,17 @@ std::ostream& operator << (std::ostream& os, std::valarray<T> da)
 }
 
 
+template<typename T>
+std::ostream& operator << (std::ostream& os, std::vector<T> da)
+{
+    for (auto&& i : da)
+    {
+        os << i << " ";
+    }
+    return os;
+}
+
+
 enum class Lattice { sc, bcc, fcc };
 enum class Specie { Ion, Electron };
 
@@ -257,13 +268,13 @@ inline bool ionIon(Specie& a, Specie& b)
 
 inline double modclap(double a, double m)
 {
-    if (a < 0) return modclap(a + m, m);
+    if (a < 0.0) return modclap(a + m, m);
     return std::fmod(a, m);
 }
 
 
 template<typename T>
-std::valarray<T> modclap(std::valarray<T> a, std::valarray<T> m)
+std::valarray<T> modclap(const std::valarray<T>& a, const std::valarray<T>& m)
 {
     std::valarray<T> mod;
     mod.resize(a.size());

@@ -26,3 +26,4 @@ data: main
 
 debug: FLAGS = -g3
 debug: main
+	mv main profile

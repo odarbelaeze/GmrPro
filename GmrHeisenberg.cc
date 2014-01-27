@@ -54,21 +54,25 @@ void GmrHeisenberg::__init__()
 
 double GmrHeisenberg::interactionEnergyIon_(int i, darray spin, darray pos) const
 {
-    ddarray ionDots = ddarray(spins_[ionNbs_[i]]) * spin;
-    ddarray eleDots = ddarray(spins_[electronNbs_[i]]) * spin;
-    // darray ionDists = distance(ddarray(positions_[ionNbs_[i]]), pos, dims_);
-    darray eleDists = distance(ddarray(positions_[electronNbs_[i]]), pos, dims_);
-
     double energy = 0.0;
 
-    for (int j = 0; j < ionNbs_[i].size(); ++j)
+    int j;
+    double dot;
+    double dist;
+
+    for (int _j = 0; _j < ionNbs_[i].size(); ++_j)
     {
-        energy -= it_.ii * ionDots[j].sum();
+        j = ionNbs_[i][_j];
+        dot = (spins_[i] * spins_[j]).sum();
+        energy -= it_.ii * dot;
     }
 
-    for (int j = 0; j < electronNbs_[i].size(); ++j)
+    for (int _j = 0; _j < electronNbs_[i].size(); ++_j)
     {
-        energy -= it_.ei * eleDots[j].sum() * std::exp( - eleDists[j]);
+        j = ionNbs_[i][_j];
+        dot = (spins_[i] * spins_[j]).sum();
+        dist = distance(positions_[i], positions_[j], dims_);
+        energy -= it_.ei * dot * std::exp( - dist);
     }
 
     return energy;
@@ -77,24 +81,26 @@ double GmrHeisenberg::interactionEnergyIon_(int i, darray spin, darray pos) cons
 
 double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos) const
 {
-    ddarray ionDots = ddarray(spins_[ionNbs_[i]]) * spin;
-    ddarray eleDots = ddarray(spins_[electronNbs_[i]]) * spin;
-    // darray ionDists = distance(ddarray(positions_[ionNbs_[i]]), pos, dims_);
-    darray eleDists = distance(ddarray(positions_[electronNbs_[i]]), pos, dims_);
-
     double energy = 0.0;
 
-    for (int j = 0; j < ionNbs_[i].size(); ++j)
+    int j;
+    double dot;
+    double dist;
+
+    for (int _j = 0; _j < ionNbs_[i].size(); ++_j)
     {
-        // energy += std::exp(1.0 / (it_.pauli * norm(ionDists[j])));
-        energy -= it_.ei * ionDots[j].sum();
+        j = ionNbs_[i][_j];
+        dot = (spins_[i] * spins_[j]).sum();
+        energy -= it_.ei * dot;
     }
 
-    for (int j = 0; j < electronNbs_[i].size(); ++j)
+    for (int _j = 0; _j < electronNbs_[i].size(); ++_j)
     {
-        // energy += std::exp(1.0 / (it_.pauli * norm(eleDists[j])));
-        if(eleDists[j] <= it_.eeCutOff / 2.0) energy += it_.eePauli;
-        energy -= it_.ee * eleDots[j].sum() * std::exp( - eleDists[j]);
+        j = ionNbs_[i][_j];
+        dot = (spins_[i] * spins_[j]).sum();
+        dist = distance(positions_[i], positions_[j], dims_);
+        if(dist <= it_.eeCutOff / 2.0) energy += it_.eePauli;
+        energy -= it_.ee * dot * std::exp( - dist);
     }
 
     return energy;
@@ -227,14 +233,12 @@ darray GmrHeisenberg::magnetization() const
 
 void GmrHeisenberg::updateNbh()
 {
-    std::vector<int> inbs;
-    std::vector<int> enbs;
     double d;
 
     for (int i = 0; i < st_.particleCount(); ++i)
     {
-        inbs.clear();
-        enbs.clear();
+        ionNbs_[i].clear();
+        electronNbs_[i].clear();
         for (int j = 0; j < st_.particleCount(); ++j)
         {
             if (i != j)
@@ -242,25 +246,19 @@ void GmrHeisenberg::updateNbh()
                 d = distance(positions_[i], positions_[j], dims_);
                 if (electronElectron(species_[i], species_[j]) && d <= it_.eeCutOff)
                 {
-                    enbs.push_back(j);
+                    electronNbs_[i].push_back(j);
                 }
                 if (electronIon(species_[i], species_[j]) && d <= it_.eiCutOff)
                 {
-                    if (species_[j] == Specie::Electron) enbs.push_back(j);
-                    if (species_[j] == Specie::Ion) inbs.push_back(j);
+                    if (species_[j] == Specie::Electron) electronNbs_[i].push_back(j);
+                    if (species_[j] == Specie::Ion) ionNbs_[i].push_back(j);
                 }
                 if (ionIon(species_[i], species_[j]) && d <= it_.iiCutOff)
                 {
-                    inbs.push_back(j);
+                    ionNbs_[i].push_back(j);
                 }
             }
         }
-
-        ionNbs_[i].resize(inbs.size());
-        std::copy(begin(inbs), end(inbs), begin(ionNbs_[i]));
-        
-        electronNbs_[i].resize(enbs.size());
-        std::copy(begin(enbs), end(enbs), begin(electronNbs_[i]));
     }
 }
 
@@ -290,7 +288,7 @@ std::vector<DynamicEvent> GmrHeisenberg::dynamicStep()
             events.push_back(event);
             positions_[id] = modclap(
                 newPosition, 
-                darray{(double) st_.w, (double) st_.l, (double) st_.h}
+                dims_
                 );
         }
     }

@@ -39,8 +39,8 @@ protected:
     ddarray spins_;
     darray dims_;
 
-    std::valarray<std::valarray<size_t> > ionNbs_;
-    std::valarray<std::valarray<size_t> > electronNbs_;
+    std::vector<std::vector<size_t> > ionNbs_;
+    std::vector<std::vector<size_t> > electronNbs_;
 
     std::mt19937_64 engine_;
     std::uniform_real_distribution<> real_;
