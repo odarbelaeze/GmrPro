@@ -69,7 +69,7 @@ double GmrHeisenberg::interactionEnergyIon_(int i, darray spin, darray pos) cons
 
     for (int _j = 0; _j < electronNbs_[i].size(); ++_j)
     {
-        j = ionNbs_[i][_j];
+        j = electronNbs_[i][_j];
         dot = (spins_[i] * spins_[j]).sum();
         dist = distance(positions_[i], positions_[j], dims_);
         energy -= it_.ei * dot * std::exp( - dist);
@@ -96,7 +96,7 @@ double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos)
 
     for (int _j = 0; _j < electronNbs_[i].size(); ++_j)
     {
-        j = ionNbs_[i][_j];
+        j = electronNbs_[i][_j];
         dot = (spins_[i] * spins_[j]).sum();
         dist = distance(positions_[i], positions_[j], dims_);
         if(dist <= it_.eeCutOff / 2.0) energy += it_.eePauli;
@@ -333,7 +333,7 @@ std::ostream& operator << (std::ostream& os, GmrHeisenberg& gmr)
     {
         os << gmr.positions_[i] << " " << gmr.spins_[i] << " "
            << (gmr.species_[i] == Specie::Ion ? "Ion" : "Electron") << " "
-           << gmr.ionNbs_[i] << " " << gmr.electronNbs_[i]
+           << gmr.ionNbs_[i].size() << " " << gmr.electronNbs_[i].size()
            << std::endl;
     }
     return os;

@@ -18,19 +18,11 @@ inline double norm(const darray& da)
 
 inline darray min(const darray& a, const darray& b)
 {
-    darray minval(std::max(a.size(), b.size()));
+    darray minval(a.size());
 
     for (int i = 0; i < minval.size(); ++i)
     {
-        if ((a.size() > i) && (b.size() > i)) 
-        {
-            minval[i] = std::min(a[i], b[i]);
-        }
-        else
-        {
-            if (!(a.size() < i)) minval[i] = b[i];
-            if (!(b.size() < i)) minval[i] = a[i];
-        }
+        minval[i] = std::fmin(a[i], b[i]);
     }
 
     return minval;
@@ -45,7 +37,7 @@ inline double distance(const darray& da, const darray& db)
 
 inline double distance(const darray& da, const darray& db, const darray& dims)
 {
-    return norm(min(db - da, dims - (db - da)));
+    return norm(min(std::abs(db - da), dims - std::abs(db - da)));
 }
 
 
