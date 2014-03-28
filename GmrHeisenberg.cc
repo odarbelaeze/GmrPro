@@ -91,7 +91,8 @@ double GmrHeisenberg::interactionEnergyElectron_(int i, darray spin, darray pos)
     {
         j = ionNbs_[i][_j];
         dot = (spins_[i] * spins_[j]).sum();
-        energy -= it_.ei * dot;
+        dist = distance(positions_[i], positions_[j], dims_);
+        energy -= it_.ei * dot * std::exp( - dist);
     }
 
     for (int _j = 0; _j < electronNbs_[i].size(); ++_j)
@@ -309,7 +310,7 @@ std::vector<ThermalEvent> GmrHeisenberg::thermalStep()
     for (int i = 0; i < st_.particleCount(); ++i)
     {
         id = particles_.pop();
-        newSpin = perturbedSpin(spins_[id]);
+        newSpin = randomSpin();
         delta = deltaEnergyThermal_(id, newSpin);
 
         if (real_(engine_) < std::exp( - delta / et_ -> temperature))
