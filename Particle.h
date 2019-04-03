@@ -4,11 +4,18 @@
 #include <valarray>
 #include <vector>
 
+#include "Helpers.h"
+
 namespace Gmr
 {
-    typedef std::valarray<double> darray;
     enum class Spin { Up, Down };
     enum class Specie { Ion, Electron };
+
+    int operator* (const Spin&, const Spin&);
+    double operator* (const Spin&, const double);
+    double operator* (const double, const Spin&);
+    Spin operator- (const Spin&);
+    int delta(const Spin&, const Spin&);
 
     class Particle
     {
@@ -22,41 +29,23 @@ namespace Gmr
         double getCharge() const;
         Specie getSpecie () const;
         std::vector<Particle*> getNbh () const;
+        std::vector<Particle*> getNnbh () const;
 
         void setPosition (const darray&);
         void setSpin (const Spin&);
         void setCharge(double);
         void setSpecie (const Specie&);
         void setNbh (const std::vector<Particle*>&);
+        void setNnbh (const std::vector<Particle*>&);
 
     private:
         darray position_;
         Spin spin_;
         double charge_;
         Specie specie_;
+        std::vector<Particle*> nnbh_;
         std::vector<Particle*> nbh_;
     };
-
-    int operator* (const Spin&, const Spin&);
-    Spin operator- (const Spin&);
-
-
-    template <typename T>
-    darray fmod(const darray& da, std::initializer_list<T> dim_list)
-    {
-        if (da.size() != dim_list.size())
-            throw std::exception();
-
-        darray answer(da.size());
-        for (int i = 0; i < dim_list.size(); ++i)
-        {
-            answer[i] = std::fmod(da[i], (double)(*(dim_list.begin() + i)));
-            if (answer[i] < 0) answer[i] = answer[i] + (double)(*(dim_list.begin() + i));
-        }
-        
-        return answer;
-    }
-
 }
 
 #endif

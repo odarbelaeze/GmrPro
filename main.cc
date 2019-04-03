@@ -1,30 +1,23 @@
-#include "GmrPro.h"
+#include <iomanip>
+#include <iostream>
 
-template<typename T>
-std::ostream& operator<< (std::ostream& os, std::valarray<T> vr)
-{
-    for (auto&& i : vr)
-        os << i << " ";
-
-    return os;
-}
+#include "DynamicStats.h"
+#include "System.h"
 
 std::ostream& operator<< (std::ostream& os, Gmr::Spin spin)
 {
     os << (spin == Gmr::Spin::Up? "Up" : "Down");
     return os;
-}
+};
 
 
 int main(int argc, char const *argv[])
 {
-    std::initializer_list<int> dim_list({ 5, 5, 5 });
-    std::mt19937_64 engine;
+    Gmr::System system({ 5, 5, 5 });
 
-    Gmr::particles_t particles;
-    Gmr::insertParticles (particles, Gmr::Specie::Ion, Gmr::Lattice::sc, dim_list);
-    Gmr::insertParticles (particles, Gmr::Specie::Electron, 125, dim_list);
-    Gmr::updateNeighbors(particles, 1.0);
+    system.insertParticles (Gmr::Specie::Ion, Gmr::Lattice::sc);
+    system.insertParticles (Gmr::Specie::Electron, 125);
+    system.updateNeighbors(1.0, 1.0);
 
     std::map<std::string, Gmr::Accumulator> acumulators;
     acumulators["magnetization"] = Gmr::Accumulator();
@@ -32,32 +25,50 @@ int main(int argc, char const *argv[])
 
     std::cout << std::setprecision(5) << std::fixed;
 
-    double thermalEnergy = 30.0;
+    double thermalEnergy = 12.0;
+    
     while (thermalEnergy > 0)
     {
-        int mcs = 100;
+        int mcs = 1000;
+        Gmr::DynamicStats statistics(5, 4.0, 1.0);
+
         for (auto&& acumulator : acumulators)
             acumulator.second.reset();
 
-        if (mcs % 10 == 0)
-            Gmr::updateNeighbors(particles, 1.0);
-
         for (int i = 0; i < mcs; ++i)
         {
-            mcThermalStep(particles, Gmr::contribution, engine, thermalEnergy);
-            mcDynamicStep (particles, dim_list, {Gmr::Specie::Electron}, 
-                           Gmr::electricContribution, engine, thermalEnergy);
+            for(int j = 0; j < 10; j++)
+                system.mcThermalStep(thermalEnergy);
+            for(int j = 0; j < 10; j++) 
+                system.mcDynamicStep ({Gmr::Specie::Electron}, thermalEnergy, statistics);
+            
+            system.updateNeighbors(1.0, 1.0);
 
-            acumulators["energy"] += energy(particles);
-            acumulators["magnetization"] += magnetization(particles);
+            acumulators["energy"] += system.energy();
+            acumulators["magnetization"] += system.magnetization();
         }
+
         std::cout  << std::setw(20) << thermalEnergy 
                    << std::setw(20) << acumulators["energy"].mean()
                    << std::setw(20) << acumulators["energy"].stddev()
                    << std::setw(20) << acumulators["magnetization"].mean()
                    << std::setw(20) << acumulators["magnetization"].stddev()
+                   << std::setw(20) << statistics.mean(Gmr::Stat::wall)
+                   << std::setw(20) << statistics.stddev(Gmr::Stat::wall)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::tau)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::tau)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::nu)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::nu)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::distance)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::distance)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::dx)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::dx)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::dy)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::dy)
+                   // << std::setw(20) << statistics.mean(Gmr::Stat::dz)
+                   // << std::setw(20) << statistics.stddev(Gmr::Stat::dz)
                    << std::endl;
-        thermalEnergy -= 0.2;
+        thermalEnergy -= 0.05;
     }
 
     return 0;
